@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 cd "$ROOT"
 
 for skill in skills/*; do
@@ -9,7 +9,7 @@ for skill in skills/*; do
 done
 
 node -e "JSON.parse(require('fs').readFileSync('skills/review-technical-design/templates/suggestion.schema.json', 'utf8'))"
-node evals/validate_eval_fixtures.mjs
+node internal/evals/src/validate_eval_fixtures.mjs
 
 required=(
   "docs/design/technical-design-handoff-contract.md"
@@ -40,12 +40,12 @@ if ! grep -qF "Planner Handoff Summary" methodologies/ddd/templates/technical-de
   exit 1
 fi
 
-if ! grep -qF "Required handoff data" evals/planning/design-to-planning-input.example.md; then
+if ! grep -qF "Required handoff data" internal/evals/fixtures/planning/design-to-planning-input.example.md; then
   echo "planning fixture must distinguish required handoff data" >&2
   exit 1
 fi
 
-if ! grep -qF "Methodology-specific detail" evals/planning/design-to-planning-input.example.md; then
+if ! grep -qF "Methodology-specific detail" internal/evals/fixtures/planning/design-to-planning-input.example.md; then
   echo "planning fixture must distinguish methodology-specific detail" >&2
   exit 1
 fi
@@ -68,7 +68,12 @@ for path in "${author_handoff_artifacts[@]}"; do
 done
 
 private_name_pattern='path''way|on''class|on-''class'
-if grep -RIEi --exclude-dir=.git --exclude-dir=node_modules "$private_name_pattern" .; then
+if grep -RIEi \
+  --exclude-dir=.git \
+  --exclude-dir=node_modules \
+  --exclude-dir=results \
+  --exclude-dir=.pnpm-store \
+  "$private_name_pattern" .; then
   echo "private application repository name leaked into public docs" >&2
   exit 1
 fi

@@ -6,4 +6,8 @@ dist/
 .env
 .codex/
 .claude/
-evals/enforce/.dependency-cruiser.js
+internal/evals/fixtures/enforce/.dependency-cruiser.js
+internal/evals/fixtures/enforce/.dependency-cruiser.cjs
+internal/evals/results/**
+!internal/evals/results/
+!internal/evals/results/README.md

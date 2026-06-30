@@ -5,7 +5,8 @@ import { execFileSync } from "node:child_process";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-const repoRoot = path.resolve(import.meta.dirname, "..", "..");
+const packageRoot = path.resolve(import.meta.dirname, "..");
+const repoRoot = path.resolve(packageRoot, "../..");
 const tempDirs = [];
 
 const readJson = (filePath) => JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -22,10 +23,6 @@ const createFixtureRepo = () => {
 
   for (const relativePath of [
     "docs/design/lessons-ledger.md",
-    "evals/ddd",
-    "evals/schemas",
-    "evals/review/expected-suggestions.json",
-    "evals/validate_eval_fixtures.mjs",
     "methodologies/ddd/review-rubric.md",
   ]) {
     fs.cpSync(
@@ -37,9 +34,25 @@ const createFixtureRepo = () => {
     );
   }
 
+  for (const relativePath of [
+    "fixtures/ddd",
+    "schemas",
+    "fixtures/review/expected-suggestions.json",
+    "src/validate_eval_fixtures.mjs",
+    "src/lib",
+  ]) {
+    fs.cpSync(
+      path.join(packageRoot, relativePath),
+      path.join(tempDir, "internal/evals", relativePath),
+      {
+        recursive: true,
+      },
+    );
+  }
+
   fs.symlinkSync(
-    path.join(repoRoot, "node_modules"),
-    path.join(tempDir, "node_modules"),
+    path.join(packageRoot, "node_modules"),
+    path.join(tempDir, "internal/evals/node_modules"),
   );
 
   return tempDir;
@@ -47,11 +60,15 @@ const createFixtureRepo = () => {
 
 const runValidator = (cwd) => {
   try {
-    execFileSync(process.execPath, ["evals/validate_eval_fixtures.mjs"], {
-      cwd,
-      encoding: "utf8",
-      stdio: "pipe",
-    });
+    execFileSync(
+      process.execPath,
+      ["internal/evals/src/validate_eval_fixtures.mjs"],
+      {
+        cwd,
+        encoding: "utf8",
+        stdio: "pipe",
+      },
+    );
     return { ok: true, stdout: "", stderr: "" };
   } catch (error) {
     return {
@@ -73,7 +90,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const manifestPath = path.join(
       fixtureRepo,
-      "evals/ddd/defect-manifest.json",
+      "internal/evals/fixtures/ddd/defect-manifest.json",
     );
     const manifest = readJson(manifestPath);
 
@@ -93,7 +110,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedSuggestionsPath = path.join(
       fixtureRepo,
-      "evals/review/expected-suggestions.json",
+      "internal/evals/fixtures/review/expected-suggestions.json",
     );
     const suggestions = readJson(expectedSuggestionsPath);
 
@@ -111,7 +128,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedSuggestionsPath = path.join(
       fixtureRepo,
-      "evals/review/expected-suggestions.json",
+      "internal/evals/fixtures/review/expected-suggestions.json",
     );
     const suggestions = readJson(expectedSuggestionsPath);
 
@@ -129,7 +146,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedSuggestionsPath = path.join(
       fixtureRepo,
-      "evals/review/expected-suggestions.json",
+      "internal/evals/fixtures/review/expected-suggestions.json",
     );
     const suggestions = readJson(expectedSuggestionsPath);
 
@@ -147,7 +164,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedSuggestionsPath = path.join(
       fixtureRepo,
-      "evals/review/expected-suggestions.json",
+      "internal/evals/fixtures/review/expected-suggestions.json",
     );
     const suggestions = readJson(expectedSuggestionsPath);
 
@@ -161,11 +178,11 @@ describe("validate_eval_fixtures", () => {
     );
   });
 
-  it("fails when a defect fixture path escapes evals/ddd", () => {
+  it("fails when a defect fixture path escapes fixtures/ddd", () => {
     const fixtureRepo = createFixtureRepo();
     const manifestPath = path.join(
       fixtureRepo,
-      "evals/ddd/defect-manifest.json",
+      "internal/evals/fixtures/ddd/defect-manifest.json",
     );
     const manifest = readJson(manifestPath);
 
@@ -175,7 +192,7 @@ describe("validate_eval_fixtures", () => {
     const result = runValidator(fixtureRepo);
     expect(result.ok).toBe(false);
     expect(result.stderr).toContain(
-      "../review/expected-suggestions.json escapes evals/ddd",
+      "../review/expected-suggestions.json escapes fixtures/ddd",
     );
   });
 });

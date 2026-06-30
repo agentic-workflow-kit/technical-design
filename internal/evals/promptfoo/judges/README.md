@@ -11,7 +11,7 @@ signals. They must never override deterministic schema, source-fact, or enforcem
   support.
 - Record model, provider, rubric version, case id, and randomized pairwise order in the result
   manifest.
-- Keep judge outputs under ignored `evals/results/<run-id>/` unless a human reviewer promotes a
+- Keep judge outputs under ignored `internal/evals/results/<run-id>/` unless a human reviewer promotes a
   redacted summary.
 
 ## Files

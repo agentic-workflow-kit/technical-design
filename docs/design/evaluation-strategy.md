@@ -2,7 +2,7 @@
 
 This document defines how `technical-design` should be evaluated as a design-stage skills pack. It
 is a design target, not a claim that every harness exists today. The current repository already has
-static checks and enforceability fixtures under `evals/`; this strategy describes how those checks
+static checks and enforceability fixtures under `internal/evals/`; this strategy describes how those checks
 grow into a layered evaluation system for design quality.
 
 ## Goal
@@ -68,8 +68,8 @@ Layer 1 protects contracts that are cheap to verify:
 - generated enforcement rules require seeded violations;
 - no-boundary CRUD cases pass honestly with empty enforcement.
 
-This layer is the natural extension of the current `evals/run_static_checks.sh` and
-`evals/enforce/run_evals.sh` gates.
+This layer is the natural extension of the current `internal/evals/src/run_static_checks.sh` and
+`internal/evals/src/run_enforce_eval.sh` gates.
 
 ### Layer 2 - Skill Fixtures
 
@@ -87,12 +87,12 @@ Layer 2 should prefer pass/fail expectations over prose quality scores.
 
 Implemented first slice:
 
-- `evals/review/expected-suggestions.json` stores complete expected review suggestions and is
+- `internal/evals/fixtures/review/expected-suggestions.json` stores complete expected review suggestions and is
   validated against the review suggestion schema.
-- `evals/ddd/defect-manifest.json` declares the initial deterministic DDD defect classes, their
+- `internal/evals/fixtures/ddd/defect-manifest.json` declares the initial deterministic DDD defect classes, their
   expected catching surface, lesson reference, and exact review-rubric evidence. The manifest may
   grow as future Layer 3 classes move from target strategy to executable fixtures.
-- `evals/validate_eval_fixtures.mjs` runs inside the static check gate so malformed fixture
+- `internal/evals/src/validate_eval_fixtures.mjs` runs inside the static check gate so malformed fixture
   expectations fail `pnpm check`.
 
 ### Layer 3 - Defect Injection
@@ -137,7 +137,7 @@ flowchart LR
 Case inputs should include:
 
 ```text
-evals/cases/<case-id>/
+internal/evals/fixtures/cases/<case-id>/
   product.md
   source-map.md
   reference-design.md
@@ -150,7 +150,7 @@ evals/cases/<case-id>/
 Case outputs should include:
 
 ```text
-results/<case-id>/<run-id>/
+internal/evals/results/<run-id>/
   frame.md
   design.md
   review.md
@@ -345,7 +345,7 @@ useful for boundary and ownership comparison, but often need supplementary produ
 Case selection rules:
 
 - Source and reference material used by a case must be committed or snapshotted under
-  `evals/cases/<case-id>/`; evals must not depend on live external fetches.
+  `internal/evals/fixtures/cases/<case-id>/`; evals must not depend on live external fetches.
 - Case IDs and fixture names must stay generic even when source material came from a public project.
 - Each case should include provenance and license notes when source material is derived from a
   public artifact.
@@ -406,7 +406,6 @@ sequenceDiagram
 ## Open Decisions
 
 - Exact machine-readable schema for `expected-facts.json`.
-- Whether judge prompts live under `evals/` or `methodologies/<profile>/`.
 - Minimum agreement threshold between human labels and LLM-judge verdicts.
 - Whether periodic Layer 4 and Layer 5 runs should publish committed summaries or local-only
   evidence bundles.

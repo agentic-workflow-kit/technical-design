@@ -8,6 +8,10 @@ recorded in the result metadata with method, seed, original order, and candidate
 Inputs:
 
 - Case id: `{{case_id}}`
+- Model: `{{model}}`
+- Provider: `{{provider}}`
+- Prompt version: `{{prompt_version}}`
+- Rubric version: `{{rubric_version}}`
 - Product/source facts: `{{source_facts}}`
 - Expected facts and boundaries: `{{expected_facts}}`
 - Candidate A: `{{candidate_a}}`
@@ -15,6 +19,7 @@ Inputs:
 - Randomization method: `{{randomization_method}}`
 - Randomization seed: `{{randomization_seed}}`
 - Original candidate order: `{{original_order}}`
+- Candidate order: `{{candidate_order}}`
 
 ## Rubric
 
@@ -40,4 +45,4 @@ Use this rubric only after deterministic graders have passed.
 
 Choose which candidate is more source-grounded, implementation-ready, and enforceable.
 
-Return JSON matching `evals/schemas/pairwise-result.schema.json`.
+Return JSON matching `internal/evals/schemas/pairwise-result.schema.json`.

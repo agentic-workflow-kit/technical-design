@@ -48,7 +48,13 @@
       }
     },
     "run_type": {
-      "enum": ["deterministic", "model-graded"]
+      "enum": [
+        "deterministic",
+        "generation",
+        "judge",
+        "outcome",
+        "manual-report"
+      ]
     },
     "model_provider": {
       "type": "string"
@@ -57,6 +63,18 @@
       "type": "string"
     },
     "provider": {
+      "type": "string"
+    },
+    "reasoning_effort": {
+      "type": "string"
+    },
+    "sandbox_mode": {
+      "type": "string"
+    },
+    "approval_policy": {
+      "type": "string"
+    },
+    "codex_auth_mode": {
       "type": "string"
     },
     "rubric_version": {
@@ -112,7 +130,7 @@
       "if": {
         "properties": {
           "run_type": {
-            "const": "model-graded"
+            "enum": ["generation", "judge"]
           }
         },
         "required": ["run_type"]
@@ -121,17 +139,24 @@
         "properties": {
           "model": true,
           "provider": true,
-          "rubric_version": true,
           "prompt_version": true,
+          "rubric_version": true,
           "randomization": true
         },
-        "required": [
-          "model",
-          "provider",
-          "rubric_version",
-          "prompt_version",
-          "randomization"
-        ]
+        "required": ["model", "provider", "prompt_version"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "run_type": {
+            "const": "judge"
+          }
+        },
+        "required": ["run_type"]
+      },
+      "then": {
+        "required": ["rubric_version", "randomization"]
       }
     }
   ]

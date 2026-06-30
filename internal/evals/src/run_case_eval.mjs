@@ -1,42 +1,17 @@
 #!/usr/bin/env node
-import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import Ajv2020 from "ajv/dist/2020.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const root = path.resolve(path.dirname(__filename), "..");
-
-const readJson = (relativePath) =>
-  JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
-
-const writeJson = (filePath, value) => {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
-};
-
-const parseArgs = (argv) => {
-  const args = {};
-  for (let index = 0; index < argv.length; index += 1) {
-    const arg = argv[index];
-    if (arg === "--") {
-      continue;
-    }
-    if (!arg.startsWith("--")) {
-      continue;
-    }
-    args[arg.slice(2)] = argv[index + 1];
-    index += 1;
-  }
-  return args;
-};
-
-const usage = () => {
-  console.error(
-    "usage: node evals/run_case_eval.mjs --case <case-id> --candidate <path> [--run-id <id>]",
-  );
-};
+import { defaultRunId, parseArgs, requireArg } from "./lib/args.mjs";
+import { validateJsonWithSchema, writeJson } from "./lib/json.mjs";
+import { commandString, gitCommit, toolVersions } from "./lib/metadata.mjs";
+import {
+  relativeToPackage,
+  relativeToRepo,
+  resolveCaseDir,
+  resolveRepoInputPath,
+  resolveRunDir,
+} from "./lib/paths.mjs";
 
 const normalize = (value) =>
   String(value ?? "")
@@ -49,27 +24,6 @@ const includesAny = (text, snippets = []) =>
 
 const includesAll = (text, snippets = []) =>
   snippets.every((snippet) => normalize(text).includes(normalize(snippet)));
-
-const containsPath = (basePath, childPath) => {
-  const relativePath = path.relative(basePath, childPath);
-  return (
-    relativePath === "" ||
-    (!relativePath.startsWith("..") && !path.isAbsolute(relativePath))
-  );
-};
-
-const validateJson = (schemaRelativePath, data, label) => {
-  const ajv = new Ajv2020({ allErrors: true, strict: true });
-  const schema = readJson(schemaRelativePath);
-  const validate = ajv.compile(schema);
-  if (validate(data)) {
-    return;
-  }
-  const details = (validate.errors ?? [])
-    .map((error) => `${error.instancePath || "<root>"} ${error.message}`)
-    .join("; ");
-  throw new Error(`${label} failed schema validation: ${details}`);
-};
 
 const gradeFacts = (candidateText, expectedFacts) =>
   expectedFacts.facts.map((fact) => {
@@ -155,35 +109,24 @@ const verdictForFindings = (findings) => {
 
 const main = () => {
   const args = parseArgs(process.argv.slice(2));
-  if (!args.case || !args.candidate) {
-    usage();
-    process.exit(2);
-  }
-
-  const caseId = args.case;
-  const caseDir = path.join(root, "evals/cases", caseId);
-  const candidatePath = path.resolve(root, args.candidate);
-  const runId =
-    args["run-id"] ?? new Date().toISOString().replace(/[:.]/g, "-");
-  const resultsRoot = path.join(root, "evals/results");
-  const resultDir = path.resolve(resultsRoot, runId);
-  if (!containsPath(resultsRoot, resultDir)) {
-    throw new Error(`run id escapes evals/results: ${runId}`);
-  }
+  const caseId = requireArg(args, "case");
+  const candidatePath = resolveRepoInputPath(
+    requireArg(args, "candidate"),
+    "candidate path",
+  );
+  const runId = args["run-id"] ?? defaultRunId("deterministic");
+  const caseDir = resolveCaseDir(caseId);
+  const resultDir = resolveRunDir(runId);
   const caseResultDir = path.join(resultDir, "cases", caseId);
 
-  const expectedFacts = readJson(`evals/cases/${caseId}/expected-facts.json`);
-  const expectedBoundaries = readJson(
-    `evals/cases/${caseId}/expected-boundaries.json`,
-  );
-  validateJson(
-    "evals/schemas/expected-facts.schema.json",
-    expectedFacts,
+  const expectedFacts = validateJsonWithSchema(
+    "expected-facts.schema.json",
+    JSON.parse(fs.readFileSync(path.join(caseDir, "expected-facts.json"))),
     "expected facts",
   );
-  validateJson(
-    "evals/schemas/expected-boundaries.schema.json",
-    expectedBoundaries,
+  const expectedBoundaries = validateJsonWithSchema(
+    "expected-boundaries.schema.json",
+    JSON.parse(fs.readFileSync(path.join(caseDir, "expected-boundaries.json"))),
     "expected boundaries",
   );
 
@@ -192,44 +135,42 @@ const main = () => {
     ...gradeFacts(candidateText, expectedFacts),
     ...gradeBoundaries(candidateText, expectedBoundaries),
   ];
-  const grades = {
-    case_id: caseId,
-    verdict: verdictForFindings(findings),
-    findings,
-  };
-  validateJson("evals/schemas/grades.schema.json", grades, "grades");
-
-  const manifest = {
-    run_id: runId,
-    git_commit: execFileSync("git", ["rev-parse", "HEAD"], {
-      cwd: root,
-      encoding: "utf8",
-    }).trim(),
-    command: process.argv.join(" "),
-    case_ids: [caseId],
-    tool_versions: {
-      node: process.version,
+  const grades = validateJsonWithSchema(
+    "grades.schema.json",
+    {
+      case_id: caseId,
+      verdict: verdictForFindings(findings),
+      findings,
     },
-    run_type: "deterministic",
-    output_files: [
-      "manifest.json",
-      "grades.json",
-      "report.md",
-      `cases/${caseId}/candidate.md`,
-      `cases/${caseId}/grader-output.json`,
-    ],
-  };
-  validateJson(
-    "evals/schemas/results-manifest.schema.json",
-    manifest,
-    "manifest",
+    "grades",
   );
 
   fs.mkdirSync(caseResultDir, { recursive: true });
-  writeJson(path.join(resultDir, "manifest.json"), manifest);
-  writeJson(path.join(resultDir, "grades.json"), grades);
   fs.copyFileSync(candidatePath, path.join(caseResultDir, "candidate.md"));
   writeJson(path.join(caseResultDir, "grader-output.json"), { findings });
+  writeJson(path.join(resultDir, "grades.json"), grades);
+
+  const outputFiles = [
+    "manifest.json",
+    "grades.json",
+    "report.md",
+    `cases/${caseId}/candidate.md`,
+    `cases/${caseId}/grader-output.json`,
+  ];
+  const manifest = validateJsonWithSchema(
+    "results-manifest.schema.json",
+    {
+      run_id: runId,
+      git_commit: gitCommit(),
+      command: commandString(),
+      case_ids: [caseId],
+      tool_versions: toolVersions(),
+      run_type: "deterministic",
+      output_files: outputFiles,
+    },
+    "manifest",
+  );
+  writeJson(path.join(resultDir, "manifest.json"), manifest);
 
   const blockerCount = findings.filter((finding) =>
     ["missing", "contradicted", "invented"].includes(finding.verdict),
@@ -249,11 +190,12 @@ const main = () => {
           `- ${finding.id} (${finding.kind}, ${finding.severity}): ${finding.verdict} - ${finding.evidence}`,
       ),
       "",
-      `Case directory: ${path.relative(root, caseDir)}`,
+      `Case directory: ${relativeToRepo(caseDir)}`,
+      `Candidate: ${relativeToRepo(candidatePath)}`,
     ].join("\n"),
   );
 
-  console.log(`Wrote eval results to ${path.relative(root, resultDir)}`);
+  console.log(`Wrote eval results to ${relativeToPackage(resultDir)}`);
   if (grades.verdict === "red") {
     process.exit(1);
   }

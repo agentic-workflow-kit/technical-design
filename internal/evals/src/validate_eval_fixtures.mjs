@@ -4,17 +4,42 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { packageRoot, repoRoot } from "./lib/paths.mjs";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const root = path.resolve(__dirname, "..");
+const localPackageRoot = path.resolve(__dirname, "..");
+
+if (localPackageRoot !== packageRoot) {
+  throw new Error(
+    "eval package path helper resolved an unexpected package root",
+  );
+}
 
 const failures = [];
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 
-const relative = (absolutePath) => path.relative(root, absolutePath);
+const repoRelativeRoots = new Set([
+  "docs",
+  "methodologies",
+  "scripts",
+  "skills",
+]);
+
+const resolveRelativePath = (relativePath) => {
+  if (path.isAbsolute(relativePath)) {
+    return relativePath;
+  }
+  const rootName = String(relativePath).split(/[\\/]/)[0];
+  const base = repoRelativeRoots.has(rootName) ? repoRoot : packageRoot;
+  return path.resolve(base, relativePath);
+};
+
+const relative = (absolutePath) =>
+  path.relative(repoRoot, absolutePath).split(path.sep).join("/");
 
 const readText = (relativePath) => {
-  const absolutePath = path.resolve(root, relativePath);
+  const absolutePath = resolveRelativePath(relativePath);
   try {
     return fs.readFileSync(absolutePath, "utf8");
   } catch (error) {
@@ -43,7 +68,7 @@ const assert = (condition, message) => {
 };
 
 const asPath = (baseRelativePath, childRelativePath) => {
-  const base = path.resolve(root, baseRelativePath);
+  const base = resolveRelativePath(baseRelativePath);
   const resolved = path.resolve(base, childRelativePath);
   assert(
     resolved === base || resolved.startsWith(`${base}${path.sep}`),
@@ -116,19 +141,19 @@ const validateNoBlankStrings = (value, label, options = {}) => {
 };
 
 const reviewSuggestionSchema = readJson(
-  "evals/schemas/review-suggestion.schema.json",
+  "schemas/review-suggestion.schema.json",
 );
 const expectedSuggestionsSchema = readJson(
-  "evals/schemas/expected-suggestions.schema.json",
+  "schemas/expected-suggestions.schema.json",
 );
 const expectedDefectSuggestionSchema = readJson(
-  "evals/schemas/expected-defect-suggestion.schema.json",
+  "schemas/expected-defect-suggestion.schema.json",
 );
-const defectManifestSchema = readJson(
-  "evals/schemas/defect-manifest.schema.json",
+const defectManifestSchema = readJson("schemas/defect-manifest.schema.json");
+const expectedSuggestions = readJson(
+  "fixtures/review/expected-suggestions.json",
 );
-const expectedSuggestions = readJson("evals/review/expected-suggestions.json");
-const defectManifest = readJson("evals/ddd/defect-manifest.json");
+const defectManifest = readJson("fixtures/ddd/defect-manifest.json");
 const lessonsLedger = readText("docs/design/lessons-ledger.md");
 const dddReviewRubric = readText("methodologies/ddd/review-rubric.md");
 
@@ -308,7 +333,7 @@ const validateDefectManifest = () => {
 
   for (const [index, defect] of defectManifest.defects.entries()) {
     const label = `defect-manifest.defects[${index}]`;
-    const fixturePath = asPath("evals/ddd", defect.file);
+    const fixturePath = asPath("fixtures/ddd", defect.file);
 
     assert(
       fs.existsSync(fixturePath),
@@ -363,7 +388,7 @@ const validateDefectManifest = () => {
 };
 
 const validateJsonSchemaFiles = () => {
-  const schemasDir = path.join(root, "evals/schemas");
+  const schemasDir = path.join(packageRoot, "schemas");
   if (!fs.existsSync(schemasDir)) {
     return;
   }
@@ -373,23 +398,23 @@ const validateJsonSchemaFiles = () => {
       .filter((fileName) => fileName.endsWith(".schema.json")),
   )) {
     compileSchema(
-      readJson(path.join("evals/schemas", schemaFile)),
-      `evals/schemas/${schemaFile}`,
+      readJson(path.join("schemas", schemaFile)),
+      `schemas/${schemaFile}`,
     );
   }
 };
 
 const validateCaseFixtures = () => {
-  const casesDir = path.join(root, "evals/cases");
+  const casesDir = path.join(packageRoot, "fixtures/cases");
   if (!fs.existsSync(casesDir)) {
     return;
   }
   const expectedFactsShape = compileSchema(
-    readJson("evals/schemas/expected-facts.schema.json"),
+    readJson("schemas/expected-facts.schema.json"),
     "expected facts",
   );
   const expectedBoundariesShape = compileSchema(
-    readJson("evals/schemas/expected-boundaries.schema.json"),
+    readJson("schemas/expected-boundaries.schema.json"),
     "expected boundaries",
   );
   for (const caseId of sorted(
@@ -408,51 +433,51 @@ const validateCaseFixtures = () => {
       "grader-notes.md",
       "provenance.md",
     ]) {
-      const fixturePath = path.join("evals/cases", caseId, fileName);
+      const fixturePath = path.join("fixtures/cases", caseId, fileName);
       assert(
-        fs.existsSync(path.join(root, fixturePath)),
+        fs.existsSync(path.join(packageRoot, fixturePath)),
         `${fixturePath} is required`,
       );
     }
 
     const expectedFacts = readJson(
-      path.join("evals/cases", caseId, "expected-facts.json"),
+      path.join("fixtures/cases", caseId, "expected-facts.json"),
     );
     const expectedBoundaries = readJson(
-      path.join("evals/cases", caseId, "expected-boundaries.json"),
+      path.join("fixtures/cases", caseId, "expected-boundaries.json"),
     );
     if (expectedFactsShape) {
       recordAjvErrors(
-        `evals/cases/${caseId}/expected-facts.json`,
+        `fixtures/cases/${caseId}/expected-facts.json`,
         expectedFactsShape,
         expectedFacts,
       );
     }
     if (expectedBoundariesShape) {
       recordAjvErrors(
-        `evals/cases/${caseId}/expected-boundaries.json`,
+        `fixtures/cases/${caseId}/expected-boundaries.json`,
         expectedBoundariesShape,
         expectedBoundaries,
       );
     }
     assert(
       expectedFacts?.case_id === caseId,
-      `evals/cases/${caseId}/expected-facts.json case_id must match ${caseId}`,
+      `fixtures/cases/${caseId}/expected-facts.json case_id must match ${caseId}`,
     );
     assert(
       expectedBoundaries?.case_id === caseId,
-      `evals/cases/${caseId}/expected-boundaries.json case_id must match ${caseId}`,
+      `fixtures/cases/${caseId}/expected-boundaries.json case_id must match ${caseId}`,
     );
   }
 };
 
 const validateOutcomeTemplates = () => {
-  const templatePath = "evals/outcomes/outcome-study-template.json";
-  if (!fs.existsSync(path.join(root, templatePath))) {
+  const templatePath = "fixtures/outcomes/outcome-study-template.json";
+  if (!fs.existsSync(path.join(packageRoot, templatePath))) {
     return;
   }
   const outcomeStudyShape = compileSchema(
-    readJson("evals/schemas/outcome-study.schema.json"),
+    readJson("schemas/outcome-study.schema.json"),
     "outcome study",
   );
   if (outcomeStudyShape) {

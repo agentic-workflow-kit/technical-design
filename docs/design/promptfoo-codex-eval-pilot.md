@@ -89,7 +89,7 @@ This keeps the value of Promptfoo intact:
 - The Codex App Server provider owns model execution through `codex app-server`, local Codex auth,
   Codex metadata, and token/runtime reporting.
 - Repo scripts only prepare run-local fixtures, call Promptfoo with concrete configs, validate
-  generated artifacts with existing schemas, and write reports under `evals/results/**`.
+  generated artifacts with existing schemas, and write reports under `internal/evals/results/**`.
 
 This design follows the docs for these reasons:
 

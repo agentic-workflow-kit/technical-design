@@ -1,0 +1,27 @@
+{
+  "name": "@agentic-workflow-kit/technical-design-evals",
+  "version": "0.0.0",
+  "description": "Internal deterministic and manual eval harness for the technical-design skills pack.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:deterministic": "pnpm check:skills && pnpm eval:unit && pnpm eval:enforce",
+    "check:skills": "bash src/run_static_checks.sh",
+    "eval:unit": "vitest run tests",
+    "test": "vitest run tests",
+    "eval:case": "node src/run_case_eval.mjs",
+    "eval:enforce": "bash src/run_enforce_eval.sh",
+    "eval:generate": "node src/run_generate_eval.mjs",
+    "eval:judge": "node src/run_judge_eval.mjs",
+    "eval:outcome": "node src/run_outcome_eval.mjs",
+    "eval:manual-report": "node src/run_manual_report.mjs"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "dependency-cruiser": "^18.0.0",
+    "promptfoo": "^0.121.17",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.4"
+  }
+}

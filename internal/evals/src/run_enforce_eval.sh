@@ -5,13 +5,17 @@
 # no boundaries. cwd-independent; uses the pinned local dependency-cruiser with an
 # explicit --config (no npx, no config auto-discovery).
 set -uo pipefail
-cd "$(dirname "$0")"
 
-GEN="../../skills/enforce-architecture/scripts/generate_depcruise.mjs"
-DEPCRUISE="./node_modules/.bin/depcruise"
+REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+PACKAGE_ROOT="$REPO_ROOT/internal/evals"
+FIXTURE_ROOT="$PACKAGE_ROOT/fixtures/enforce"
+cd "$FIXTURE_ROOT"
+
+GEN="$REPO_ROOT/skills/enforce-architecture/scripts/generate_depcruise.mjs"
+DEPCRUISE="$PACKAGE_ROOT/node_modules/.bin/depcruise"
 
 if [ ! -x "$DEPCRUISE" ]; then
-  echo "error: $DEPCRUISE not found - run 'pnpm install --frozen-lockfile' in $(pwd)" >&2
+  echo "error: $DEPCRUISE not found - run 'pnpm install --frozen-lockfile' in $REPO_ROOT" >&2
   exit 2
 fi
 
@@ -20,8 +24,8 @@ run_case() {
   # $1 name, $2 layer-map, $3 expected outcome (fail|pass)
   local name="$1" map="$2" expect="$3" code
   echo "=== $name (expect: $expect) ==="
-  node "$GEN" "$map" --output .dependency-cruiser.js
-  "$DEPCRUISE" --config .dependency-cruiser.js src
+  node "$GEN" "$map" --output .dependency-cruiser.cjs
+  "$DEPCRUISE" --config .dependency-cruiser.cjs src
   code=$?
   if { [ "$expect" = fail ] && [ "$code" -ne 0 ]; } || { [ "$expect" = pass ] && [ "$code" -eq 0 ]; }; then
     echo "OK: $name behaved as expected (exit=$code)"
