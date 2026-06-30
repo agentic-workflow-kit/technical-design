@@ -11,9 +11,9 @@ reading source artifacts and current implementation surfaces before asking quest
 ## References
 
 - Active methodology profile: `../../methodologies/ddd/README.md`
-- DDD depth ladder: `../../docs/altitude-ladder.md`
+- DDD depth ladder: `../../docs/design/altitude-ladder.md`
 - Problem frame template: `templates/problem-frame.md`
-- Lessons ledger: `../../docs/lessons-ledger.md`
+- Lessons ledger: `../../docs/design/lessons-ledger.md`
 
 ## Step 0 - Show the flow
 

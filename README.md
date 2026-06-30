@@ -12,7 +12,7 @@ such as aggregates, value objects, and domain events are added only when behavio
 them.
 
 > **Status:** Built and ready for local use. The DDD-first production hardening is encoded in
-> `methodologies/`, `docs/lessons-ledger.md`, the skill templates, and the eval fixtures.
+> `methodologies/`, `docs/design/lessons-ledger.md`, the skill templates, and the eval fixtures.
 
 ---
 
@@ -66,6 +66,15 @@ suggestions; I will dispose, you record.
 # hands-off
 Use orchestrate-technical-design from <brief>; stop after <frame | author | review | enforce>.
 ```
+
+## Documentation
+
+- [`docs/product/`](docs/product/) - what this is, where it sits in the suite, and when to use it.
+- [`docs/design/`](docs/design/) - methodology mechanics, profile contract, formats, and the
+  lessons ledger.
+
+Source lives in [`skills/`](skills/), [`methodologies/`](methodologies/), [`evals/`](evals/), and
+[`scripts/`](scripts/).
 
 ## Methodology model
 

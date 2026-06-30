@@ -13,8 +13,8 @@ at each stage.
 ## References
 
 - Active methodology profile: `../../methodologies/ddd/README.md`
-- Methodology profile contract: `../../docs/methodology-profile-contract.md`
-- Lessons ledger: `../../docs/lessons-ledger.md`
+- Methodology profile contract: `../../docs/design/methodology-profile-contract.md`
+- Lessons ledger: `../../docs/design/lessons-ledger.md`
 
 ## Flow
 

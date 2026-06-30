@@ -16,7 +16,7 @@ never edits. They become design changes only after the user disposes them and th
 - `proposed_fix` - concrete fix, not automatically applied.
 - `rationale` - why it matters.
 - `gate_ref` - rubric, gate, enforcement rule, or standing check that should catch recurrence.
-- `lesson_ref` - `LSN-###` from `docs/lessons-ledger.md`, or `none`.
+- `lesson_ref` - `LSN-###` from `docs/design/lessons-ledger.md`, or `none`.
 - `status` - starts as `open`.
 - `decision_ref` - empty until the user disposes the suggestion.
 

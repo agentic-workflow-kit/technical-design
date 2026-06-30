@@ -13,7 +13,7 @@ update mode and recorded in `decisions.md`.
 
 - Active DDD profile: `../../methodologies/ddd/README.md`
 - DDD review rubric: `../../methodologies/ddd/review-rubric.md`
-- Lessons ledger: `../../docs/lessons-ledger.md`
+- Lessons ledger: `../../docs/design/lessons-ledger.md`
 - Suggestion schema: `templates/suggestion.schema.json`
 - Report template: `templates/review-report.md`
 
@@ -62,7 +62,7 @@ Required fields include:
 - `lens`: `architecture-enforceability` or `domain-correctness`;
 - `evidence`: design section, source artifact, or code surface;
 - `gate_ref`: rubric, gate, enforcement rule, or standing check that should catch recurrence;
-- `lesson_ref`: lesson id from `docs/lessons-ledger.md` when applicable;
+- `lesson_ref`: lesson id from `docs/design/lessons-ledger.md` when applicable;
 - `decision_ref`: empty until user disposition.
 
 Always populate over-engineering and under-engineering flags, even when empty.

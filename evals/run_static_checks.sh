@@ -18,7 +18,7 @@ required=(
   "methodologies/ddd/review-rubric.md"
   "methodologies/ddd/enforcement-rules.md"
   "methodologies/ddd/eval-expectations.md"
-  "docs/lessons-ledger.md"
+  "docs/design/lessons-ledger.md"
 )
 
 for path in "${required[@]}"; do

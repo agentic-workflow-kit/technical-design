@@ -42,5 +42,5 @@ Every suggestion must include:
 - `lens`: `architecture-enforceability` or `domain-correctness`.
 - `evidence`: design section, source artifact, or source surface that supports the finding.
 - `gate_ref`: the gate, rubric item, or enforcement rule that would catch recurrence.
-- `lesson_ref`: a lesson id when the finding maps to `docs/lessons-ledger.md`.
+- `lesson_ref`: a lesson id when the finding maps to `docs/design/lessons-ledger.md`.
 - `decision_ref`: blank until the user disposes the suggestion.

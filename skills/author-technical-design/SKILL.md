@@ -16,7 +16,7 @@ implementer invent domain scope.
 - Bounded context template: `../../methodologies/ddd/templates/bounded-context.md`
 - Enforcement map template: `../../methodologies/ddd/templates/enforcement-map.md`
 - Decision format: `templates/decisions.md`
-- Lessons ledger: `../../docs/lessons-ledger.md`
+- Lessons ledger: `../../docs/design/lessons-ledger.md`
 
 ## Step 1 - Ingest context
 
