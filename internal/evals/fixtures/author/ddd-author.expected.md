@@ -18,6 +18,8 @@ provider webhook, idempotency invariant, and fulfillment integration.
   API/surface, failure, observability, enforcement, delivery, sequencing, file-contention,
   validation, and stop-condition IDs.
 - Includes source and context audit.
+- Includes input sufficiency and ownership resolution for required product inputs, with missing
+  ownership decisions captured as safe assumptions, user-approved decisions, or blocking questions.
 - Includes bounded context owns/reads/does-not-own.
 - Includes ubiquitous language.
 - Includes invariant matrix with source operands.

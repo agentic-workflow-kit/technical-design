@@ -25,7 +25,34 @@ Read `problem-frame.md`, the user brief/PRD/design notes, and any source artifac
 Do not ask questions already answered by those sources. Preserve the frame's blockers and safe
 assumptions.
 
-## Step 2 - Select DDD depth
+## Step 2 - Resolve required inputs
+
+Before drafting, classify input sufficiency for every product or idea input that can change context
+ownership, boundaries, invariants, public APIs, lifecycle authority, data ownership, enforcement, or
+delivery slicing.
+
+Use an `Input Sufficiency and Ownership Resolution` checklist in the Source and Context Audit or
+Assumptions and Blockers section. Classify each required product input as one of:
+
+- `provided` - explicit source evidence exists.
+- `safe assumption` - the source leaves a gap, but only one narrow choice is viable; cite the source
+  evidence and risk.
+- `requires approval` - more than one plausible choice would change ownership, boundaries, invariant
+  authority, API scope, lifecycle transitions, or delivery slicing.
+- `blocked` - the design cannot responsibly proceed until the user or source owner answers.
+
+The required product inputs include: product goal/non-goals; producer-owned facts, data, and behavior;
+context owns/reads/does-not-own; invariant operands and owning authority; lifecycle states and
+transition authority; public APIs, ports, events, and commands; failure tokens and recovery
+authority; consistency, concurrency, and idempotency needs; observability; enforcement gates; and
+delivery stop conditions.
+
+If a required input is missing, do not invent a confident owner or boundary. Either record a
+source-backed safe assumption, or ask the user for approval before drafting that decision. If the user
+is not available, preserve it under `Blocking Questions` and keep the affected `CTX-*`, `INV-*`,
+`SURF-*`, `FAIL-*`, `ENF-*`, `DEL-*`, or `STOP-*` fact out of the ready-for-planning contract.
+
+## Step 3 - Select DDD depth
 
 Use the frame's initial `ddd_depth`, then confirm it against the evidence:
 
@@ -36,7 +63,7 @@ Use the frame's initial `ddd_depth`, then confirm it against the evidence:
 
 Record why the chosen depth is sufficient and where deeper tactical ceremony is intentionally omitted.
 
-## Step 3 - Draft the design
+## Step 4 - Draft the design
 
 Use the DDD template. The design must include:
 
@@ -59,15 +86,17 @@ Use the DDD template. The design must include:
     and stop conditions.
 14. Risks and deferred decisions.
 
-## Step 4 - Seed decisions log
+## Step 5 - Seed decisions log
 
 Create `decisions.md` from `templates/decisions.md` if it does not exist. If the design already has a
 decision log, append only; do not rewrite history.
 
-## Step 5 - Self-review gate
+## Step 6 - Self-review gate
 
 Before finalizing, check:
 
+- Required input gaps are resolved as source-backed safe assumptions, user-approved decisions,
+  or explicit Blocking Questions; the design must not invent ownership from missing input.
 - Every context has owns/reads/does-not-own.
 - Every invariant names concrete operands or states that come from declared sources.
 - Every failure token, state, event, or public field has one owner.

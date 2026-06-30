@@ -32,6 +32,21 @@
       }
     },
     {
+      "id": "unresolved-required-input",
+      "file": "unresolved-required-input.md",
+      "required_class": "Required product input resolved without safe assumption, blocker, or approval",
+      "catching_surface": "review-rubric",
+      "rubric_evidence": "A design assigns context ownership, lifecycle authority, public API scope, or invariant authority from missing product inputs without a safe assumption, blocking question, or accepted user decision.",
+      "required_fix": "ask the user or record a blocking question before assigning ownership for missing required inputs",
+      "expected_suggestion": {
+        "severity": "blocking",
+        "lens": "domain-correctness",
+        "dimension": "source-map",
+        "lesson_ref": "LSN-011",
+        "gate_ref": "DDD review rubric: A design assigns context ownership, lifecycle authority, public API scope, or invariant authority from missing product inputs without a safe assumption, blocking question, or accepted user decision."
+      }
+    },
+    {
       "id": "public-api-exposure-gap",
       "file": "public-api-exposure-gap.md",
       "required_class": "Public API promised but not exposed",

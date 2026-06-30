@@ -31,6 +31,7 @@ Blocking findings:
 - A consumer invents a failure token, state, event type, or field that no producer owns.
 - A lifecycle transition is allowed without a source of authority for the prior state.
 - A cross-context decision blurs ownership instead of routing through a port, event, or explicit API.
+- A design assigns context ownership, lifecycle authority, public API scope, or invariant authority from missing product inputs without a safe assumption, blocking question, or accepted user decision.
 
 Recommended findings:
 

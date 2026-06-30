@@ -156,6 +156,7 @@ const expectedSuggestions = readJson(
 const defectManifest = readJson("fixtures/ddd/defect-manifest.json");
 const lessonsLedger = readText("docs/design/lessons-ledger.md");
 const dddReviewRubric = readText("methodologies/ddd/review-rubric.md");
+const authorSkill = readText("skills/author-technical-design/SKILL.md");
 
 const lessonIds = extractLessonIds(lessonsLedger);
 
@@ -296,6 +297,7 @@ const validateDefectManifest = () => {
   const initialDefectIds = [
     "invented-failure-token",
     "missing-context-ownership",
+    "unresolved-required-input",
     "public-api-exposure-gap",
     "unsourced-invariant-operand",
     "vacuous-enforcement",
@@ -383,6 +385,26 @@ const validateDefectManifest = () => {
     assert(
       rubricSeverity === defect.expected_suggestion.severity,
       `${label}.expected_suggestion.severity must match ${defect.expected_suggestion.gate_ref} (${rubricSeverity || "unknown rubric severity"})`,
+    );
+  }
+};
+
+const validateAuthorSkillInputResolution = () => {
+  assert(
+    authorSkill.includes("## Step 2 - Resolve required inputs"),
+    "author skill must include required input resolution step",
+  );
+  for (const marker of [
+    "Input Sufficiency and Ownership Resolution",
+    "required product inputs",
+    "safe assumption",
+    "ask the user",
+    "Blocking Questions",
+    "must not invent",
+  ]) {
+    assert(
+      authorSkill.includes(marker),
+      `author skill required input resolution must mention "${marker}"`,
     );
   }
 };
@@ -487,6 +509,7 @@ const validateOutcomeTemplates = () => {
 
 validateExpectedSuggestions();
 validateDefectManifest();
+validateAuthorSkillInputResolution();
 validateJsonSchemaFiles();
 validateCaseFixtures();
 validateOutcomeTemplates();

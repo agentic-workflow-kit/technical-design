@@ -24,6 +24,7 @@ const createFixtureRepo = () => {
   for (const relativePath of [
     "docs/design/lessons-ledger.md",
     "methodologies/ddd/review-rubric.md",
+    "skills/author-technical-design/SKILL.md",
   ]) {
     fs.cpSync(
       path.join(repoRoot, relativePath),
@@ -193,6 +194,26 @@ describe("validate_eval_fixtures", () => {
     expect(result.ok).toBe(false);
     expect(result.stderr).toContain(
       "../review/expected-suggestions.json escapes fixtures/ddd",
+    );
+  });
+
+  it("fails when the author skill omits required input resolution", () => {
+    const fixtureRepo = createFixtureRepo();
+    const skillPath = path.join(
+      fixtureRepo,
+      "skills/author-technical-design/SKILL.md",
+    );
+    const skillText = fs.readFileSync(skillPath, "utf8");
+
+    fs.writeFileSync(
+      skillPath,
+      skillText.replace("## Step 2 - Resolve required inputs", "## Step 2"),
+    );
+
+    const result = runValidator(fixtureRepo);
+    expect(result.ok).toBe(false);
+    expect(result.stderr).toContain(
+      "author skill must include required input resolution step",
     );
   });
 });
