@@ -2,6 +2,9 @@
 
 This directory contains fixtures and checks for the DDD-first `technical-design` pack.
 
+The layered design-quality strategy lives in
+[`docs/design/evaluation-strategy.md`](../docs/design/evaluation-strategy.md).
+
 ## Structure
 
 - `frame/` - expected source-grounded problem-frame behavior.
