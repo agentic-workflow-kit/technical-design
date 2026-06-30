@@ -19,6 +19,7 @@
   "scripts": {
     "dev:setup": "bash scripts/dev-setup.sh",
     "worktree:new": "bash scripts/worktree-new.sh",
+    "worktree:clean": "bash scripts/worktree-clean.sh",
     "format": "prettier --write \"**/*.{json,js,mjs,ts,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{json,js,mjs,ts,yml,yaml}\"",
     "lint": "pnpm format:check",
