@@ -1,26 +1,50 @@
 [
   {
     "id": "S-001",
+    "title": "Seed the enforcement rule",
     "severity": "blocking",
     "lens": "architecture-enforceability",
     "dimension": "enforceability",
     "location": "Testing and Enforcement",
-    "lesson_ref": "LSN-005"
+    "evidence": "The Testing and Enforcement section declares a domain-to-infrastructure forbidden rule without seededViolation metadata.",
+    "finding": "The enforcement claim can pass vacuously because the design does not name a seed or standing command that proves the rule fails.",
+    "proposed_fix": "Add seededViolation metadata to the forbidden rule and cite the architecture gate that proves the seed fails.",
+    "rationale": "Negative architecture claims rot unless the gate is proven against an intentional violation.",
+    "gate_ref": "DDD review rubric: An enforcement rule has no seeded violation or standing gate.",
+    "lesson_ref": "LSN-005",
+    "status": "open",
+    "decision_ref": ""
   },
   {
     "id": "S-002",
+    "title": "Source both invariant operands",
     "severity": "blocking",
     "lens": "domain-correctness",
     "dimension": "invariant",
     "location": "Invariant and State Matrix",
-    "lesson_ref": "LSN-007"
+    "evidence": "The invariant says approved amount matches order, but Source operands names only approvedAmount.",
+    "finding": "The design omits the source for the order amount operand, so implementers cannot tell where the comparison value is owned.",
+    "proposed_fix": "Name both operands as declared fields, events, projections, or resolver outputs.",
+    "rationale": "Relational predicates are not checkable unless each operand has a source and owner.",
+    "gate_ref": "DDD review rubric: A relational predicate names only one operand or uses a category instead of declared fields/events.",
+    "lesson_ref": "LSN-007",
+    "status": "open",
+    "decision_ref": ""
   },
   {
     "id": "S-003",
-    "severity": "recommended",
+    "title": "Name the public port surface",
+    "severity": "blocking",
     "lens": "architecture-enforceability",
     "dimension": "public-api",
     "location": "Ports, Adapters, and Public API",
-    "lesson_ref": "LSN-004"
+    "evidence": "The design says PaymentGatewayPort is public without naming an export path, import surface, or proof.",
+    "finding": "Consumers may import an internal module path because the public exposure surface is only promised in prose.",
+    "proposed_fix": "Name the public export or package surface and add an import proof or manual exposure checklist.",
+    "rationale": "A public API is not durable unless the design names how downstream code reaches it.",
+    "gate_ref": "DDD review rubric: A public API is promised in prose but no public export/import surface or import test is named.",
+    "lesson_ref": "LSN-004",
+    "status": "open",
+    "decision_ref": ""
   }
 ]

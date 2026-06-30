@@ -9,6 +9,6 @@ surface or an import test. The only path shown is an internal module path.
 
 - `lens`: `architecture-enforceability`
 - `dimension`: `public-api`
-- `severity`: `recommended`
+- `severity`: `blocking`
 - `lesson_ref`: `LSN-004`
 - Required fix: name the public surface and add an import proof or manual exposure checklist.

@@ -14,6 +14,8 @@ the recurring lessons that shape the gates. For *what & why*, see [`../product/`
 - [`altitude-ladder.md`](altitude-ladder.md) — DDD depth ladder (strategic-only → tactical).
 - [`reference.md`](reference.md) — DDD-first reference heuristics (guarding vs validating, closure,
   exposure-as-evidence, enforcement-needs-a-seed).
+- [`evaluation-strategy.md`](evaluation-strategy.md) — layered grading strategy for design-quality
+  evals, LLM judges, calibration, and downstream outcome checks.
 - [`when-not-to-use-ddd.md`](../product/when-not-to-use-ddd.md) — fit guidance (lives under product).
 
 ## Contracts and formats
