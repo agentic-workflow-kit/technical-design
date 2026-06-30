@@ -3,6 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { defaultRunId, parseArgs, requireArg } from "./lib/args.mjs";
+import {
+  gradeBoundaries,
+  gradeFacts,
+  verdictForFindings,
+} from "./lib/case_grader.mjs";
 import { validateJsonWithSchema, writeJson } from "./lib/json.mjs";
 import { commandString, gitCommit, toolVersions } from "./lib/metadata.mjs";
 import {
@@ -12,100 +17,6 @@ import {
   resolveRepoInputPath,
   resolveRunDir,
 } from "./lib/paths.mjs";
-
-const normalize = (value) =>
-  String(value ?? "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
-
-const includesAny = (text, snippets = []) =>
-  snippets.some((snippet) => normalize(text).includes(normalize(snippet)));
-
-const includesAll = (text, snippets = []) =>
-  snippets.every((snippet) => normalize(text).includes(normalize(snippet)));
-
-const gradeFacts = (candidateText, expectedFacts) =>
-  expectedFacts.facts.map((fact) => {
-    const forbiddenHit = includesAny(
-      candidateText,
-      fact.must_not_include_any ?? [],
-    );
-    const anyRequired = fact.must_include_any ?? [];
-    const allRequired = fact.must_include_all ?? [];
-    const requiredHit =
-      (anyRequired.length === 0 || includesAny(candidateText, anyRequired)) &&
-      includesAll(candidateText, allRequired);
-    let verdict = "covered";
-    let evidence = "required text evidence found";
-    if (forbiddenHit) {
-      verdict = "contradicted";
-      evidence = "forbidden text evidence found";
-    } else if (!requiredHit) {
-      verdict = "missing";
-      evidence = "no required text evidence found";
-    }
-    return {
-      id: fact.id,
-      kind: "fact",
-      severity: fact.severity,
-      verdict,
-      evidence,
-    };
-  });
-
-const gradeBoundaries = (candidateText, expectedBoundaries) =>
-  expectedBoundaries.contexts.map((context) => {
-    const forbiddenHit = includesAny(
-      candidateText,
-      context.must_not_include_any ?? [],
-    );
-    const anyRequired = context.must_include_any ?? [];
-    const allRequired = context.must_include_all ?? [
-      context.name,
-      ...context.owns,
-    ];
-    const requiredHit =
-      (anyRequired.length === 0 || includesAny(candidateText, anyRequired)) &&
-      includesAll(candidateText, allRequired);
-    return {
-      id: context.id,
-      kind: "boundary",
-      severity: "critical",
-      verdict: forbiddenHit
-        ? "contradicted"
-        : requiredHit
-          ? "covered"
-          : "missing",
-      evidence: forbiddenHit
-        ? "forbidden boundary text evidence found"
-        : requiredHit
-          ? "context ownership text evidence found"
-          : "no context ownership text evidence found",
-    };
-  });
-
-const verdictForFindings = (findings) => {
-  if (
-    findings.some(
-      (finding) =>
-        finding.severity === "critical" &&
-        ["missing", "contradicted", "invented"].includes(finding.verdict),
-    )
-  ) {
-    return "red";
-  }
-  if (
-    findings.some((finding) =>
-      ["missing", "contradicted", "invented", "unknown"].includes(
-        finding.verdict,
-      ),
-    )
-  ) {
-    return "yellow";
-  }
-  return "green";
-};
 
 const main = () => {
   const args = parseArgs(process.argv.slice(2));

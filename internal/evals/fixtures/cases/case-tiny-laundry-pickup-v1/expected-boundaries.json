@@ -9,7 +9,16 @@
       "reads": [],
       "does_not_own": ["scheduling conflict logic"],
       "must_include_all": ["Identity owns verified resident", "access checks"],
-      "must_not_include_any": ["Identity owns scheduling conflict"]
+      "must_not_include_any": ["Identity owns scheduling conflict"],
+      "accepted_alternatives": [
+        {
+          "label": "Resident Eligibility owns verified-resident eligibility",
+          "must_include_all": [
+            "Resident Eligibility",
+            "owns the verified-resident fact"
+          ]
+        }
+      ]
     },
     {
       "id": "CTX-002",
@@ -23,7 +32,17 @@
       "reads": [],
       "does_not_own": ["booking lifecycle"],
       "must_include_all": ["Catalog owns appliance", "maintenance hold"],
-      "must_not_include_any": ["Catalog owns booking lifecycle"]
+      "must_not_include_any": ["Catalog owns booking lifecycle"],
+      "accepted_alternatives": [
+        {
+          "label": "Appliance Availability owns appliance and hold facts",
+          "must_include_all": [
+            "Appliance Availability",
+            "owns appliance identity",
+            "maintenance-hold facts"
+          ]
+        }
+      ]
     },
     {
       "id": "CTX-003",
@@ -41,7 +60,18 @@
         "overlap detection",
         "cancellation rules"
       ],
-      "must_not_include_any": ["Scheduling owns verified resident record"]
+      "must_not_include_any": ["Scheduling owns verified resident record"],
+      "accepted_alternatives": [
+        {
+          "label": "Booking Scheduling owns lifecycle and scheduling invariants",
+          "must_include_all": [
+            "Booking Scheduling",
+            "owns booking lifecycle",
+            "active-booking invariants",
+            "cancellation cutoff"
+          ]
+        }
+      ]
     },
     {
       "id": "CTX-004",
@@ -51,7 +81,17 @@
       "reads": ["booking lifecycle events"],
       "does_not_own": ["booking state transitions"],
       "must_include_all": ["Notifications owns outbound", "lifecycle messages"],
-      "must_not_include_any": ["Notifications owns booking state transitions"]
+      "must_not_include_any": ["Notifications owns booking state transitions"],
+      "accepted_alternatives": [
+        {
+          "label": "Notification Delivery owns lifecycle notification delivery",
+          "must_include_all": [
+            "Notification Delivery",
+            "owns delivery of lifecycle notifications",
+            "does not own booking state transitions"
+          ]
+        }
+      ]
     }
   ]
 }

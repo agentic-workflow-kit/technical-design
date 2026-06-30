@@ -22,6 +22,7 @@ fixtures/cases/<case-id>/
 - Source facts must appear in `product.md` or `source-map.md`.
 - `reference-design.md` is a comparison anchor, not the only valid answer.
 - `expected-facts.json` and `expected-boundaries.json` must cite source IDs.
+- Boundary fixtures may declare `accepted_alternatives` for source-equivalent ownership evidence.
 - Deterministic checks should grade explicit facts, boundaries, and contradictions, not prose style.
 - Generated outputs belong under ignored `internal/evals/results/<run-id>/`.
 - Do not add external text unless its license allows committed fixtures and `provenance.md` records it.
