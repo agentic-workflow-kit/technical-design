@@ -67,6 +67,20 @@ suggestions; I will dispose, you record.
 Use orchestrate-technical-design from <brief>; stop after <frame | author | review | enforce>.
 ```
 
+## Development
+
+This repo is a skills pack. The root package is private and exists to provide one contributor and CI
+gate; it does not publish the skills.
+
+```bash
+pnpm install --frozen-lockfile
+pnpm check
+```
+
+`pnpm check` runs formatting validation, skill/profile static checks, and the deterministic
+`enforce-architecture` dependency-cruiser evals. The eval package under `evals/enforce/` is managed
+by the root pnpm workspace.
+
 ## Documentation
 
 - [`docs/product/`](docs/product/) - what this is, where it sits in the suite, and when to use it.
