@@ -34,6 +34,8 @@ judge rubric, result bundle convention, and final reporting story.
 - Promptfoo owns the model-eval suite: prompts, providers, test variables, assertions, and exported
   result formats.
 - Codex owns local model execution through its app-server provider and existing local auth.
+- Eval logic lives in a private internal package, not beside the product skills and methodology
+  artifacts.
 - Deterministic graders stay authoritative for facts, boundaries, schemas, and generated-result
   structure.
 - The LLM judge is advisory until human calibration demonstrates acceptable false-pass and
@@ -106,9 +108,70 @@ This design follows the docs for these reasons:
 - Codex auth docs say local Codex can sign in with ChatGPT and cache credentials locally. The pilot
   should use that local Codex auth surface and never require or expose `OPENAI_API_KEY`.
 
+## Internal Package Boundary
+
+Create one private workspace package for all eval-specific assets and logic:
+
+```text
+internal/evals/
+  package.json
+  README.md
+  implementation-plan.md
+  src/
+  tests/
+  schemas/
+  fixtures/
+  promptfoo/
+  results/
+```
+
+Package name:
+
+```text
+@agentic-workflow-kit/technical-design-evals
+```
+
+This package is internal infrastructure for the `technical-design` repo. It must stay private and
+must not be treated as part of the product surface shipped to users. It is also the direct command
+surface for eval work; do not add root scripts for manual or model-graded eval commands.
+
+Move all eval-specific material into the package:
+
+- `evals/README.md` and `evals/implementation-plan.md` -> package docs.
+- `evals/run_case_eval.mjs`, `evals/validate_eval_fixtures.mjs`, and future runner scripts ->
+  `internal/evals/src/`.
+- `evals/tests/**` -> `internal/evals/tests/`.
+- `evals/schemas/**` -> `internal/evals/schemas/`.
+- `evals/cases/**`, `evals/review/**`, `evals/ddd/**`, `evals/frame/**`, `evals/author/**`, and
+  `evals/planning/**` -> `internal/evals/fixtures/`.
+- `evals/judges/**` -> `internal/evals/promptfoo/judges/`.
+- `evals/outcomes/**` -> `internal/evals/fixtures/outcomes/`.
+- `evals/results/**` -> `internal/evals/results/**`.
+- `evals/enforce/**` -> `internal/evals/fixtures/enforce/**`; remove the nested enforce workspace
+  package and let the internal eval package own `dependency-cruiser`.
+
+Root-level docs may still describe the evaluation strategy, because that strategy is part of how the
+product is designed and governed. Executable eval assets, fixture data, generated outputs, schemas,
+and eval-specific implementation docs belong in the internal package.
+
+The root package should stay small. It may keep `check` as the public deterministic repo gate, but
+manual eval commands should be run directly against the internal package:
+
+```text
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:case -- <args>
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:generate -- <args>
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:judge -- <args>
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:outcome -- <args>
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:manual-report -- <args>
+```
+
+The root `pnpm check` command remains the public repository gate. It should run formatting and the
+internal eval package's deterministic check, but it should not expose every eval workflow as a root
+script.
+
 ## Planned Suite Shape
 
-Add `promptfoo` as a development dependency and add manual scripts:
+Add `promptfoo` as a development dependency of the internal eval package and add manual scripts:
 
 - `eval:generate` - run the candidate-generation Promptfoo suite.
 - `eval:judge` - run the pairwise judge Promptfoo suite.
@@ -118,7 +181,7 @@ Add `promptfoo` as a development dependency and add manual scripts:
 
 Keep `pnpm check` deterministic-only.
 
-The suites should live under `evals/promptfoo/`:
+The suites should live under `internal/evals/promptfoo/`:
 
 - Generation suite:
   - Provider: `openai:codex-app-server`.
@@ -137,7 +200,7 @@ The suites should live under `evals/promptfoo/`:
   - Provider: `openai:codex-app-server`.
   - Model: `gpt-5.4`.
   - Reasoning effort: medium.
-  - Output schema: `evals/schemas/pairwise-result.schema.json`.
+  - Output schema: `internal/evals/schemas/pairwise-result.schema.json`.
   - Test variables: case id, source facts, expected facts and boundaries, generated candidate,
     reference anchor, candidate order, original order, randomization method, and seed.
   - Assertions: JSON output, schema-valid output, evidence present, model/provider/rubric/prompt
@@ -145,7 +208,7 @@ The suites should live under `evals/promptfoo/`:
 
 ## Result Flow
 
-Generated outputs stay under ignored `evals/results/<run-id>/`.
+Generated outputs stay under ignored `internal/evals/results/<run-id>/`.
 
 The generation command writes:
 
@@ -183,8 +246,8 @@ The final report command combines all run bundles and states:
 - Promptfoo, not shell wrappers, owns provider execution, assertions, and JSON/HTML result exports.
 - Candidate generation produces a non-empty Markdown design for `case-tiny-laundry-pickup-v1`.
 - The existing deterministic grader runs against the generated candidate.
-- The judge output validates against `evals/schemas/pairwise-result.schema.json`.
-- The final report is written under ignored `evals/results/**`.
+- The judge output validates against `internal/evals/schemas/pairwise-result.schema.json`.
+- The final report is written under ignored `internal/evals/results/**`.
 - Generated result files are not committed unless a human reviewer explicitly promotes a redacted
   summary.
 
