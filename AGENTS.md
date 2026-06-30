@@ -33,7 +33,9 @@ are stable; methodology-specific behavior lives under `methodologies/`.
   contract (templates, review rubric, enforcement map, examples, eval expectations).
 - **`main`-based:** branch from `main`, PR into it, green `check` required, review conversations
   resolved, squash-merge. Conventional commit subjects; no attribution footers. Worktrees for
-  non-trivial work are external siblings of this checkout — never nested inside it.
+  non-trivial work are external siblings of this checkout under `worktrees/technical-design/<branch>`
+  — never nested inside it. Use `pnpm worktree:new <branch>` to create one and
+  `pnpm worktree:clean <branch>` after merge.
 - **No emojis** anywhere. **Immutability.** Validate inputs and handle errors explicitly.
   Diagrams in Mermaid, inline. No hardcoded secrets; redact secrets, tokens, and PII; rotate any
   exposed secret.
