@@ -17,6 +17,14 @@
             "Resident Eligibility",
             "owns the verified-resident fact"
           ]
+        },
+        {
+          "label": "Resident Verification owns verification status",
+          "must_include_all": [
+            "Resident Verification",
+            "owns",
+            "Resident verification status and policy"
+          ]
         }
       ]
     },
@@ -40,6 +48,15 @@
             "Appliance Availability",
             "owns appliance identity",
             "maintenance-hold facts"
+          ]
+        },
+        {
+          "label": "Scheduling read surface with separate hold producer",
+          "must_include_all": [
+            "Booking Scheduling",
+            "owns appliance read surface",
+            "Maintenance Administration or Hold Producer",
+            "Creation and lifecycle of maintenance holds"
           ]
         }
       ]
@@ -70,6 +87,16 @@
             "active-booking invariants",
             "cancellation cutoff"
           ]
+        },
+        {
+          "label": "Booking Scheduling owns strict booking lifecycle rules",
+          "must_include_all": [
+            "Booking Scheduling",
+            "owns bookings",
+            "booking lifecycle",
+            "appliance occupancy decisions",
+            "cancellation cutoff enforcement"
+          ]
         }
       ]
     },
@@ -89,6 +116,14 @@
             "Notification Delivery",
             "owns delivery of lifecycle notifications",
             "does not own booking state transitions"
+          ]
+        },
+        {
+          "label": "Notification Delivery owns delivery mechanics outside booking authority",
+          "must_include_all": [
+            "Notification Delivery",
+            "Delivery of lifecycle notifications",
+            "Booking state authority"
           ]
         }
       ]
