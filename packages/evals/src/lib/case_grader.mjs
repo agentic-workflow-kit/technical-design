@@ -10,8 +10,13 @@ export const normalize = (value) =>
     .replace(/\s+/g, " ")
     .trim();
 
-const normalizedIncludes = (normalizedText, snippet) =>
-  normalizedText.includes(normalize(snippet));
+const normalizedIncludes = (normalizedText, snippet) => {
+  const normalizedSnippet = normalize(snippet);
+  if (!normalizedSnippet) {
+    return false;
+  }
+  return ` ${normalizedText} `.includes(` ${normalizedSnippet} `);
+};
 
 const findIncludedSnippet = (text, snippets = []) => {
   const normalizedText = normalize(text);
@@ -175,3 +180,10 @@ export const verdictForFindings = (findings) => {
   }
   return "green";
 };
+
+export const criticalBlockerCount = (findings) =>
+  findings.filter(
+    (finding) =>
+      finding.severity === "critical" &&
+      ["missing", "contradicted", "invented"].includes(finding.verdict),
+  ).length;

@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { defaultRunId, parseArgs, requireArg } from "./lib/args.mjs";
 import {
+  criticalBlockerCount,
   gradeBoundaries,
   gradeFacts,
   verdictForFindings,
@@ -83,9 +84,7 @@ const main = () => {
   );
   writeJson(path.join(resultDir, "manifest.json"), manifest);
 
-  const blockerCount = findings.filter((finding) =>
-    ["missing", "contradicted", "invented"].includes(finding.verdict),
-  ).length;
+  const blockerCount = criticalBlockerCount(findings);
   fs.writeFileSync(
     path.join(resultDir, "report.md"),
     [

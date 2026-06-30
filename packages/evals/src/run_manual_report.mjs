@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { parseArgs, requireArg } from "./lib/args.mjs";
+import { criticalBlockerCount } from "./lib/case_grader.mjs";
 import {
   readJson,
   readText,
@@ -337,9 +338,7 @@ const deterministicStatus = (bundle) => {
     return "not requested";
   }
   if (bundle.grades.status === "valid") {
-    const blockerCount = bundle.grades.value.findings.filter((finding) =>
-      ["missing", "contradicted", "invented"].includes(finding.verdict),
-    ).length;
+    const blockerCount = criticalBlockerCount(bundle.grades.value.findings);
     return `${bundle.grades.value.verdict} (${blockerCount} blocker findings)`;
   }
   if (bundle.grades.status === "invalid") {

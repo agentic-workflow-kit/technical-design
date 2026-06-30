@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { gradeFacts, normalize } from "../src/lib/case_grader.mjs";
+import {
+  criticalBlockerCount,
+  gradeFacts,
+  normalize,
+} from "../src/lib/case_grader.mjs";
 
 const expectedFacts = {
   case_id: "case-test",
@@ -129,5 +133,61 @@ describe("gradeFacts", () => {
       verdict: "contradicted",
       evidence: 'forbidden evidence hit: "uses 2PC"',
     });
+  });
+
+  it("does not match short snippets inside longer tokens", () => {
+    const findings = gradeFacts("Package metadata includes location.", {
+      case_id: "case-test",
+      facts: [
+        {
+          id: "FACT-ETA",
+          category: "workflow",
+          severity: "critical",
+          source_refs: ["SRC-001"],
+          description: "ETA must be explicit",
+          must_include_any: ["ETA"],
+        },
+      ],
+    });
+
+    expect(findings[0]).toMatchObject({
+      id: "FACT-ETA",
+      verdict: "missing",
+    });
+  });
+
+  it("matches short snippets as standalone tokens", () => {
+    const findings = gradeFacts("Users can track location and ETA.", {
+      case_id: "case-test",
+      facts: [
+        {
+          id: "FACT-ETA",
+          category: "workflow",
+          severity: "critical",
+          source_refs: ["SRC-001"],
+          description: "ETA must be explicit",
+          must_include_any: ["ETA"],
+        },
+      ],
+    });
+
+    expect(findings[0]).toMatchObject({
+      id: "FACT-ETA",
+      verdict: "covered",
+    });
+  });
+});
+
+describe("criticalBlockerCount", () => {
+  it("counts only critical blocking verdicts", () => {
+    expect(
+      criticalBlockerCount([
+        { severity: "recommended", verdict: "missing" },
+        { severity: "critical", verdict: "missing" },
+        { severity: "critical", verdict: "contradicted" },
+        { severity: "critical", verdict: "covered" },
+        { severity: "recommended", verdict: "invented" },
+      ]),
+    ).toBe(2);
   });
 });
