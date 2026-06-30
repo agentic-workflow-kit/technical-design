@@ -30,22 +30,22 @@ for path in "${required[@]}"; do
   fi
 done
 
-if ! rg -q "handoff_contract: technical-design-handoff-v0" methodologies/ddd/templates/technical-design.md; then
+if ! grep -qF "handoff_contract: technical-design-handoff-v0" methodologies/ddd/templates/technical-design.md; then
   echo "DDD technical-design template must expose the planner handoff contract frontmatter" >&2
   exit 1
 fi
 
-if ! rg -q "Planner Handoff Summary" methodologies/ddd/templates/technical-design.md; then
+if ! grep -qF "Planner Handoff Summary" methodologies/ddd/templates/technical-design.md; then
   echo "DDD technical-design template must include a Planner Handoff Summary" >&2
   exit 1
 fi
 
-if ! rg -q "Required handoff data" evals/planning/design-to-planning-input.example.md; then
+if ! grep -qF "Required handoff data" evals/planning/design-to-planning-input.example.md; then
   echo "planning fixture must distinguish required handoff data" >&2
   exit 1
 fi
 
-if ! rg -q "Methodology-specific detail" evals/planning/design-to-planning-input.example.md; then
+if ! grep -qF "Methodology-specific detail" evals/planning/design-to-planning-input.example.md; then
   echo "planning fixture must distinguish methodology-specific detail" >&2
   exit 1
 fi
@@ -57,18 +57,18 @@ author_handoff_artifacts=(
 )
 
 for path in "${author_handoff_artifacts[@]}"; do
-  if ! rg -q "handoff_contract: technical-design-handoff-v0" "$path"; then
+  if ! grep -qF "handoff_contract: technical-design-handoff-v0" "$path"; then
     echo "author artifact missing planner handoff frontmatter: $path" >&2
     exit 1
   fi
-  if ! rg -q "## 1\\. Planner Handoff Summary" "$path"; then
+  if ! grep -qF "## 1. Planner Handoff Summary" "$path"; then
     echo "author artifact missing Planner Handoff Summary: $path" >&2
     exit 1
   fi
 done
 
 private_name_pattern='path''way|on''class|on-''class'
-if rg -i "$private_name_pattern" . --glob '!evals/enforce/node_modules/**' --glob '!node_modules/**'; then
+if grep -RIEi --exclude-dir=.git --exclude-dir=node_modules "$private_name_pattern" .; then
   echo "private application repository name leaked into public docs" >&2
   exit 1
 fi
