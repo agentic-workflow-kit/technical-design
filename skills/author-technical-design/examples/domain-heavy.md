@@ -1,4 +1,6 @@
 ---
+design_id: payment-authorization
+handoff_contract: technical-design-handoff-v0
 methodology: ddd
 methodology_version: "1"
 design_status: settled
@@ -8,13 +10,65 @@ round: 2
 
 # Technical Design - Payment Authorization
 
-## 1. Source and Context Audit
+## 1. Planner Handoff Summary
+
+### Handoff Identity
+
+| Field | Value |
+|---|---|
+| Design ID | `payment-authorization` |
+| Handoff contract | `technical-design-handoff-v0` |
+| Design title | Payment Authorization |
+| Status | Settled, ready for planning |
+| Methodology profile | `ddd@1`, `tactical-ddd` depth |
+| Review round | 2 |
+
+### Source and Product References
+
+| ID | Type | Reference | Required for Planning | Notes |
+|---|---|---|---|---|
+| SRC-001 | brief | Payment authorization brief | Core workflow, gateway constraints, idempotency, and provider isolation requirements. | Example fixture source. |
+| SRC-002 | decision | `D-004` | Event sourcing is deferred until replay or audit requirements exceed gateway plus audit table history. | Deferred decision. |
+
+### Required Planning Facts
+
+| ID | Category | Required handoff data | Source refs |
+|---|---|---|---|
+| CTX-001 | Context and boundary | Payment Authorization owns authorization state, idempotency decisions, and failure tokens. It reads order total and customer payment method reference, and does not own order fulfillment or provider settlement. | SRC-001 |
+| INV-001 | Invariant and lifecycle | Payment attempts authorize only from pending state. Operands: `PaymentAttempt.status` and `AuthorizePayment` command. | SRC-001 |
+| INV-002 | Invariant and lifecycle | Idempotency key is single-writer. Operands: `command.idempotencyKey` and `stored attempt.idempotencyKey`. | SRC-001 |
+| SURF-001 | API and surface | `PaymentGatewayPort` isolates provider authorization behind a domain/application port with contract tests. | SRC-001 |
+| SURF-002 | API and surface | `PaymentAttemptRepository` is the persistence port; domain code must not import infrastructure adapters. | SRC-001 |
+| FAIL-001 | Failure | Gateway timeout, duplicate attempt, and invalid transition map to owned failure tokens including `payment-state-invalid` and `duplicate-payment-attempt`. | SRC-001 |
+| OBS-001 | Observability | Emit `payment_authorization_requested`, `payment_authorization_completed`, and `payment_authorization_failed`. | SRC-001 |
+| ENF-001 | Enforcement | Architecture rule `no-domain-to-infrastructure` includes a seeded violation at `src/domain/__architecture__/domain-imports-infrastructure.seed.ts`. | SRC-001 |
+| DEL-001 | Delivery planning | Story candidate: implement PaymentAttempt aggregate and owned failure tokens before adapters. Preserves `INV-001`, `INV-002`, and `FAIL-001`. | SRC-001 |
+| DEL-002 | Delivery planning | Story candidate: add gateway and repository ports plus contract tests. Preserves `SURF-001` and `SURF-002`. | SRC-001 |
+| DEL-003 | Delivery planning | Story candidate: add infrastructure adapters and architecture gate seed after domain ports exist. Preserves `ENF-001`. | SRC-001 |
+
+### Sequencing, Contention, Validation, and Stops
+
+| ID | Category | Required handoff data | Source refs |
+|---|---|---|---|
+| SEQ-001 | Sequencing and dependency | `DEL-001` must precede `DEL-002`; `DEL-002` must precede `DEL-003`. Do not parallelize adapter work before ports and aggregate tests land. | DEL-001, DEL-002, DEL-003 |
+| FILE-001 | File contention | Public domain index and architecture config are shared surfaces; serialize changes that touch exports or dependency rules. | ENF-001 |
+| VAL-001 | Validation | Expected evidence: aggregate unit tests, gateway port contract tests, `check:architecture`, and the seeded dependency violation failure. | INV-001, INV-002, SURF-001, ENF-001 |
+| STOP-001 | Stop condition | Stop if settlement or fulfillment behavior is pulled into this context. | CTX-001 |
+| STOP-002 | Stop condition | Stop if replay or audit requirements make event sourcing necessary, because `D-004` deferred that choice. | SRC-002 |
+
+### Methodology-Specific Detail
+
+- **Required handoff data:** the tables above.
+- **DDD-specific authoring detail:** the context map, tactical invariant model, ports, enforcement
+  map, and delivery inputs below explain the DDD reasoning behind the handoff.
+
+## 2. Source and Context Audit
 
 | Source | Used for | Notes |
 |---|---|---|
 | Payment authorization brief | core workflow and gateway constraints | Requires idempotency and external provider isolation. |
 
-## 2. Assumptions and Blockers
+## 3. Assumptions and Blockers
 
 ### Safe Assumptions
 - Gateway responses are retriable when the provider reports timeout or unknown status.
@@ -22,7 +76,7 @@ round: 2
 ### Blocking Questions
 - None.
 
-## 3. DDD Depth
+## 4. DDD Depth
 
 **Selected depth:** tactical-ddd
 
@@ -32,53 +86,53 @@ idempotency, external provider language, and failure tokens consumed by downstre
 **Where deeper tactical ceremony is unnecessary:** Event sourcing is not required because the payment
 gateway and audit table provide enough history for v1.
 
-## 4. Context Map
+## 5. Context Map
 
 | Context | Owns | Reads | Does Not Own |
 |---|---|---|---|
 | Payment Authorization | authorization state, idempotency decisions, failure tokens | order total, customer payment method reference | order fulfillment, provider settlement |
 
-## 5. Ubiquitous Language
+## 6. Ubiquitous Language
 
 | Term | Meaning | Owner |
 |---|---|---|
 | Authorization | Provider-approved hold on funds before capture | Payment Authorization |
 | PaymentAttempt | One idempotent attempt to authorize a payment | Payment Authorization |
 
-## 6. Domain Behavior
+## 7. Domain Behavior
 
 | Command / Use Case | Actor | Invariant guarded | Result |
 |---|---|---|---|
 | Authorize payment | checkout flow | pending attempt can authorize at most once per idempotency key | Authorized or Failed attempt |
 
-## 7. Invariant and State Matrix
+## 8. Invariant and State Matrix
 
 | Invariant / Predicate | Source operands | Enforced by | Failure token |
 |---|---|---|---|
 | attempt authorizes only from pending | PaymentAttempt.status, AuthorizePayment command | PaymentAttempt aggregate | payment-state-invalid |
 | idempotency key is single-writer | command.idempotencyKey, stored attempt.idempotencyKey | authorization repository port | duplicate-payment-attempt |
 
-## 8. Ports, Adapters, and Public API
+## 9. Ports, Adapters, and Public API
 
 | Surface | Type | Owner | Consumers | Enforcement |
 |---|---|---|---|---|
 | PaymentGatewayPort | domain/application port | Payment Authorization | provider adapter | port contract test |
 | PaymentAttemptRepository | repository port | Payment Authorization | infrastructure adapter | no-domain-to-infrastructure |
 
-## 9. Data, Query, and Consistency
+## 10. Data, Query, and Consistency
 
 - **Write model:** PaymentAttempt aggregate is the transaction boundary.
 - **Read model:** status projection reads committed attempts.
 - **Consistency:** strong for attempt state, eventual for analytics.
 
-## 10. Failure, Observability, Migration, and Deploy
+## 11. Failure, Observability, Migration, and Deploy
 
 - **Failure modes:** gateway timeout, duplicate attempt, invalid transition.
 - **Observability:** payment_authorization_requested, payment_authorization_completed,
   payment_authorization_failed.
 - **Migration/deploy:** add payment_attempts table and idempotency key index.
 
-## 11. Testing and Enforcement
+## 12. Testing and Enforcement
 
 | Claim | Proof | Standing gate |
 |---|---|---|
@@ -104,7 +158,7 @@ gateway and audit table provide enough history for v1.
 }
 ```
 
-## 12. Delivery Inputs
+## 13. Delivery Inputs
 
 - **Candidate story areas:** aggregate and tokens, gateway port, repository adapter, architecture gate.
 - **Sequencing constraints:** aggregate and failure token catalog before adapters.
@@ -112,6 +166,6 @@ gateway and audit table provide enough history for v1.
 - **Validation expectations:** unit tests, contract tests, check:architecture.
 - **Stop conditions:** stop if settlement or fulfillment behavior is pulled into this context.
 
-## 13. Risks and Deferred Decisions
+## 14. Risks and Deferred Decisions
 
 - D-004 deferred event sourcing until replay/audit requirements exceed the gateway plus audit table.

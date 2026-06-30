@@ -24,7 +24,10 @@ Choose tactical depth per context:
 
 When this profile is active, `author-technical-design` must produce:
 
+- Planner-facing frontmatter: `design_id`, `handoff_contract`, methodology, status, and round.
 - DDD frontmatter: `methodology`, `methodology_version`, `design_status`, `ddd_depth`.
+- A `Planner Handoff Summary` that satisfies
+  `docs/design/technical-design-handoff-contract.md`.
 - Source/context audit and assumptions/blockers.
 - Context map with owns/reads/does-not-own.
 - Ubiquitous language.

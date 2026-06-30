@@ -8,6 +8,10 @@ round: 1
 
 # Technical Design - Defective Payment Authorization
 
+## Planner Handoff Summary
+
+This design is ready for planning. Use the sections below for details.
+
 ## Context Map
 
 | Context | Owns | Reads | Does Not Own |

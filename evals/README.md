@@ -27,6 +27,7 @@ The implementation and execution plan lives in
 - Unsourced invariant operand.
 - Public API exposure gap.
 - Vacuous enforcement rule without seeded violation.
+- Prose-only or empty planner handoff.
 
 The current deterministic DDD defect classes are declared in `ddd/defect-manifest.json`. Static
 checks verify that each initial defect class points to an existing fixture, a known lesson, and

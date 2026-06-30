@@ -12,6 +12,7 @@ update mode and recorded in `decisions.md`.
 ## References
 
 - Active DDD profile: `../../methodologies/ddd/README.md`
+- Planner handoff contract: `../../docs/design/technical-design-handoff-contract.md`
 - DDD review rubric: `../../methodologies/ddd/review-rubric.md`
 - Lessons ledger: `../../docs/design/lessons-ledger.md`
 - Suggestion schema: `templates/suggestion.schema.json`
@@ -40,6 +41,8 @@ Check:
 - public APIs have export/import evidence or tests;
 - enforceable boundaries have seeded violations and standing gates;
 - manual-only rules are not misrepresented as static enforcement;
+- the `Planner Handoff Summary` names stable source, boundary, delivery, validation, and
+  stop-condition IDs;
 - delivery inputs do not hand scope decisions to implementers.
 
 ## Step 3 - Domain-correctness lens
