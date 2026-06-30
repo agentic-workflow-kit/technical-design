@@ -32,5 +32,5 @@ fixtures/cases/<case-id>/
 - If sources name aggregates, domain services, workflow services, or service candidates, expected
   boundaries should state whether they require standalone ownership evidence or may be covered as
   internal sub-boundaries inside a larger context.
-- Generated outputs belong under ignored `internal/evals/results/<run-id>/`.
+- Generated outputs belong under ignored `packages/evals/results/<run-id>/`.
 - Do not add external text unless its license allows committed fixtures and `provenance.md` records it.

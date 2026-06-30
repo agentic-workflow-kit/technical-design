@@ -11,7 +11,7 @@ signals. They must never override deterministic schema, source-fact, or enforcem
   support.
 - Record model, provider, rubric version, case id, and relevant run metadata in the result
   manifest. Pairwise runs must also record randomized order metadata.
-- Keep judge outputs under ignored `internal/evals/results/<run-id>/` unless a human reviewer promotes a
+- Keep judge outputs under ignored `packages/evals/results/<run-id>/` unless a human reviewer promotes a
   redacted summary.
 
 ## Files

@@ -9,7 +9,7 @@ for skill in skills/*; do
 done
 
 node -e "JSON.parse(require('fs').readFileSync('skills/review-technical-design/templates/suggestion.schema.json', 'utf8'))"
-node internal/evals/src/validate_eval_fixtures.mjs
+node packages/evals/src/validate_eval_fixtures.mjs
 
 required=(
   "docs/design/technical-design-handoff-contract.md"
@@ -40,12 +40,12 @@ if ! grep -qF "Planner Handoff Summary" methodologies/ddd/templates/technical-de
   exit 1
 fi
 
-if ! grep -qF "Required handoff data" internal/evals/fixtures/planning/design-to-planning-input.example.md; then
+if ! grep -qF "Required handoff data" packages/evals/fixtures/planning/design-to-planning-input.example.md; then
   echo "planning fixture must distinguish required handoff data" >&2
   exit 1
 fi
 
-if ! grep -qF "Methodology-specific detail" internal/evals/fixtures/planning/design-to-planning-input.example.md; then
+if ! grep -qF "Methodology-specific detail" packages/evals/fixtures/planning/design-to-planning-input.example.md; then
   echo "planning fixture must distinguish methodology-specific detail" >&2
   exit 1
 fi

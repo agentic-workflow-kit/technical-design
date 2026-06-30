@@ -77,7 +77,7 @@ pnpm install --frozen-lockfile
 pnpm check
 ```
 
-`pnpm check` runs formatting validation plus the internal eval package's deterministic checks:
+`pnpm check` runs formatting validation plus the eval package's deterministic checks:
 skill/profile static checks, Vitest fixture tests, and the seeded `enforce-architecture`
 dependency-cruiser evals. Manual or model-graded evals are run directly through
 `@agentic-workflow-kit/technical-design-evals`, not root scripts.
@@ -89,7 +89,7 @@ dependency-cruiser evals. Manual or model-graded evals are run directly through
   lessons ledger.
 
 Source lives in [`skills/`](skills/), [`methodologies/`](methodologies/),
-[`internal/evals/`](internal/evals/), and [`scripts/`](scripts/).
+[`packages/evals/`](packages/evals/), and [`scripts/`](scripts/).
 
 ## Methodology model
 

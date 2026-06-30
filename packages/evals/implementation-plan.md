@@ -2,7 +2,7 @@
 
 This plan executes the design in
 [`docs/design/evaluation-strategy.md`](../docs/design/evaluation-strategy.md) while keeping eval
-code, scripts, fixtures, usage docs, and local outputs under `internal/evals/`.
+code, scripts, fixtures, usage docs, and local outputs under `packages/evals/`.
 
 The implementation should advance from deterministic checks to semantic judging only after the
 lower layers are explicit, reproducible, and reviewable.
@@ -24,13 +24,13 @@ lower layers are explicit, reproducible, and reviewable.
 ```mermaid
 flowchart TD
     Design["Design strategy<br/>docs/design/evaluation-strategy.md"]
-    Plan["Execution plan<br/>internal/evals/implementation-plan.md"]
+    Plan["Execution plan<br/>packages/evals/implementation-plan.md"]
     Deterministic["Deterministic checks<br/>schema, fixtures, enforcement"]
     Cases["Case runner<br/>product/source to candidate outputs"]
     Judge["Semantic judge<br/>pointwise coverage and pairwise comparison"]
     Outcomes["Outcome studies<br/>delivery friction and rework"]
     Gate["CI gate<br/>pnpm check"]
-    Results["Local outputs<br/>internal/evals/results/<run-id>/"]
+    Results["Local outputs<br/>packages/evals/results/<run-id>/"]
 
     Design --> Plan
     Plan --> Deterministic
@@ -71,10 +71,10 @@ Status: Done.
 
 Implemented:
 
-- Added `internal/evals/src/validate_eval_fixtures.mjs`.
+- Added `packages/evals/src/validate_eval_fixtures.mjs`.
 - Added `fixtures/ddd/defect-manifest.json`.
 - Expanded `fixtures/review/expected-suggestions.json` to complete review suggestion objects.
-- Wired fixture validation into `internal/evals/src/run_static_checks.sh`.
+- Wired fixture validation into `packages/evals/src/run_static_checks.sh`.
 - Documented the implemented slice in `evals/README.md` and the strategy.
 
 Agents and review:
@@ -88,7 +88,7 @@ Agents and review:
 
 Verification:
 
-- `node internal/evals/src/validate_eval_fixtures.mjs`
+- `node packages/evals/src/validate_eval_fixtures.mjs`
 - `pnpm check`
 - Independent narrow rechecks of the fixed findings.
 - GitHub `check` on PR #4.
@@ -118,7 +118,7 @@ Implemented:
 - Added JSON Schemas under `schemas/`.
 - Replaced hand-coded structural validation in `validate_eval_fixtures.mjs` with Ajv validation while
   retaining cross-file semantic checks.
-- Added Vitest tests under `internal/evals/tests/` for missing required DDD defect, empty rubric reference,
+- Added Vitest tests under `packages/evals/tests/` for missing required DDD defect, empty rubric reference,
   severity mismatch, unknown lesson id, and fixture path escaping `fixtures/ddd/`.
 - Added `eval:unit` and wired it into `pnpm check`.
 - Kept generated test reports out of committed files.
@@ -140,7 +140,7 @@ Integration point:
 Verification:
 
 - `pnpm install --frozen-lockfile`
-- `node internal/evals/src/validate_eval_fixtures.mjs`
+- `node packages/evals/src/validate_eval_fixtures.mjs`
 - `pnpm check`
 - Deliberately break one copied fixture locally to confirm the validator fails with a clear message,
   then discard the local break.
@@ -166,8 +166,8 @@ Implemented:
 - Added `fixtures/cases/README.md` with case authoring rules and fixture licensing requirements.
 - Added `case-tiny-laundry-pickup-v1` as a synthetic, self-contained product-to-design case.
 - Added schemas for expected facts, expected boundaries, grades, and result manifests.
-- Added `internal/evals/src/run_case_eval.mjs`, which reads a candidate design and writes `manifest.json`,
-  `grades.json`, `report.md`, and per-case grader evidence under ignored `internal/evals/results/<run-id>/`.
+- Added `packages/evals/src/run_case_eval.mjs`, which reads a candidate design and writes `manifest.json`,
+  `grades.json`, `report.md`, and per-case grader evidence under ignored `packages/evals/results/<run-id>/`.
 
 Agents and review:
 
@@ -186,7 +186,7 @@ Verification:
 
 - `pnpm check`
 - `node <case-runner> --case <case-id> --candidate <candidate-design>`
-- Inspect `internal/evals/results/<run-id>/<case-id>/report.md` before accepting fixture changes.
+- Inspect `packages/evals/results/<run-id>/<case-id>/report.md` before accepting fixture changes.
 
 ## Phase 3.5 - Case Grader Calibration
 
@@ -226,7 +226,7 @@ Integration point:
 Verification:
 
 - `pnpm --filter @agentic-workflow-kit/technical-design-evals eval:unit`
-- `node internal/evals/src/validate_eval_fixtures.mjs`
+- `node packages/evals/src/validate_eval_fixtures.mjs`
 - deterministic `eval:case` runs for all committed reference designs
 - optional manual pointwise judge run with local Codex auth
 
@@ -260,7 +260,7 @@ Recommended OSS tools:
 
 Implemented:
 
-- Added judge rubrics under `internal/evals/promptfoo/judges/`.
+- Added judge rubrics under `packages/evals/promptfoo/judges/`.
 - Added a pairwise comparison prompt that requires randomized candidate order to be recorded.
 - Added schemas for structured judge output and pairwise results.
 - Added a manual Promptfoo template outside the required PR gate.
@@ -288,7 +288,7 @@ Verification:
 
 - Deterministic JSON parse and schema validation of every judge result.
 - Pairwise order randomization proof in run metadata.
-- Human calibration agreement report under `internal/evals/results/<run-id>/`.
+- Human calibration agreement report under `packages/evals/results/<run-id>/`.
 
 ## Phase 5 - Outcome Studies
 
@@ -329,7 +329,7 @@ Verification:
 
 ## Output Conventions
 
-Generated outputs belong under `internal/evals/results/<run-id>/`.
+Generated outputs belong under `packages/evals/results/<run-id>/`.
 
 Committed by default:
 
@@ -350,7 +350,7 @@ Ignored by default:
 Every result bundle should include:
 
 ```text
-internal/evals/results/<run-id>/
+packages/evals/results/<run-id>/
   manifest.json
   report.md
   grades.json

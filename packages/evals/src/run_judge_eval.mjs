@@ -197,11 +197,11 @@ const main = () => {
   const caseDir = resolveCaseDir(caseId);
   const runDir = resolveRunDir(runId);
   const promptPath = resolveRepoPath(
-    "internal/evals/promptfoo/judges/pairwise.prompt.md",
+    "packages/evals/promptfoo/judges/pairwise.prompt.md",
   );
   const promptText = readText(promptPath);
   const outputSchema = readJson(
-    resolveRepoPath("internal/evals/schemas/pairwise-result.schema.json"),
+    resolveRepoPath("packages/evals/schemas/pairwise-result.schema.json"),
   );
   const promptVersion = extractVersion(promptText, "Prompt version");
   const rubricVersion = extractVersion(promptText, "Rubric version");

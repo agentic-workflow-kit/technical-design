@@ -21,7 +21,7 @@ Altitude: `docs/product/` owns _what & why_; `docs/design/` owns _how_.
 | Contract a new methodology profile must satisfy | `docs/design/methodology-profile-contract.md`    |
 | Lessons that hardened the skills                | `docs/design/lessons-ledger.md`                  |
 
-Source lives outside `docs/`: `skills/`, `methodologies/`, `internal/evals/`, `scripts/`. The five
+Source lives outside `docs/`: `skills/`, `methodologies/`, `packages/evals/`, `scripts/`. The five
 skills are stable; methodology-specific behavior lives under `methodologies/`.
 
 ## Gate and conventions

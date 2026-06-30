@@ -1,6 +1,6 @@
 # Eval Results
 
-Generated eval outputs belong here under `internal/evals/results/<run-id>/`.
+Generated eval outputs belong here under `packages/evals/results/<run-id>/`.
 
 This directory is intentionally ignored except for this README. Commit source fixtures, schemas, and
 small expected outputs; keep raw run outputs local unless a human reviewer explicitly promotes a
@@ -9,7 +9,7 @@ redacted summary.
 Expected layout:
 
 ```text
-internal/evals/results/<run-id>/
+packages/evals/results/<run-id>/
   manifest.json
   report.md
   grades.json                    # deterministic case runs only

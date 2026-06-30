@@ -93,7 +93,7 @@ This keeps the value of Promptfoo intact:
 - The Codex App Server provider owns model execution through `codex app-server`, local Codex auth,
   Codex metadata, and token/runtime reporting.
 - Repo scripts only prepare run-local fixtures, call Promptfoo with concrete configs, validate
-  generated artifacts with existing schemas, and write reports under `internal/evals/results/**`.
+  generated artifacts with existing schemas, and write reports under `packages/evals/results/**`.
 
 This design follows the docs for these reasons:
 
@@ -117,7 +117,7 @@ This design follows the docs for these reasons:
 Create one private workspace package for all eval-specific assets and logic:
 
 ```text
-internal/evals/
+packages/evals/
   package.json
   README.md
   implementation-plan.md
@@ -143,16 +143,16 @@ Move all eval-specific material into the package:
 
 - `evals/README.md` and `evals/implementation-plan.md` -> package docs.
 - `evals/run_case_eval.mjs`, `evals/validate_eval_fixtures.mjs`, and future runner scripts ->
-  `internal/evals/src/`.
-- `evals/tests/**` -> `internal/evals/tests/`.
-- `evals/schemas/**` -> `internal/evals/schemas/`.
+  `packages/evals/src/`.
+- `evals/tests/**` -> `packages/evals/tests/`.
+- `evals/schemas/**` -> `packages/evals/schemas/`.
 - `evals/cases/**`, `evals/review/**`, `evals/ddd/**`, `evals/frame/**`, `evals/author/**`, and
-  `evals/planning/**` -> `internal/evals/fixtures/`.
-- `evals/judges/**` -> `internal/evals/promptfoo/judges/`.
-- `evals/outcomes/**` -> `internal/evals/fixtures/outcomes/`.
-- `evals/results/**` -> `internal/evals/results/**`.
-- `evals/enforce/**` -> `internal/evals/fixtures/enforce/**`; remove the nested enforce workspace
-  package and let the internal eval package own `dependency-cruiser`.
+  `evals/planning/**` -> `packages/evals/fixtures/`.
+- `evals/judges/**` -> `packages/evals/promptfoo/judges/`.
+- `evals/outcomes/**` -> `packages/evals/fixtures/outcomes/`.
+- `evals/results/**` -> `packages/evals/results/**`.
+- `evals/enforce/**` -> `packages/evals/fixtures/enforce/**`; remove the nested enforce workspace
+  package and let the eval package own `dependency-cruiser`.
 
 Root-level docs may still describe the evaluation strategy, because that strategy is part of how the
 product is designed and governed. Executable eval assets, fixture data, generated outputs, schemas,
@@ -170,12 +170,12 @@ pnpm --filter @agentic-workflow-kit/technical-design-evals eval:manual-report --
 ```
 
 The root `pnpm check` command remains the public repository gate. It should run formatting and the
-internal eval package's deterministic check, but it should not expose every eval workflow as a root
+eval package's deterministic check, but it should not expose every eval workflow as a root
 script.
 
 ## Planned Suite Shape
 
-Add `promptfoo` as a development dependency of the internal eval package and add manual scripts:
+Add `promptfoo` as a development dependency of the eval package and add manual scripts:
 
 - `eval:generate` - run the candidate-generation Promptfoo suite.
 - `eval:judge:coverage` - run the pointwise coverage judge Promptfoo suite.
@@ -186,7 +186,7 @@ Add `promptfoo` as a development dependency of the internal eval package and add
 
 Keep `pnpm check` deterministic-only.
 
-The suites should live under `internal/evals/promptfoo/`:
+The suites should live under `packages/evals/promptfoo/`:
 
 - Generation suite:
   - Provider: `openai:codex-app-server`.
@@ -205,7 +205,7 @@ The suites should live under `internal/evals/promptfoo/`:
   - Provider: `openai:codex-app-server`.
   - Model: `gpt-5.4`.
   - Reasoning effort: medium.
-  - Output schema: `internal/evals/schemas/pairwise-result.schema.json`.
+  - Output schema: `packages/evals/schemas/pairwise-result.schema.json`.
   - Test variables: case id, source facts, expected facts and boundaries, generated candidate,
     reference anchor, candidate order, original order, randomization method, and seed.
   - Assertions: JSON output, schema-valid output, evidence present, model/provider/rubric/prompt
@@ -215,7 +215,7 @@ The suites should live under `internal/evals/promptfoo/`:
   - Provider: `openai:codex-app-server`.
   - Model: `gpt-5.4`.
   - Reasoning effort: medium.
-  - Output schema: `internal/evals/schemas/pointwise-judge-result.schema.json`.
+  - Output schema: `packages/evals/schemas/pointwise-judge-result.schema.json`.
   - Test variables: case id, source facts, expected facts and boundaries, generated candidate, and
     deterministic grades if available.
   - Assertions: JSON output, schema-valid output, evidence on every covered/partial/contradicted
@@ -223,7 +223,7 @@ The suites should live under `internal/evals/promptfoo/`:
 
 ## Result Flow
 
-Generated outputs stay under ignored `internal/evals/results/<run-id>/`.
+Generated outputs stay under ignored `packages/evals/results/<run-id>/`.
 
 The generation command writes:
 
@@ -261,8 +261,8 @@ The final report command combines all run bundles and states:
 - Promptfoo, not shell wrappers, owns provider execution, assertions, and JSON/HTML result exports.
 - Candidate generation produces a non-empty Markdown design for `case-tiny-laundry-pickup-v1`.
 - The existing deterministic grader runs against the generated candidate.
-- The judge output validates against `internal/evals/schemas/pairwise-result.schema.json`.
-- The final report is written under ignored `internal/evals/results/**`.
+- The judge output validates against `packages/evals/schemas/pairwise-result.schema.json`.
+- The final report is written under ignored `packages/evals/results/**`.
 - Generated result files are not committed unless a human reviewer explicitly promotes a redacted
   summary.
 

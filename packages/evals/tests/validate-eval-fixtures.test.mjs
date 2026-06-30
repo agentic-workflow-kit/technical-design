@@ -45,7 +45,7 @@ const createFixtureRepo = () => {
   ]) {
     fs.cpSync(
       path.join(packageRoot, relativePath),
-      path.join(tempDir, "internal/evals", relativePath),
+      path.join(tempDir, "packages/evals", relativePath),
       {
         recursive: true,
       },
@@ -54,7 +54,7 @@ const createFixtureRepo = () => {
 
   fs.symlinkSync(
     path.join(packageRoot, "node_modules"),
-    path.join(tempDir, "internal/evals/node_modules"),
+    path.join(tempDir, "packages/evals/node_modules"),
   );
 
   return tempDir;
@@ -64,7 +64,7 @@ const runValidator = (cwd) => {
   try {
     execFileSync(
       process.execPath,
-      ["internal/evals/src/validate_eval_fixtures.mjs"],
+      ["packages/evals/src/validate_eval_fixtures.mjs"],
       {
         cwd,
         encoding: "utf8",
@@ -92,7 +92,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const manifestPath = path.join(
       fixtureRepo,
-      "internal/evals/fixtures/ddd/defect-manifest.json",
+      "packages/evals/fixtures/ddd/defect-manifest.json",
     );
     const manifest = readJson(manifestPath);
 
@@ -112,7 +112,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedSuggestionsPath = path.join(
       fixtureRepo,
-      "internal/evals/fixtures/review/expected-suggestions.json",
+      "packages/evals/fixtures/review/expected-suggestions.json",
     );
     const suggestions = readJson(expectedSuggestionsPath);
 
@@ -130,7 +130,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedSuggestionsPath = path.join(
       fixtureRepo,
-      "internal/evals/fixtures/review/expected-suggestions.json",
+      "packages/evals/fixtures/review/expected-suggestions.json",
     );
     const suggestions = readJson(expectedSuggestionsPath);
 
@@ -148,7 +148,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedSuggestionsPath = path.join(
       fixtureRepo,
-      "internal/evals/fixtures/review/expected-suggestions.json",
+      "packages/evals/fixtures/review/expected-suggestions.json",
     );
     const suggestions = readJson(expectedSuggestionsPath);
 
@@ -166,7 +166,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedSuggestionsPath = path.join(
       fixtureRepo,
-      "internal/evals/fixtures/review/expected-suggestions.json",
+      "packages/evals/fixtures/review/expected-suggestions.json",
     );
     const suggestions = readJson(expectedSuggestionsPath);
 
@@ -184,7 +184,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const manifestPath = path.join(
       fixtureRepo,
-      "internal/evals/fixtures/ddd/defect-manifest.json",
+      "packages/evals/fixtures/ddd/defect-manifest.json",
     );
     const manifest = readJson(manifestPath);
 
@@ -247,7 +247,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedFactsPath = path.join(
       fixtureRepo,
-      "internal/evals/fixtures/cases/case-aerial-delivery-shipping-v1/expected-facts.json",
+      "packages/evals/fixtures/cases/case-aerial-delivery-shipping-v1/expected-facts.json",
     );
     const expectedFacts = readJson(expectedFactsPath);
 
@@ -265,7 +265,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedFactsPath = path.join(
       fixtureRepo,
-      "internal/evals/fixtures/cases/case-aerial-delivery-shipping-v1/expected-facts.json",
+      "packages/evals/fixtures/cases/case-aerial-delivery-shipping-v1/expected-facts.json",
     );
     const expectedFacts = readJson(expectedFactsPath);
 

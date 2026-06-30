@@ -52,15 +52,15 @@ shape as `skills/review-technical-design/templates/suggestion.schema.json`.
 The `enforce` eval proves that generated dependency-cruiser rules fail for seeded violations:
 
 1. Generate `.dependency-cruiser.cjs` from each layer map.
-2. Run dependency-cruiser against `internal/evals/fixtures/enforce/src`.
+2. Run dependency-cruiser against `packages/evals/fixtures/enforce/src`.
 3. Confirm the seeded violation fails for declared rules.
 4. Confirm no-boundary CRUD passes honestly with an empty config.
 
 Run:
 
 ```bash
-bash internal/evals/src/run_static_checks.sh
-bash internal/evals/src/run_enforce_eval.sh
+bash packages/evals/src/run_static_checks.sh
+bash packages/evals/src/run_enforce_eval.sh
 pnpm --filter @agentic-workflow-kit/technical-design-evals eval:unit
 ```
 
@@ -85,7 +85,7 @@ Start here:
 Run a deterministic case manually:
 
 ```bash
-pnpm --filter @agentic-workflow-kit/technical-design-evals eval:case -- --case case-tiny-laundry-pickup-v1 --candidate internal/evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:case -- --case case-tiny-laundry-pickup-v1 --candidate packages/evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md
 ```
 
 ## Manual Product-to-Design Flow
@@ -122,7 +122,7 @@ Output:
 Grade the generated candidate deterministically:
 
 ```bash
-pnpm --filter @agentic-workflow-kit/technical-design-evals eval:case -- --case <case-id> --candidate internal/evals/results/<run-id>-generate/cases/<case-id>/candidate.md --run-id <run-id>-deterministic
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:case -- --case <case-id> --candidate packages/evals/results/<run-id>-generate/cases/<case-id>/candidate.md --run-id <run-id>-deterministic
 ```
 
 Input:
@@ -141,7 +141,7 @@ Output:
 Run pointwise coverage judging:
 
 ```bash
-pnpm --filter @agentic-workflow-kit/technical-design-evals eval:judge:coverage -- --case <case-id> --candidate internal/evals/results/<run-id>-generate/cases/<case-id>/candidate.md --model gpt-5.4 --provider openai --effort medium --run-id <run-id>-pointwise
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:judge:coverage -- --case <case-id> --candidate packages/evals/results/<run-id>-generate/cases/<case-id>/candidate.md --model gpt-5.4 --provider openai --effort medium --run-id <run-id>-pointwise
 ```
 
 Input:
@@ -171,7 +171,7 @@ Write a final manual report:
 pnpm --filter @agentic-workflow-kit/technical-design-evals eval:manual-report -- --run-id <run-id> --generate <run-id>-generate --deterministic <run-id>-deterministic --judge-coverage <run-id>-pointwise
 ```
 
-Generated outputs belong under `internal/evals/results/<run-id>/` and are ignored by default. A result bundle
+Generated outputs belong under `packages/evals/results/<run-id>/` and are ignored by default. A result bundle
 should include `manifest.json`, `report.md`, `grades.json`, and per-case evidence files when a
 runner writes case outputs. Model-graded bundles additionally include Promptfoo JSON/HTML exports
 and structured judge output such as `pointwise-result.json` or `pairwise-result.json`.

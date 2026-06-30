@@ -231,12 +231,12 @@ const main = () => {
   const caseDir = resolveCaseDir(caseId);
   const runDir = resolveRunDir(runId);
   const promptPath = resolveRepoPath(
-    "internal/evals/promptfoo/judges/pointwise.prompt.md",
+    "packages/evals/promptfoo/judges/pointwise.prompt.md",
   );
   const promptText = readText(promptPath);
   const outputSchema = readJson(
     resolveRepoPath(
-      "internal/evals/schemas/pointwise-judge-result.schema.json",
+      "packages/evals/schemas/pointwise-judge-result.schema.json",
     ),
   );
   const promptVersion = extractVersion(promptText, "Prompt version");

@@ -13,7 +13,7 @@ Documentation is organized by **altitude**: product (intent) above design (mecha
 | [design/](./design/) | **How** — methodology mechanics, the profile contract, formats, and the lessons ledger. | drafted |
 
 Source lives outside `docs/`: [`skills/`](../skills/), [`methodologies/`](../methodologies/),
-[`internal/evals/`](../internal/evals/), and [`scripts/`](../scripts/).
+[`packages/evals/`](../packages/evals/), and [`scripts/`](../scripts/).
 
 Suite-level framing (how this stage relates to the other products) lives at the
 [organization profile](https://github.com/agentic-workflow-kit), not here. This repo stays scoped to

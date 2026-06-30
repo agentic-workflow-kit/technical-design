@@ -20,7 +20,7 @@ describe("eval path helpers", () => {
     );
   });
 
-  it("keeps run directories under internal eval results", () => {
+  it("keeps run directories under package eval results", () => {
     const runDir = resolveRunDir("pilot-001");
     expect(relativeToPackage(runDir)).toBe("results/pilot-001");
     expect(() => resolveRunDir("../pilot-001")).toThrow("must be an id");
@@ -28,7 +28,7 @@ describe("eval path helpers", () => {
 
   it("rejects repo input paths outside the repository", () => {
     const inside = resolveRepoInputPath(
-      "internal/evals/fixtures/cases/README.md",
+      "packages/evals/fixtures/cases/README.md",
       "candidate path",
     );
     expect(inside.endsWith(path.join("fixtures", "cases", "README.md"))).toBe(

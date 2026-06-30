@@ -7,7 +7,7 @@
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-PACKAGE_ROOT="$REPO_ROOT/internal/evals"
+PACKAGE_ROOT="$REPO_ROOT/packages/evals"
 FIXTURE_ROOT="$PACKAGE_ROOT/fixtures/enforce"
 cd "$FIXTURE_ROOT"
 

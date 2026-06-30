@@ -42,4 +42,4 @@ For each expected item:
   excerpt.
 - Preserve each item's `item_id`, `kind`, `severity`, and `source_refs` exactly as provided.
 
-Return JSON matching `internal/evals/schemas/pointwise-judge-result.schema.json`.
+Return JSON matching `packages/evals/schemas/pointwise-judge-result.schema.json`.

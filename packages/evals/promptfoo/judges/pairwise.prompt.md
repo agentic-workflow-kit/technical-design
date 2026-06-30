@@ -49,4 +49,4 @@ that every expected fact or boundary is covered.
 
 Choose which candidate is more source-grounded, implementation-ready, and enforceable.
 
-Return JSON matching `internal/evals/schemas/pairwise-result.schema.json`.
+Return JSON matching `packages/evals/schemas/pairwise-result.schema.json`.
