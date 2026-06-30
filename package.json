@@ -24,10 +24,14 @@
     "format:check": "prettier --check \"**/*.{json,js,mjs,ts,yml,yaml}\"",
     "lint": "pnpm format:check",
     "skills:check": "bash evals/run_static_checks.sh",
+    "eval:unit": "vitest run evals/tests",
+    "eval:case": "node evals/run_case_eval.mjs",
     "eval:enforce": "pnpm --filter @agentic-workflow-kit/technical-design-enforce-eval eval",
-    "check": "pnpm lint && pnpm skills:check && pnpm eval:enforce"
+    "check": "pnpm lint && pnpm skills:check && pnpm eval:unit && pnpm eval:enforce"
   },
   "devDependencies": {
+    "ajv": "^8.17.1",
+    "vitest": "^3.2.4",
     "prettier": "^3.6.2"
   }
 }

@@ -1,0 +1,95 @@
+{
+  "case_id": "case-tiny-laundry-pickup-v1",
+  "facts": [
+    {
+      "id": "FACT-001",
+      "category": "invariant",
+      "severity": "critical",
+      "source_refs": ["SRC-002"],
+      "description": "An appliance cannot have overlapping active bookings.",
+      "must_include_any": [
+        "overlapping active bookings",
+        "overlap detection",
+        "one active booking for a time slot"
+      ]
+    },
+    {
+      "id": "FACT-002",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-003"],
+      "description": "A resident may hold at most one active booking.",
+      "must_include_any": [
+        "one active booking per resident",
+        "at most one active booking"
+      ]
+    },
+    {
+      "id": "FACT-003",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-004"],
+      "description": "Booking lifecycle states are explicit.",
+      "must_include_any": ["booking lifecycle"],
+      "must_include_all": [
+        "requested",
+        "confirmed",
+        "in_use",
+        "completed",
+        "cancelled"
+      ]
+    },
+    {
+      "id": "FACT-004",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-005"],
+      "description": "Cancellation cutoff is 30 minutes before start.",
+      "must_include_any": ["30 minutes before", "30-minute cancellation"]
+    },
+    {
+      "id": "FACT-005",
+      "category": "api",
+      "severity": "critical",
+      "source_refs": ["SRC-008"],
+      "description": "Required public booking and appliance APIs are named.",
+      "must_include_any": ["public surfaces", "public APIs"],
+      "must_include_all": [
+        "POST /bookings",
+        "GET /appliances",
+        "PATCH /bookings/{id}/cancel"
+      ]
+    },
+    {
+      "id": "FACT-006",
+      "category": "event",
+      "severity": "recommended",
+      "source_refs": ["SRC-009"],
+      "description": "Required lifecycle events are named.",
+      "must_include_any": ["events", "domain events"],
+      "must_include_all": [
+        "BookingRequested",
+        "BookingConfirmed",
+        "BookingCancelled",
+        "BookingCompleted"
+      ]
+    },
+    {
+      "id": "FACT-007",
+      "category": "non-goal",
+      "severity": "critical",
+      "source_refs": ["SRC-010"],
+      "description": "Billing and pricing stay out of scope.",
+      "must_include_any": ["out of scope", "non-goal", "remain out of scope"],
+      "must_include_all": ["billing", "pricing", "payment"],
+      "must_not_include_any": [
+        "Billing is in scope",
+        "Pricing context owns",
+        "Billing owns",
+        "Payment processing is supported",
+        "PaymentGateway",
+        "Rewards are in scope"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "case_id": "case-tiny-laundry-pickup-v1",
+  "contexts": [
+    {
+      "id": "CTX-001",
+      "name": "Identity",
+      "source_refs": ["SRC-001"],
+      "owns": ["verified resident record", "access checks"],
+      "reads": [],
+      "does_not_own": ["scheduling conflict logic"],
+      "must_include_all": ["Identity owns verified resident", "access checks"],
+      "must_not_include_any": ["Identity owns scheduling conflict"]
+    },
+    {
+      "id": "CTX-002",
+      "name": "Catalog",
+      "source_refs": ["SRC-006", "SRC-008", "SRC-011"],
+      "owns": [
+        "appliance metadata",
+        "appliance type",
+        "maintenance hold inputs"
+      ],
+      "reads": [],
+      "does_not_own": ["booking lifecycle"],
+      "must_include_all": ["Catalog owns appliance", "maintenance hold"],
+      "must_not_include_any": ["Catalog owns booking lifecycle"]
+    },
+    {
+      "id": "CTX-003",
+      "name": "Scheduling",
+      "source_refs": ["SRC-002", "SRC-003", "SRC-004", "SRC-005", "SRC-006"],
+      "owns": ["booking lifecycle", "overlap detection", "cancellation rules"],
+      "reads": [
+        "verified resident status",
+        "appliance metadata",
+        "maintenance holds"
+      ],
+      "does_not_own": ["verified resident record", "outbound delivery channel"],
+      "must_include_all": [
+        "Scheduling owns booking lifecycle",
+        "overlap detection",
+        "cancellation rules"
+      ],
+      "must_not_include_any": ["Scheduling owns verified resident record"]
+    },
+    {
+      "id": "CTX-004",
+      "name": "Notifications",
+      "source_refs": ["SRC-007", "SRC-009"],
+      "owns": ["outbound lifecycle messages"],
+      "reads": ["booking lifecycle events"],
+      "does_not_own": ["booking state transitions"],
+      "must_include_all": ["Notifications owns outbound", "lifecycle messages"],
+      "must_not_include_any": ["Notifications owns booking state transitions"]
+    }
+  ]
+}

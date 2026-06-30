@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-workflow-kit.local/technical-design/evals/judge-output.schema.json",
+  "title": "JudgeOutput",
+  "type": "object",
+  "required": [
+    "case_id",
+    "criterion",
+    "verdict",
+    "severity",
+    "evidence",
+    "explanation",
+    "confidence",
+    "model",
+    "rubric_version"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "criterion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verdict": {
+      "enum": ["pass", "fail", "unknown"]
+    },
+    "severity": {
+      "enum": ["critical", "recommended"]
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "explanation": {
+      "type": "string",
+      "minLength": 1
+    },
+    "confidence": {
+      "enum": ["low", "medium", "high"]
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rubric_version": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

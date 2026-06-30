@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-workflow-kit.local/technical-design/evals/expected-defect-suggestion.schema.json",
+  "title": "ExpectedDefectSuggestion",
+  "type": "object",
+  "required": ["severity", "lens", "dimension", "lesson_ref", "gate_ref"],
+  "properties": {
+    "severity": {
+      "type": "string",
+      "enum": ["blocking", "recommended", "optional"]
+    },
+    "lens": {
+      "type": "string",
+      "enum": ["architecture-enforceability", "domain-correctness"]
+    },
+    "dimension": {
+      "type": "string",
+      "enum": [
+        "source-map",
+        "bounded-context",
+        "ubiquitous-language",
+        "domain-model",
+        "invariant",
+        "state-transition",
+        "boundary",
+        "public-api",
+        "consistency",
+        "failure",
+        "testability",
+        "observability",
+        "migration-deploy",
+        "enforceability",
+        "delivery-inputs",
+        "over-engineering",
+        "under-engineering"
+      ]
+    },
+    "lesson_ref": {
+      "type": "string",
+      "pattern": "^(LSN-[0-9]{3}|none)$"
+    },
+    "gate_ref": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

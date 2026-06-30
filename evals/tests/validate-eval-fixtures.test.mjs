@@ -1,0 +1,181 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { execFileSync } from "node:child_process";
+
+import { afterEach, describe, expect, it } from "vitest";
+
+const repoRoot = path.resolve(import.meta.dirname, "..", "..");
+const tempDirs = [];
+
+const readJson = (filePath) => JSON.parse(fs.readFileSync(filePath, "utf8"));
+
+const writeJson = (filePath, value) => {
+  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
+};
+
+const createFixtureRepo = () => {
+  const tempDir = fs.mkdtempSync(
+    path.join(os.tmpdir(), "technical-design-eval-fixtures-"),
+  );
+  tempDirs.push(tempDir);
+
+  for (const relativePath of [
+    "docs/design/lessons-ledger.md",
+    "evals/ddd",
+    "evals/schemas",
+    "evals/review/expected-suggestions.json",
+    "evals/validate_eval_fixtures.mjs",
+    "methodologies/ddd/review-rubric.md",
+  ]) {
+    fs.cpSync(
+      path.join(repoRoot, relativePath),
+      path.join(tempDir, relativePath),
+      {
+        recursive: true,
+      },
+    );
+  }
+
+  fs.symlinkSync(
+    path.join(repoRoot, "node_modules"),
+    path.join(tempDir, "node_modules"),
+  );
+
+  return tempDir;
+};
+
+const runValidator = (cwd) => {
+  try {
+    execFileSync(process.execPath, ["evals/validate_eval_fixtures.mjs"], {
+      cwd,
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+    return { ok: true, stdout: "", stderr: "" };
+  } catch (error) {
+    return {
+      ok: false,
+      stdout: error.stdout ?? "",
+      stderr: error.stderr ?? "",
+    };
+  }
+};
+
+afterEach(() => {
+  for (const tempDir of tempDirs.splice(0)) {
+    fs.rmSync(tempDir, { force: true, recursive: true });
+  }
+});
+
+describe("validate_eval_fixtures", () => {
+  it("fails when an initial required defect is missing", () => {
+    const fixtureRepo = createFixtureRepo();
+    const manifestPath = path.join(
+      fixtureRepo,
+      "evals/ddd/defect-manifest.json",
+    );
+    const manifest = readJson(manifestPath);
+
+    manifest.defects = manifest.defects.filter(
+      (defect) => defect.id !== "invented-failure-token",
+    );
+    writeJson(manifestPath, manifest);
+
+    const result = runValidator(fixtureRepo);
+    expect(result.ok).toBe(false);
+    expect(result.stderr).toContain(
+      "defect manifest must include invented-failure-token",
+    );
+  });
+
+  it("fails when a rubric reference is blank", () => {
+    const fixtureRepo = createFixtureRepo();
+    const expectedSuggestionsPath = path.join(
+      fixtureRepo,
+      "evals/review/expected-suggestions.json",
+    );
+    const suggestions = readJson(expectedSuggestionsPath);
+
+    suggestions[0].gate_ref = "DDD review rubric: ";
+    writeJson(expectedSuggestionsPath, suggestions);
+
+    const result = runValidator(fixtureRepo);
+    expect(result.ok).toBe(false);
+    expect(result.stderr).toContain(
+      "expected-suggestions[0].gate_ref must cite rubric text",
+    );
+  });
+
+  it("fails when required strings contain only whitespace", () => {
+    const fixtureRepo = createFixtureRepo();
+    const expectedSuggestionsPath = path.join(
+      fixtureRepo,
+      "evals/review/expected-suggestions.json",
+    );
+    const suggestions = readJson(expectedSuggestionsPath);
+
+    suggestions[0].title = "   ";
+    writeJson(expectedSuggestionsPath, suggestions);
+
+    const result = runValidator(fixtureRepo);
+    expect(result.ok).toBe(false);
+    expect(result.stderr).toContain(
+      "expected-suggestions[0].title must not be blank",
+    );
+  });
+
+  it("fails when expected suggestion severity disagrees with the rubric section", () => {
+    const fixtureRepo = createFixtureRepo();
+    const expectedSuggestionsPath = path.join(
+      fixtureRepo,
+      "evals/review/expected-suggestions.json",
+    );
+    const suggestions = readJson(expectedSuggestionsPath);
+
+    suggestions[0].severity = "recommended";
+    writeJson(expectedSuggestionsPath, suggestions);
+
+    const result = runValidator(fixtureRepo);
+    expect(result.ok).toBe(false);
+    expect(result.stderr).toContain(
+      "expected-suggestions[0].severity must match",
+    );
+  });
+
+  it("fails when a lesson reference is unknown", () => {
+    const fixtureRepo = createFixtureRepo();
+    const expectedSuggestionsPath = path.join(
+      fixtureRepo,
+      "evals/review/expected-suggestions.json",
+    );
+    const suggestions = readJson(expectedSuggestionsPath);
+
+    suggestions[0].lesson_ref = "LSN-999";
+    writeJson(expectedSuggestionsPath, suggestions);
+
+    const result = runValidator(fixtureRepo);
+    expect(result.ok).toBe(false);
+    expect(result.stderr).toContain(
+      "expected-suggestions[0].lesson_ref references unknown lesson LSN-999",
+    );
+  });
+
+  it("fails when a defect fixture path escapes evals/ddd", () => {
+    const fixtureRepo = createFixtureRepo();
+    const manifestPath = path.join(
+      fixtureRepo,
+      "evals/ddd/defect-manifest.json",
+    );
+    const manifest = readJson(manifestPath);
+
+    manifest.defects[0].file = "../review/expected-suggestions.json";
+    writeJson(manifestPath, manifest);
+
+    const result = runValidator(fixtureRepo);
+    expect(result.ok).toBe(false);
+    expect(result.stderr).toContain(
+      "../review/expected-suggestions.json escapes evals/ddd",
+    );
+  });
+});

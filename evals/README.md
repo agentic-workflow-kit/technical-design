@@ -14,7 +14,13 @@ The implementation and execution plan lives in
 - `review/` - intentionally defective design plus expected suggestion classes.
 - `ddd/` - defect-class fixtures for DDD review and methodology readiness.
 - `enforce/` - executable dependency-cruiser fixture proving seeded boundary failures.
+- `schemas/` - JSON Schemas for deterministic fixtures and generated result contracts.
+- `tests/` - Vitest coverage for validator failure modes.
+- `cases/` - self-contained product-to-design case fixtures.
+- `judges/` - manual model-graded judge rubrics and Promptfoo template.
+- `outcomes/` - redacted outcome-study templates for downstream delivery friction.
 - `results/` - ignored local run outputs; only `results/README.md` is committed.
+- `run_case_eval.mjs` - deterministic case runner for candidate designs.
 - `validate_eval_fixtures.mjs` - deterministic validation for review expectations and DDD defect
   manifests.
 - `run_static_checks.sh` - local validation for skills, schema, profile files, and private source-name
@@ -48,6 +54,7 @@ Run:
 ```bash
 bash evals/run_static_checks.sh
 bash evals/enforce/run_evals.sh
+pnpm eval:unit
 ```
 
 The repository gate is:
@@ -64,7 +71,15 @@ Start here:
    participate, and where integration points sit.
 2. Read `ddd/defect-manifest.json` for the deterministic DDD defect classes covered today.
 3. Read `review/expected-suggestions.json` for the expected structured review output.
-4. Read `results/README.md` before writing or inspecting generated eval outputs.
+4. Read `cases/README.md` before adding product-to-design cases.
+5. Read `judges/README.md` before running model-graded evals.
+6. Read `results/README.md` before writing or inspecting generated eval outputs.
+
+Run a deterministic case manually:
+
+```bash
+pnpm eval:case -- --case case-tiny-laundry-pickup-v1 --candidate evals/cases/case-tiny-laundry-pickup-v1/reference-design.md
+```
 
 Generated outputs belong under `evals/results/<run-id>/` and are ignored by default. A result bundle
 should include `manifest.json`, `report.md`, `grades.json`, and per-case evidence files when a

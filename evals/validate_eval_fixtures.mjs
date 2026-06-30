@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import Ajv2020 from "ajv/dist/2020.js";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,6 +9,7 @@ const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "..");
 
 const failures = [];
+const ajv = new Ajv2020({ allErrors: true, strict: false });
 
 const relative = (absolutePath) => path.relative(root, absolutePath);
 
@@ -67,6 +69,116 @@ const extractLessonIds = (ledgerText) =>
     [...ledgerText.matchAll(/\|\s+(LSN-\d{3})\s+\|/g)].map((match) => match[1]),
   );
 
+const formatAjvPath = (instancePath) =>
+  instancePath
+    .replace(/^\//, "")
+    .replaceAll("/", ".")
+    .replace(/\.(\d+)(?=\.|$)/g, "[$1]");
+
+const recordAjvErrors = (label, validate, data) => {
+  const valid = validate(data);
+  if (valid || !validate.errors) {
+    return valid;
+  }
+
+  for (const error of validate.errors) {
+    const basePath = formatAjvPath(error.instancePath);
+    const targetPath =
+      error.keyword === "required"
+        ? [basePath, error.params.missingProperty].filter(Boolean).join(".")
+        : basePath;
+    const subject = targetPath ? `${label}.${targetPath}` : label;
+    failures.push(`${subject} ${error.message}`);
+  }
+
+  return false;
+};
+
+const validateNoBlankStrings = (value, label, options = {}) => {
+  const allowBlankLabels = new Set(options.allowBlankLabels ?? []);
+  if (typeof value === "string") {
+    if (value.trim().length === 0 && !allowBlankLabels.has(label)) {
+      failures.push(`${label} must not be blank`);
+    }
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const [index, item] of value.entries()) {
+      validateNoBlankStrings(item, `${label}[${index}]`, options);
+    }
+    return;
+  }
+  if (value && typeof value === "object") {
+    for (const [key, item] of Object.entries(value)) {
+      validateNoBlankStrings(item, `${label}.${key}`, options);
+    }
+  }
+};
+
+const reviewSuggestionSchema = readJson(
+  "evals/schemas/review-suggestion.schema.json",
+);
+const expectedSuggestionsSchema = readJson(
+  "evals/schemas/expected-suggestions.schema.json",
+);
+const expectedDefectSuggestionSchema = readJson(
+  "evals/schemas/expected-defect-suggestion.schema.json",
+);
+const defectManifestSchema = readJson(
+  "evals/schemas/defect-manifest.schema.json",
+);
+const expectedSuggestions = readJson("evals/review/expected-suggestions.json");
+const defectManifest = readJson("evals/ddd/defect-manifest.json");
+const lessonsLedger = readText("docs/design/lessons-ledger.md");
+const dddReviewRubric = readText("methodologies/ddd/review-rubric.md");
+
+const lessonIds = extractLessonIds(lessonsLedger);
+
+const registerSchema = (schema, label) => {
+  assert(
+    schema && typeof schema === "object",
+    `${label} schema must be an object`,
+  );
+  if (!schema || typeof schema !== "object") {
+    return;
+  }
+  assert(typeof schema.$id === "string", `${label} schema must declare $id`);
+  if (typeof schema.$id !== "string") {
+    return;
+  }
+  ajv.addSchema(schema);
+};
+
+const validateLessonRef = (lessonRef, label) => {
+  assert(typeof lessonRef === "string", `${label} must be a string`);
+  if (typeof lessonRef !== "string") {
+    return;
+  }
+  if (lessonRef !== "none") {
+    assert(
+      lessonIds.has(lessonRef),
+      `${label} references unknown lesson ${lessonRef}`,
+    );
+  }
+};
+
+const validateRubricGateRef = (gateRef, label) => {
+  assert(typeof gateRef === "string", `${label} must be a string`);
+  if (typeof gateRef !== "string") {
+    return "";
+  }
+
+  const prefix = "DDD review rubric: ";
+  assert(gateRef.startsWith(prefix), `${label} must start with "${prefix}"`);
+  const rubricSnippet = gateRef.slice(prefix.length);
+  assert(rubricSnippet.trim().length > 0, `${label} must cite rubric text`);
+  assert(
+    dddReviewRubric.includes(rubricSnippet),
+    `${label} references rubric text not found in methodologies/ddd/review-rubric.md`,
+  );
+  return rubricSnippet;
+};
+
 const rubricSeverityForSnippet = (snippet) => {
   let currentSeverity = "";
   for (const line of dddReviewRubric.split("\n")) {
@@ -89,140 +201,58 @@ const rubricSeverityForSnippet = (snippet) => {
   return "";
 };
 
-const suggestionSchema = readJson(
-  "skills/review-technical-design/templates/suggestion.schema.json",
-);
-const expectedSuggestions = readJson("evals/review/expected-suggestions.json");
-const defectManifest = readJson("evals/ddd/defect-manifest.json");
-const lessonsLedger = readText("docs/design/lessons-ledger.md");
-const dddReviewRubric = readText("methodologies/ddd/review-rubric.md");
+registerSchema(reviewSuggestionSchema, "review suggestion");
+registerSchema(expectedDefectSuggestionSchema, "expected defect suggestion");
+registerSchema(expectedSuggestionsSchema, "expected suggestions");
+registerSchema(defectManifestSchema, "defect manifest");
 
-const lessonIds = extractLessonIds(lessonsLedger);
+const validateExpectedSuggestionsShape = expectedSuggestionsSchema
+  ? ajv.compile(expectedSuggestionsSchema)
+  : null;
+const validateDefectManifestShape = defectManifestSchema
+  ? ajv.compile(defectManifestSchema)
+  : null;
 
-const validateSchemaObject = (schema, label) => {
-  assert(
-    schema && schema.type === "object",
-    `${label} schema must be an object schema`,
-  );
-  assert(
-    Array.isArray(schema?.required) && schema.required.length > 0,
-    `${label} schema must declare required fields`,
-  );
-  assert(
-    schema?.properties && typeof schema.properties === "object",
-    `${label} schema must declare properties`,
-  );
-};
-
-const validateStringField = (value, label) => {
-  assert(typeof value === "string", `${label} must be a string`);
-  if (typeof value === "string") {
-    assert(
-      value.trim().length > 0 || label.endsWith(".decision_ref"),
-      `${label} must not be blank`,
-    );
+const compileSchema = (schema, label) => {
+  if (!schema || typeof schema !== "object") {
+    failures.push(`${label} schema must be an object`);
+    return null;
   }
-};
-
-const validateSchemaBackedField = (value, definition, label) => {
-  if (!definition || typeof definition !== "object") {
-    failures.push(`${label} has no schema definition`);
-    return;
+  try {
+    if (schema.$id && ajv.getSchema(schema.$id)) {
+      return ajv.getSchema(schema.$id);
+    }
+    return ajv.compile(schema);
+  } catch (error) {
+    failures.push(`${label} failed to compile: ${error.message}`);
+    return null;
   }
-  if (definition.type === "string") {
-    validateStringField(value, label);
-  }
-  if (definition.enum) {
-    assert(
-      definition.enum.includes(value),
-      `${label} must be one of ${definition.enum.join(", ")}`,
-    );
-  }
-  if (definition.pattern && typeof value === "string") {
-    assert(
-      new RegExp(definition.pattern).test(value),
-      `${label} does not match ${definition.pattern}`,
-    );
-  }
-};
-
-const validateLessonRef = (lessonRef, label) => {
-  validateStringField(lessonRef, label);
-  if (lessonRef !== "none") {
-    assert(
-      lessonIds.has(lessonRef),
-      `${label} references unknown lesson ${lessonRef}`,
-    );
-  }
-};
-
-const validateRubricGateRef = (gateRef, label) => {
-  validateStringField(gateRef, label);
-  if (typeof gateRef !== "string") {
-    return "";
-  }
-  const prefix = "DDD review rubric: ";
-  assert(gateRef.startsWith(prefix), `${label} must start with "${prefix}"`);
-  const rubricSnippet = gateRef.slice(prefix.length);
-  assert(rubricSnippet.trim().length > 0, `${label} must cite rubric text`);
-  assert(
-    dddReviewRubric.includes(rubricSnippet),
-    `${label} references rubric text not found in methodologies/ddd/review-rubric.md`,
-  );
-  return rubricSnippet;
 };
 
 const validateExpectedSuggestions = () => {
-  validateSchemaObject(suggestionSchema, "review suggestion");
+  const shapeIsValid = validateExpectedSuggestionsShape
+    ? recordAjvErrors(
+        "expected-suggestions",
+        validateExpectedSuggestionsShape,
+        expectedSuggestions,
+      )
+    : false;
 
-  assert(
-    Array.isArray(expectedSuggestions) && expectedSuggestions.length > 0,
-    "evals/review/expected-suggestions.json must contain a non-empty array",
-  );
   if (!Array.isArray(expectedSuggestions)) {
     return;
   }
-  if (!suggestionSchema?.properties) {
+  if (!shapeIsValid) {
     return;
   }
 
   const ids = expectedSuggestions.map((suggestion) => suggestion.id);
   assert(uniqueValues(ids), "expected suggestion ids must be unique");
 
-  const knownFields = new Set(Object.keys(suggestionSchema.properties));
   for (const [index, suggestion] of expectedSuggestions.entries()) {
     const label = `expected-suggestions[${index}]`;
-    assert(
-      suggestion &&
-        typeof suggestion === "object" &&
-        !Array.isArray(suggestion),
-      `${label} must be an object`,
-    );
-    if (
-      !suggestion ||
-      typeof suggestion !== "object" ||
-      Array.isArray(suggestion)
-    ) {
-      continue;
-    }
-
-    for (const field of suggestionSchema.required) {
-      assert(Object.hasOwn(suggestion, field), `${label}.${field} is required`);
-    }
-
-    for (const field of Object.keys(suggestion)) {
-      assert(
-        knownFields.has(field),
-        `${label}.${field} is not part of the suggestion schema`,
-      );
-      if (knownFields.has(field)) {
-        validateSchemaBackedField(
-          suggestion[field],
-          suggestionSchema.properties[field],
-          `${label}.${field}`,
-        );
-      }
-    }
+    validateNoBlankStrings(suggestion, label, {
+      allowBlankLabels: [`${label}.decision_ref`],
+    });
 
     validateLessonRef(suggestion.lesson_ref, `${label}.lesson_ref`);
     const rubricSnippet = validateRubricGateRef(
@@ -245,26 +275,15 @@ const validateDefectManifest = () => {
     "unsourced-invariant-operand",
     "vacuous-enforcement",
   ];
-  const catchingSurfaces = new Set([
-    "static-check",
-    "review-rubric",
-    "enforcement-seed",
-    "future-judge-criterion",
-  ]);
-  const expectedSuggestionFields = [
-    "severity",
-    "lens",
-    "dimension",
-    "lesson_ref",
-    "gate_ref",
-  ];
 
-  assert(
-    defectManifest &&
-      typeof defectManifest === "object" &&
-      !Array.isArray(defectManifest),
-    "evals/ddd/defect-manifest.json must be an object",
-  );
+  const shapeIsValid = validateDefectManifestShape
+    ? recordAjvErrors(
+        "defect-manifest",
+        validateDefectManifestShape,
+        defectManifest,
+      )
+    : false;
+
   if (
     !defectManifest ||
     typeof defectManifest !== "object" ||
@@ -272,15 +291,14 @@ const validateDefectManifest = () => {
   ) {
     return;
   }
-
-  validateStringField(defectManifest.version, "defect-manifest.version");
-  assert(
-    Array.isArray(defectManifest.defects) && defectManifest.defects.length > 0,
-    "defect-manifest.defects must be a non-empty array",
-  );
   if (!Array.isArray(defectManifest.defects)) {
     return;
   }
+  if (!shapeIsValid) {
+    return;
+  }
+
+  validateNoBlankStrings(defectManifest, "defect-manifest");
 
   const ids = defectManifest.defects.map((defect) => defect.id);
   assert(uniqueValues(ids), "defect manifest ids must be unique");
@@ -290,42 +308,8 @@ const validateDefectManifest = () => {
 
   for (const [index, defect] of defectManifest.defects.entries()) {
     const label = `defect-manifest.defects[${index}]`;
-    assert(
-      defect && typeof defect === "object" && !Array.isArray(defect),
-      `${label} must be an object`,
-    );
-    if (!defect || typeof defect !== "object" || Array.isArray(defect)) {
-      continue;
-    }
-
-    for (const field of [
-      "id",
-      "file",
-      "required_class",
-      "catching_surface",
-      "rubric_evidence",
-      "required_fix",
-    ]) {
-      validateStringField(defect[field], `${label}.${field}`);
-    }
-    if (
-      ![
-        "id",
-        "file",
-        "required_class",
-        "catching_surface",
-        "rubric_evidence",
-        "required_fix",
-      ].every((field) => typeof defect[field] === "string")
-    ) {
-      continue;
-    }
-    assert(
-      catchingSurfaces.has(defect.catching_surface),
-      `${label}.catching_surface must be one of ${[...catchingSurfaces].join(", ")}`,
-    );
-
     const fixturePath = asPath("evals/ddd", defect.file);
+
     assert(
       fs.existsSync(fixturePath),
       `${label}.file does not exist: ${relative(fixturePath)}`,
@@ -347,31 +331,13 @@ const validateDefectManifest = () => {
       `${label}.rubric_evidence is not present in methodologies/ddd/review-rubric.md`,
     );
 
-    assert(
-      defect.expected_suggestion &&
-        typeof defect.expected_suggestion === "object" &&
-        !Array.isArray(defect.expected_suggestion),
-      `${label}.expected_suggestion must be an object`,
-    );
-    if (
-      !defect.expected_suggestion ||
-      typeof defect.expected_suggestion !== "object" ||
-      Array.isArray(defect.expected_suggestion)
-    ) {
-      continue;
-    }
-
-    for (const field of expectedSuggestionFields) {
-      assert(
-        Object.hasOwn(defect.expected_suggestion, field),
-        `${label}.expected_suggestion.${field} is required`,
-      );
-      const schemaField = suggestionSchema.properties[field];
-      validateSchemaBackedField(
-        defect.expected_suggestion[field],
-        schemaField,
-        `${label}.expected_suggestion.${field}`,
-      );
+    for (const field of [
+      "severity",
+      "lens",
+      "dimension",
+      "lesson_ref",
+      "gate_ref",
+    ]) {
       if (field !== "gate_ref") {
         assert(
           fixtureText.includes(String(defect.expected_suggestion[field])),
@@ -396,8 +362,109 @@ const validateDefectManifest = () => {
   }
 };
 
+const validateJsonSchemaFiles = () => {
+  const schemasDir = path.join(root, "evals/schemas");
+  if (!fs.existsSync(schemasDir)) {
+    return;
+  }
+  for (const schemaFile of sorted(
+    fs
+      .readdirSync(schemasDir)
+      .filter((fileName) => fileName.endsWith(".schema.json")),
+  )) {
+    compileSchema(
+      readJson(path.join("evals/schemas", schemaFile)),
+      `evals/schemas/${schemaFile}`,
+    );
+  }
+};
+
+const validateCaseFixtures = () => {
+  const casesDir = path.join(root, "evals/cases");
+  if (!fs.existsSync(casesDir)) {
+    return;
+  }
+  const expectedFactsShape = compileSchema(
+    readJson("evals/schemas/expected-facts.schema.json"),
+    "expected facts",
+  );
+  const expectedBoundariesShape = compileSchema(
+    readJson("evals/schemas/expected-boundaries.schema.json"),
+    "expected boundaries",
+  );
+  for (const caseId of sorted(
+    fs
+      .readdirSync(casesDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name),
+  )) {
+    for (const fileName of [
+      "product.md",
+      "source-map.md",
+      "reference-design.md",
+      "expected-facts.json",
+      "expected-boundaries.json",
+      "rubric.md",
+      "grader-notes.md",
+      "provenance.md",
+    ]) {
+      const fixturePath = path.join("evals/cases", caseId, fileName);
+      assert(
+        fs.existsSync(path.join(root, fixturePath)),
+        `${fixturePath} is required`,
+      );
+    }
+
+    const expectedFacts = readJson(
+      path.join("evals/cases", caseId, "expected-facts.json"),
+    );
+    const expectedBoundaries = readJson(
+      path.join("evals/cases", caseId, "expected-boundaries.json"),
+    );
+    if (expectedFactsShape) {
+      recordAjvErrors(
+        `evals/cases/${caseId}/expected-facts.json`,
+        expectedFactsShape,
+        expectedFacts,
+      );
+    }
+    if (expectedBoundariesShape) {
+      recordAjvErrors(
+        `evals/cases/${caseId}/expected-boundaries.json`,
+        expectedBoundariesShape,
+        expectedBoundaries,
+      );
+    }
+    assert(
+      expectedFacts?.case_id === caseId,
+      `evals/cases/${caseId}/expected-facts.json case_id must match ${caseId}`,
+    );
+    assert(
+      expectedBoundaries?.case_id === caseId,
+      `evals/cases/${caseId}/expected-boundaries.json case_id must match ${caseId}`,
+    );
+  }
+};
+
+const validateOutcomeTemplates = () => {
+  const templatePath = "evals/outcomes/outcome-study-template.json";
+  if (!fs.existsSync(path.join(root, templatePath))) {
+    return;
+  }
+  const outcomeStudyShape = compileSchema(
+    readJson("evals/schemas/outcome-study.schema.json"),
+    "outcome study",
+  );
+  if (outcomeStudyShape) {
+    recordAjvErrors(templatePath, outcomeStudyShape, readJson(templatePath));
+  }
+};
+
 validateExpectedSuggestions();
 validateDefectManifest();
+validateJsonSchemaFiles();
+validateCaseFixtures();
+validateOutcomeTemplates();
 
 if (failures.length > 0) {
   console.error("Eval fixture validation failed:");

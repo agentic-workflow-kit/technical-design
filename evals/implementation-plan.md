@@ -13,10 +13,10 @@ lower layers are explicit, reproducible, and reviewable.
 | -------------------------------------- | ------- | --------------------------------------------------------------------------------------- |
 | 0. Strategy and scope                  | Done    | Evaluation strategy added and linked from eval docs.                                    |
 | 1. Deterministic fixture contracts     | Done    | Review expectations and DDD defect fixtures are validated in `pnpm check`.              |
-| 2. Schema-backed deterministic harness | Planned | Replace custom structural validation with reusable JSON Schemas and test runner output. |
-| 3. Product-to-design case runner       | Planned | Add self-contained cases, candidate outputs, graders, and local result bundles.         |
-| 4. LLM judge and pairwise regression   | Planned | Add bounded model-graded rubrics after deterministic fact inputs stabilize.             |
-| 5. Outcome studies                     | Later   | Compare design quality with downstream delivery friction manually or periodically.      |
+| 2. Schema-backed deterministic harness | Done    | Ajv schemas and Vitest validator tests are wired into `pnpm check`.                     |
+| 3. Product-to-design case runner       | Done    | One self-contained deterministic case and local result runner are available.            |
+| 4. LLM judge and pairwise regression   | Scaffolded | Manual judge rubrics, output schemas, and Promptfoo template exist outside the gate. |
+| 5. Outcome studies                     | Scaffolded | Redacted outcome-study template and schema exist for future manual studies.          |
 
 ## Execution Flow
 
@@ -94,7 +94,7 @@ Verification:
 
 ## Phase 2 - Schema-Backed Deterministic Harness
 
-Status: Planned.
+Status: Done.
 
 Goal:
 
@@ -112,20 +112,15 @@ Recommended OSS tools:
 - Keep `dependency-cruiser` for architecture enforcement because it already powers the enforce eval
   and its rule model directly matches the design-owned enforcement maps.
 
-Steps:
+Implemented:
 
-1. Add JSON Schemas under `evals/schemas/`.
-2. Replace hand-coded schema-shape checks in `validate_eval_fixtures.mjs` with Ajv validation.
-3. Add unit tests under `evals/tests/` for validator failure modes:
-   - missing required DDD defect;
-   - empty rubric reference;
-   - severity mismatch with rubric section;
-   - unknown lesson id;
-   - fixture path escaping `evals/ddd/`.
-4. Add scripts under `evals/` only:
-   - `evals/run_static_checks.sh` remains the static entrypoint;
-   - optional `evals/run_unit_checks.mjs` or `evals/tests/*.test.mjs` if the repo adopts Vitest.
-5. Emit local test reports only under `evals/results/<run-id>/` when requested.
+- Added JSON Schemas under `evals/schemas/`.
+- Replaced hand-coded structural validation in `validate_eval_fixtures.mjs` with Ajv validation while
+  retaining cross-file semantic checks.
+- Added Vitest tests under `evals/tests/` for missing required DDD defect, empty rubric reference,
+  severity mismatch, unknown lesson id, and fixture path escaping `evals/ddd/`.
+- Added `eval:unit` and wired it into `pnpm check`.
+- Kept generated test reports out of committed files.
 
 Agents and review:
 
@@ -151,7 +146,7 @@ Verification:
 
 ## Phase 3 - Product-to-Design Case Runner
 
-Status: Planned.
+Status: Done.
 
 Goal:
 
@@ -165,26 +160,13 @@ Recommended OSS tools:
 - Keep deterministic fact extraction and comparison in local code or schemas before introducing
   model-graded assertions.
 
-Steps:
+Implemented:
 
-1. Add case directories under `evals/cases/<case-id>/`.
-2. Each case includes:
-   - `product.md`
-   - `source-map.md`
-   - `reference-design.md`
-   - `expected-facts.json`
-   - `expected-boundaries.json`
-   - `rubric.md`
-   - `grader-notes.md`
-   - `provenance.md`
-3. Add `evals/cases/README.md` with case authoring rules and fixture licensing requirements.
-4. Add a deterministic runner that reads a candidate output and writes:
-   - `grades.json`
-   - `report.md`
-   - `manifest.json`
-5. Write outputs under `evals/results/<run-id>/<case-id>/`.
-6. Commit only durable fixtures and schemas; keep generated run outputs ignored unless explicitly
-   promoted to a reviewed summary.
+- Added `evals/cases/README.md` with case authoring rules and fixture licensing requirements.
+- Added `case-tiny-laundry-pickup-v1` as a synthetic, self-contained product-to-design case.
+- Added schemas for expected facts, expected boundaries, grades, and result manifests.
+- Added `evals/run_case_eval.mjs`, which reads a candidate design and writes `manifest.json`,
+  `grades.json`, `report.md`, and per-case grader evidence under ignored `evals/results/<run-id>/`.
 
 Agents and review:
 
@@ -207,7 +189,7 @@ Verification:
 
 ## Phase 4 - LLM Judge and Pairwise Regression
 
-Status: Planned.
+Status: Scaffolded.
 
 Goal:
 
@@ -224,15 +206,16 @@ Recommended OSS tools:
   lightweight repo-local harness.
 - Do not build on OpenAI's hosted Evals API for new work because the Evals platform is deprecated.
 
-Steps:
+Implemented:
 
-1. Add judge rubrics under `evals/judges/`.
-2. Add pairwise comparison prompts with randomized candidate order.
-3. Require structured JSON judge output with criterion, verdict, severity, evidence, explanation,
-   and confidence.
-4. Store prompt, model, rubric version, case id, candidate id, and run metadata in
-   `evals/results/<run-id>/manifest.json`.
-5. Calibrate on a small human-reviewed set before using judge verdicts as a release signal.
+- Added judge rubrics under `evals/judges/`.
+- Added a pairwise comparison prompt that requires randomized candidate order to be recorded.
+- Added schemas for structured judge output and pairwise results.
+- Added a manual Promptfoo template outside the required PR gate.
+
+Remaining:
+
+- Calibrate on a small human-reviewed set before using judge verdicts as a release signal.
 
 Agents and review:
 
@@ -257,24 +240,24 @@ Verification:
 
 ## Phase 5 - Outcome Studies
 
-Status: Later.
+Status: Scaffolded.
 
 Goal:
 
 Measure whether better design artifacts reduce delivery friction.
 
-Steps:
+Implemented:
 
-1. Pick a small set of completed design-to-implementation runs.
-2. Record downstream signals:
-   - planner clarifications;
-   - implementation blockers;
-   - ownership/invariant/enforcement review findings;
-   - rework after implementation starts;
-   - test strategy gaps.
-3. Compare runs before and after eval improvements.
-4. Store raw evidence outside committed fixtures unless the repo explicitly accepts a redacted
-   summary.
+- Added `evals/outcomes/README.md` with outcome-study rules.
+- Added `evals/outcomes/outcome-study-template.json`.
+- Added `evals/schemas/outcome-study.schema.json`.
+
+Remaining:
+
+- Pick completed design-to-implementation runs and record downstream signals.
+- Compare runs before and after eval improvements.
+- Store raw evidence outside committed fixtures unless the repo explicitly accepts a redacted
+  summary.
 
 Agents and review:
 

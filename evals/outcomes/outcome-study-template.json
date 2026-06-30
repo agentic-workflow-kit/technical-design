@@ -1,0 +1,19 @@
+{
+  "study_id": "outcome-study-template",
+  "source_runs": [
+    {
+      "id": "RUN-001",
+      "reference": "redacted summary or local raw evidence pointer",
+      "redaction_status": "private-raw-local"
+    }
+  ],
+  "signals": {
+    "planner_clarifications": 0,
+    "implementation_blockers": 0,
+    "review_findings": 0,
+    "rework": 0,
+    "test_strategy_gaps": 0
+  },
+  "recurring_defects": [],
+  "promotion_decisions": []
+}
