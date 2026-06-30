@@ -4,6 +4,8 @@ This directory contains fixtures and checks for the DDD-first `technical-design`
 
 The layered design-quality strategy lives in
 [`docs/design/evaluation-strategy.md`](../docs/design/evaluation-strategy.md).
+The implementation and execution plan lives in
+[`implementation-plan.md`](./implementation-plan.md).
 
 ## Structure
 
@@ -12,6 +14,7 @@ The layered design-quality strategy lives in
 - `review/` - intentionally defective design plus expected suggestion classes.
 - `ddd/` - defect-class fixtures for DDD review and methodology readiness.
 - `enforce/` - executable dependency-cruiser fixture proving seeded boundary failures.
+- `results/` - ignored local run outputs; only `results/README.md` is committed.
 - `validate_eval_fixtures.mjs` - deterministic validation for review expectations and DDD defect
   manifests.
 - `run_static_checks.sh` - local validation for skills, schema, profile files, and private source-name
@@ -45,3 +48,23 @@ Run:
 bash evals/run_static_checks.sh
 bash evals/enforce/run_evals.sh
 ```
+
+The repository gate is:
+
+```bash
+pnpm check
+```
+
+## Reading the Evals
+
+Start here:
+
+1. Read `implementation-plan.md` for what is implemented, what is planned, which agents/reviewers
+   participate, and where integration points sit.
+2. Read `ddd/defect-manifest.json` for the deterministic DDD defect classes covered today.
+3. Read `review/expected-suggestions.json` for the expected structured review output.
+4. Read `results/README.md` before writing or inspecting generated eval outputs.
+
+Generated outputs belong under `evals/results/<run-id>/` and are ignored by default. A result bundle
+should include `manifest.json`, `report.md`, `grades.json`, and per-case evidence files when a
+runner writes case outputs.
