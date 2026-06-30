@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-workflow-kit.local/technical-design/review-suggestion.schema.json",
+  "title": "ReviewSuggestion",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "severity",
+    "lens",
+    "dimension",
+    "location",
+    "evidence",
+    "finding",
+    "proposed_fix",
+    "rationale",
+    "gate_ref",
+    "lesson_ref",
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^S-[0-9]{3}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["blocking", "recommended", "optional"]
+    },
+    "lens": {
+      "type": "string",
+      "enum": ["architecture-enforceability", "domain-correctness"]
+    },
+    "dimension": {
+      "type": "string",
+      "enum": [
+        "source-map",
+        "bounded-context",
+        "ubiquitous-language",
+        "domain-model",
+        "invariant",
+        "state-transition",
+        "boundary",
+        "public-api",
+        "consistency",
+        "failure",
+        "testability",
+        "observability",
+        "migration-deploy",
+        "enforceability",
+        "delivery-inputs",
+        "over-engineering",
+        "under-engineering"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence": {
+      "type": "string",
+      "minLength": 1
+    },
+    "finding": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proposed_fix": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gate_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lesson_ref": {
+      "type": "string",
+      "pattern": "^(LSN-[0-9]{3}|none)$"
+    },
+    "effort": {
+      "type": "string",
+      "enum": ["S", "M", "L"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["open", "accepted", "rejected", "deferred"]
+    },
+    "decision_ref": {
+      "type": "string",
+      "pattern": "^(D-[0-9]{3}|)$"
+    }
+  }
+}

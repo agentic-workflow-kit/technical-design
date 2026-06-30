@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-workflow-kit.local/technical-design/evals/defect-manifest.schema.json",
+  "title": "DddDefectManifest",
+  "type": "object",
+  "required": ["version", "defects"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "defects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "file",
+          "required_class",
+          "catching_surface",
+          "rubric_evidence",
+          "required_fix",
+          "expected_suggestion"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "file": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required_class": {
+            "type": "string",
+            "minLength": 1
+          },
+          "catching_surface": {
+            "type": "string",
+            "enum": [
+              "static-check",
+              "review-rubric",
+              "enforcement-seed",
+              "future-judge-criterion"
+            ]
+          },
+          "rubric_evidence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required_fix": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expected_suggestion": {
+            "$ref": "https://agentic-workflow-kit.local/technical-design/evals/expected-defect-suggestion.schema.json"
+          }
+        }
+      }
+    }
+  }
+}

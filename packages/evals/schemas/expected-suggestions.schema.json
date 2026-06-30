@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-workflow-kit.local/technical-design/evals/expected-suggestions.schema.json",
+  "title": "ExpectedReviewSuggestions",
+  "type": "array",
+  "minItems": 1,
+  "items": {
+    "$ref": "https://agentic-workflow-kit.local/technical-design/review-suggestion.schema.json"
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "case_id": "case-customer-credit-order-saga-v1",
+  "facts": [
+    {
+      "id": "FACT-001",
+      "category": "invariant",
+      "severity": "critical",
+      "source_refs": ["SRC-001"],
+      "description": "Order Service and Customer Service are separate services.",
+      "must_include_any": ["separate services", "two services"],
+      "must_include_all": ["Order Service", "Customer Service"],
+      "required_concepts": [
+        {
+          "label": "order-side service",
+          "any_of": ["Order Service"]
+        },
+        {
+          "label": "customer-side service",
+          "any_of": ["Customer Service"]
+        },
+        {
+          "label": "distinct services",
+          "any_of": ["separate services", "two services"]
+        }
+      ]
+    },
+    {
+      "id": "FACT-002",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-002", "SRC-003"],
+      "description": "Creating an order starts in PENDING and then triggers reserve-credit orchestration.",
+      "must_include_any": ["order creation", "saga orchestration"],
+      "must_include_all": ["PENDING", "reserveCredit"]
+    },
+    {
+      "id": "FACT-003",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-004"],
+      "description": "Customer Credit owns customer data, credit limit, and credit reservation decisions.",
+      "must_include_any": ["Customer Credit owns", "Customer Service owns"],
+      "must_include_all": [
+        "customer data",
+        "credit limit",
+        "credit reservations"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Customer Service source wording",
+          "must_include_all": [
+            "Customer Service",
+            "customer records",
+            "credit limit",
+            "per-order credit reservations"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "customer credit owner",
+          "any_of": ["Customer Credit", "Customer Service"]
+        },
+        {
+          "label": "customer data authority",
+          "any_of": ["customer data", "customer records"]
+        },
+        {
+          "label": "credit limit authority",
+          "any_of": ["credit limit", "available-credit calculation"]
+        },
+        {
+          "label": "credit reservation authority",
+          "any_of": [
+            "credit reservations",
+            "per-order credit reservations",
+            "reserve-credit outcomes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FACT-004",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-003", "SRC-005"],
+      "description": "Ordering owns order creation, order state, rejection reason, and saga orchestration.",
+      "must_include_any": ["Ordering owns", "Order Service owns"],
+      "must_include_all": [
+        "order creation",
+        "order state",
+        "rejection reason",
+        "saga orchestration"
+      ]
+    },
+    {
+      "id": "FACT-005",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-002", "SRC-004"],
+      "description": "The saga sends a reserve-credit command to Customer Credit and expects a reply.",
+      "must_include_any": ["reserveCredit command", "asynchronous replies"],
+      "must_include_all": ["reserveCredit", "Customer Credit"]
+    },
+    {
+      "id": "FACT-006",
+      "category": "event",
+      "severity": "critical",
+      "source_refs": ["SRC-003", "SRC-004"],
+      "description": "Outcomes include APPROVED, REJECTED, UNKNOWN_CUSTOMER, and INSUFFICIENT_CREDIT.",
+      "must_include_any": ["APPROVED", "REJECTED"],
+      "must_include_all": [
+        "APPROVED",
+        "REJECTED",
+        "UNKNOWN_CUSTOMER",
+        "INSUFFICIENT_CREDIT"
+      ]
+    },
+    {
+      "id": "FACT-007",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-005", "SRC-006", "SRC-007"],
+      "description": "Services persist their own data and rely on local transactions plus messaging.",
+      "must_include_any": [
+        "Each service persists its own data",
+        "Each service keeps its own database"
+      ],
+      "must_include_all": [
+        "Customer Service persists",
+        "Order Service persists"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Each service keeps its own database",
+          "must_include_all": [
+            "Customer Service",
+            "Order Service",
+            "own database"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "service-local persistence",
+          "any_of": [
+            "persist their own data",
+            "own database",
+            "updates its own database"
+          ]
+        },
+        {
+          "label": "customer service persists locally",
+          "any_of": [
+            "Customer Service persists",
+            "Customer Service persist",
+            "Customer Service and Order Service persist",
+            "Order Service and Customer Service persist",
+            "Customer Service keeps",
+            "Customer Service updates",
+            "Customer Service has"
+          ]
+        },
+        {
+          "label": "order service persists locally",
+          "any_of": [
+            "Order Service persists",
+            "Order Service persist",
+            "Customer Service and Order Service persist",
+            "Order Service and Customer Service persist",
+            "Order Service keeps",
+            "Order Service updates",
+            "Order Service has"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FACT-008",
+      "category": "non-goal",
+      "severity": "critical",
+      "source_refs": ["SRC-006", "SRC-008"],
+      "description": "Shared DB transactions, distributed transactions, and 2PC are contradictions for this case.",
+      "must_include_any": ["contradict", "Do not model this case"],
+      "must_include_all": [
+        "shared database transaction",
+        "distributed transaction",
+        "2PC"
+      ],
+      "must_not_include_any": [
+        "shared database transaction is required",
+        "distributed transaction is required",
+        "2PC is required",
+        "uses a shared database transaction",
+        "uses distributed transactions",
+        "uses 2PC",
+        "use 2PC",
+        "relies on 2PC",
+        "2PC for consistency"
+      ]
+    }
+  ]
+}

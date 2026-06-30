@@ -66,7 +66,13 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 |---|---|---|
 | <PRD / brief / source file> | <requirements, existing behavior, constraints> | <notes> |
 
-## 3. Assumptions and Blockers
+## 3. Input Sufficiency and Ownership Resolution
+
+| Required input | Source evidence | Resolution | Owner / impact |
+|---|---|---|---|
+| <ownership, invariant, lifecycle, API, data, failure, observability, enforcement, or delivery input> | <SRC-* or missing> | <provided | safe assumption | requires approval | blocked> | <context, fact ID, or blocking question> |
+
+## 4. Assumptions and Blockers
 
 ### Safe Assumptions
 - <assumption and why it is safe>
@@ -74,7 +80,7 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 ### Blocking Questions
 - <question that would change ownership, boundaries, data, consistency, deploy, security, or tests>
 
-## 4. DDD Depth
+## 5. DDD Depth
 
 **Selected depth:** <strategic-only | use-case-slices | ports-and-adapters | tactical-ddd>
 
@@ -82,19 +88,19 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 
 **Where deeper tactical ceremony is unnecessary:** <rationale>
 
-## 5. Context Map
+## 6. Context Map
 
 | Context | Owns | Reads | Does Not Own |
 |---|---|---|---|
 | <context> | <facts, decisions, data, behavior> | <external facts consumed> | <nearby concerns owned elsewhere> |
 
-## 6. Ubiquitous Language
+## 7. Ubiquitous Language
 
 | Term | Meaning | Owner |
 |---|---|---|
 | <term> | <precise meaning> | <context> |
 
-## 7. Domain Behavior
+## 8. Domain Behavior
 
 Use `use-case-slice.md` for detailed slices.
 
@@ -102,31 +108,31 @@ Use `use-case-slice.md` for detailed slices.
 |---|---|---|---|
 | <command> | <actor/system> | <invariant> | <state/event/output> |
 
-## 8. Invariant and State Matrix
+## 9. Invariant and State Matrix
 
 | Invariant / Predicate | Source operands | Enforced by | Failure token |
 |---|---|---|---|
 | <rule> | <declared fields/events/projections> | <context/aggregate/service> | <token> |
 
-## 9. Ports, Adapters, and Public API
+## 10. Ports, Adapters, and Public API
 
 | Surface | Type | Owner | Consumers | Enforcement |
 |---|---|---|---|---|
 | <port/API/export> | <domain port/public export/adapter> | <context> | <consumers> | <import test/rule/manual> |
 
-## 10. Data, Query, and Consistency
+## 11. Data, Query, and Consistency
 
 - **Write model:** <transaction boundary, idempotency, concurrency>
 - **Read model:** <queries, projections, freshness>
 - **Consistency:** <strong/eventual/manual reconciliation>
 
-## 11. Failure, Observability, Migration, and Deploy
+## 12. Failure, Observability, Migration, and Deploy
 
 - **Failure modes:** <dependency failures, degraded states, fail-closed behavior>
 - **Observability:** <events, metrics, logs, audit records>
 - **Migration/deploy:** <schema/data/config/rollout/rollback impacts>
 
-## 12. Testing and Enforcement
+## 13. Testing and Enforcement
 
 | Claim | Proof | Standing gate |
 |---|---|---|
@@ -141,7 +147,7 @@ Use `use-case-slice.md` for detailed slices.
 }
 ```
 
-## 13. Delivery Inputs
+## 14. Delivery Inputs
 
 - **Candidate story areas:** <list>
 - **Sequencing constraints:** <producer before consumer constraints>
@@ -149,6 +155,6 @@ Use `use-case-slice.md` for detailed slices.
 - **Validation expectations:** <commands/gates>
 - **Stop conditions:** <when implementation should stop and return to design>
 
-## 14. Risks and Deferred Decisions
+## 15. Risks and Deferred Decisions
 
 - <risk, deferred suggestion, or accepted tradeoff with decision id>

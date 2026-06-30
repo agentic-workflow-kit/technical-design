@@ -6,7 +6,7 @@
   "type": "module",
   "packageManager": "pnpm@11.9.0",
   "engines": {
-    "node": ">=22.13.0",
+    "node": ">=22.22.0",
     "pnpm": ">=11.9.0"
   },
   "devEngines": {
@@ -23,9 +23,7 @@
     "format": "prettier --write \"**/*.{json,js,mjs,ts,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{json,js,mjs,ts,yml,yaml}\"",
     "lint": "pnpm format:check",
-    "skills:check": "bash evals/run_static_checks.sh",
-    "eval:enforce": "pnpm --filter @agentic-workflow-kit/technical-design-enforce-eval eval",
-    "check": "pnpm lint && pnpm skills:check && pnpm eval:enforce"
+    "check": "pnpm lint && pnpm --filter @agentic-workflow-kit/technical-design-evals check:deterministic"
   },
   "devDependencies": {
     "prettier": "^3.6.2"

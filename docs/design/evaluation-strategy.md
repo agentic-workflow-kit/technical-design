@@ -2,7 +2,7 @@
 
 This document defines how `technical-design` should be evaluated as a design-stage skills pack. It
 is a design target, not a claim that every harness exists today. The current repository already has
-static checks and enforceability fixtures under `evals/`; this strategy describes how those checks
+static checks and enforceability fixtures under `packages/evals/`; this strategy describes how those checks
 grow into a layered evaluation system for design quality.
 
 ## Goal
@@ -68,8 +68,8 @@ Layer 1 protects contracts that are cheap to verify:
 - generated enforcement rules require seeded violations;
 - no-boundary CRUD cases pass honestly with empty enforcement.
 
-This layer is the natural extension of the current `evals/run_static_checks.sh` and
-`evals/enforce/run_evals.sh` gates.
+This layer is the natural extension of the current `packages/evals/src/run_static_checks.sh` and
+`packages/evals/src/run_enforce_eval.sh` gates.
 
 ### Layer 2 - Skill Fixtures
 
@@ -87,12 +87,12 @@ Layer 2 should prefer pass/fail expectations over prose quality scores.
 
 Implemented first slice:
 
-- `evals/review/expected-suggestions.json` stores complete expected review suggestions and is
+- `packages/evals/fixtures/review/expected-suggestions.json` stores complete expected review suggestions and is
   validated against the review suggestion schema.
-- `evals/ddd/defect-manifest.json` declares the initial deterministic DDD defect classes, their
+- `packages/evals/fixtures/ddd/defect-manifest.json` declares the initial deterministic DDD defect classes, their
   expected catching surface, lesson reference, and exact review-rubric evidence. The manifest may
   grow as future Layer 3 classes move from target strategy to executable fixtures.
-- `evals/validate_eval_fixtures.mjs` runs inside the static check gate so malformed fixture
+- `packages/evals/src/validate_eval_fixtures.mjs` runs inside the static check gate so malformed fixture
   expectations fail `pnpm check`.
 
 ### Layer 3 - Defect Injection
@@ -137,7 +137,7 @@ flowchart LR
 Case inputs should include:
 
 ```text
-evals/cases/<case-id>/
+packages/evals/fixtures/cases/<case-id>/
   product.md
   source-map.md
   reference-design.md
@@ -150,7 +150,7 @@ evals/cases/<case-id>/
 Case outputs should include:
 
 ```text
-results/<case-id>/<run-id>/
+packages/evals/results/<run-id>/
   frame.md
   design.md
   review.md
@@ -204,11 +204,16 @@ Deterministic graders own anything mechanically checkable:
 - required files and sections;
 - valid JSON schemas;
 - declared `owns`, `reads`, and `does-not-own` fields;
+- expected case facts and boundaries that cite visible `product.md` or `source-map.md` source refs;
 - one seeded violation per generated enforcement rule;
 - no-boundary cases that produce no fake rules;
 - public API proof references where public APIs are claimed.
 
 Any deterministic blocker makes the run red.
+
+Deterministic text matching should be calibrated for source-equivalent wording. Graders may normalize
+Markdown punctuation and use explicit accepted alternatives or concept groups, but contradiction
+checks remain conservative and authoritative.
 
 ### Reference and Fact Graders
 
@@ -234,6 +239,10 @@ The grader should classify each fact as:
 `contradicted` and `invented` findings are blockers unless explicitly marked as acceptable
 alternative design choices in the case rubric.
 
+Expected facts and boundaries must be source-visible. A fixture must not require wording or product
+scope that appears only in `reference-design.md`, `rubric.md`, or grader notes. Reference designs are
+comparison anchors, not answer keys.
+
 ### LLM Semantic Judge
 
 Use an LLM judge only where deterministic and fact graders cannot reasonably decide:
@@ -247,6 +256,11 @@ Use an LLM judge only where deterministic and fact graders cannot reasonably dec
 The judge must grade against a rubric and cite evidence. It must be allowed to return `unknown`.
 It must not reward length, rhetorical confidence, or familiar architecture vocabulary without
 source support.
+
+Run pointwise coverage judging before pairwise comparison when inspecting generated case outputs.
+The pointwise judge grades each expected `FACT-*` and `CTX-*` item against candidate evidence and
+visible source inputs. Pairwise judging answers which candidate is better overall; it does not prove
+that every required item is satisfied.
 
 Minimum judge output:
 
@@ -272,6 +286,10 @@ For major skill or methodology changes, run pairwise comparisons:
 Pairwise judging should randomize order and ask which candidate is more source-grounded,
 implementation-ready, and enforceable. The judge must explain the winning criteria, not only pick
 a winner.
+
+If deterministic grading and pointwise judging disagree, record the disagreement as calibration
+evidence. Do not let an LLM judge override deterministic blockers until a human-reviewed calibration
+set shows acceptable false-pass and false-fail behavior.
 
 ### Human Calibration
 
@@ -345,7 +363,7 @@ useful for boundary and ownership comparison, but often need supplementary produ
 Case selection rules:
 
 - Source and reference material used by a case must be committed or snapshotted under
-  `evals/cases/<case-id>/`; evals must not depend on live external fetches.
+  `packages/evals/fixtures/cases/<case-id>/`; evals must not depend on live external fetches.
 - Case IDs and fixture names must stay generic even when source material came from a public project.
 - Each case should include provenance and license notes when source material is derived from a
   public artifact.
@@ -406,7 +424,6 @@ sequenceDiagram
 ## Open Decisions
 
 - Exact machine-readable schema for `expected-facts.json`.
-- Whether judge prompts live under `evals/` or `methodologies/<profile>/`.
 - Minimum agreement threshold between human labels and LLM-judge verdicts.
 - Whether periodic Layer 4 and Layer 5 runs should publish committed summaries or local-only
   evidence bundles.

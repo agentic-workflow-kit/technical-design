@@ -1,0 +1,94 @@
+{
+  "case_id": "case-aerial-delivery-shipping-v1",
+  "facts": [
+    {
+      "id": "FACT-001",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-001"],
+      "description": "Businesses register with the service and users request pickup for delivery.",
+      "must_include_any": ["businesses register", "business enrollment"],
+      "must_include_all": ["users request pickup"],
+      "accepted_alternatives": [
+        {
+          "label": "Plural pickup-request wording",
+          "must_include_all": ["users request pickups"]
+        }
+      ]
+    },
+    {
+      "id": "FACT-002",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-001", "SRC-006"],
+      "description": "Scheduling assigns a drone as part of the shipping workflow.",
+      "must_include_any": ["assigns a drone", "drone assignment"],
+      "must_include_all": ["Scheduler"]
+    },
+    {
+      "id": "FACT-003",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-001", "SRC-007"],
+      "description": "Users receive an ETA and can track current location plus updated ETA during flight.",
+      "must_include_any": ["estimated delivery time", "ETA"],
+      "must_include_all": ["current location"]
+    },
+    {
+      "id": "FACT-004",
+      "category": "goal",
+      "severity": "critical",
+      "source_refs": ["SRC-003"],
+      "description": "Shipping and Drone Management are core subdomains.",
+      "must_include_any": [
+        "Shipping and Drone Management are the core subdomains",
+        "Shipping and Drone Management are core subdomains"
+      ]
+    },
+    {
+      "id": "FACT-005",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-002", "SRC-012"],
+      "description": "Different parts of the system have different storage and query needs.",
+      "must_include_any": [
+        "different storage and query needs",
+        "storage shaped for analytics and later lookup",
+        "analytics-oriented storage"
+      ]
+    },
+    {
+      "id": "FACT-006",
+      "category": "invariant",
+      "severity": "critical",
+      "source_refs": ["SRC-010", "SRC-011", "SRC-012"],
+      "description": "Operational delivery state and historical delivery data stay in separate boundaries.",
+      "must_include_any": [
+        "Delivery keeps the operational state",
+        "scheduled or in-progress deliveries",
+        "Delivery History is a separate boundary",
+        "should not collapse in-flight state and historical reporting"
+      ]
+    },
+    {
+      "id": "FACT-007",
+      "category": "non-goal",
+      "severity": "critical",
+      "source_refs": ["SRC-013"],
+      "description": "The fixture stays out of scope for detailed account internals, drone regulatory workflows, exact APIs, and production safety policies.",
+      "must_include_any": ["remain out of scope", "out of scope"],
+      "must_include_all": [
+        "account internals",
+        "drone regulatory workflows",
+        "exact public APIs",
+        "flight-safety policies"
+      ],
+      "must_not_include_any": [
+        "Accounts owns billing",
+        "regulatory compliance workflow is fully defined",
+        "REST API contract is fixed here",
+        "production flight safety policy is specified here"
+      ]
+    }
+  ]
+}

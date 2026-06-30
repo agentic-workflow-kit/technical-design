@@ -1,0 +1,206 @@
+{
+  "case_id": "case-customer-credit-order-saga-v1",
+  "contexts": [
+    {
+      "id": "CTX-001",
+      "name": "Ordering",
+      "source_refs": ["SRC-001", "SRC-002", "SRC-003", "SRC-005"],
+      "owns": [
+        "order creation",
+        "order state",
+        "rejection reason",
+        "saga orchestration"
+      ],
+      "reads": ["customer credit reply outcomes"],
+      "does_not_own": [
+        "customer data",
+        "credit limit",
+        "credit reservation policy"
+      ],
+      "must_include_all": [
+        "Ordering owns order creation",
+        "order state",
+        "rejection reason",
+        "saga orchestration"
+      ],
+      "must_not_include_any": [
+        "Ordering owns customer data",
+        "Ordering owns credit limit",
+        "Ordering owns credit reservation policy"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Order Service naming",
+          "must_include_all": [
+            "Order Service",
+            "owns order creation",
+            "order state",
+            "rejection reason"
+          ]
+        },
+        {
+          "label": "Order Management naming",
+          "must_include_all": [
+            "Order Management",
+            "owns order lifecycle",
+            "saga orchestration"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "ordering owner",
+          "any_of": ["Ordering", "Order Service", "Order Management"]
+        },
+        {
+          "label": "pending-first lifecycle",
+          "any_of": ["PENDING", "pending state", "starts in pending"]
+        },
+        {
+          "label": "order-side orchestration",
+          "any_of": ["saga orchestration", "orchestrator", "CreateOrderSaga"]
+        }
+      ]
+    },
+    {
+      "id": "CTX-002",
+      "name": "Customer Credit",
+      "source_refs": ["SRC-001", "SRC-004"],
+      "owns": [
+        "customer data",
+        "credit limit",
+        "credit reservations",
+        "credit reservation decisions"
+      ],
+      "reads": ["reserveCredit request data"],
+      "does_not_own": ["order lifecycle state", "order rejection reason"],
+      "must_include_all": [
+        "Customer Credit owns customer data",
+        "credit limit",
+        "credit reservations",
+        "credit reservation decisions"
+      ],
+      "must_not_include_any": [
+        "Customer Credit owns order lifecycle state",
+        "Customer Credit owns order rejection reason"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Customer Service naming",
+          "must_include_all": [
+            "Customer Service",
+            "owns customer records",
+            "credit limit",
+            "reserve-credit decisions"
+          ]
+        },
+        {
+          "label": "Credit Management naming",
+          "must_include_all": [
+            "Credit Management",
+            "owns customer credit policy",
+            "credit reservations"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "customer credit owner",
+          "any_of": ["Customer Credit", "Customer Service", "Credit Management"]
+        },
+        {
+          "label": "credit authority",
+          "any_of": [
+            "credit limit",
+            "available credit",
+            "credit reservation decisions",
+            "reserve-credit decisions"
+          ]
+        },
+        {
+          "label": "unknown customer or insufficient credit outcomes",
+          "any_of": [
+            "UNKNOWN_CUSTOMER",
+            "INSUFFICIENT_CREDIT",
+            "CustomerNotFound",
+            "CustomerCreditLimitExceeded"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CTX-003",
+      "name": "Messaging and Integration Infrastructure",
+      "source_refs": ["SRC-006", "SRC-007"],
+      "owns": [
+        "command transport",
+        "asynchronous reply transport",
+        "CDC publication from persisted messages to Kafka"
+      ],
+      "reads": ["messages persisted by services"],
+      "does_not_own": ["customer data", "order state", "credit policy"],
+      "must_include_all": [
+        "Messaging and Integration Infrastructure carries commands and asynchronous replies",
+        "CDC",
+        "Kafka"
+      ],
+      "must_not_include_any": [
+        "Messaging and Integration Infrastructure owns customer data",
+        "Messaging and Integration Infrastructure owns order state",
+        "Messaging and Integration Infrastructure owns credit policy",
+        "uses a shared database transaction",
+        "uses distributed transactions",
+        "uses 2PC",
+        "use 2PC",
+        "relies on 2PC",
+        "2PC for consistency"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Eventuate Tram infrastructure naming",
+          "must_include_all": [
+            "Eventuate Tram",
+            "request/reply messaging",
+            "CDC",
+            "Kafka"
+          ]
+        },
+        {
+          "label": "Saga messaging infrastructure naming",
+          "must_include_all": [
+            "Saga Messaging Infrastructure",
+            "command transport",
+            "asynchronous replies"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "orchestration transport",
+          "any_of": [
+            "asynchronous replies",
+            "request/reply messaging",
+            "command transport"
+          ]
+        },
+        {
+          "label": "cdc publication",
+          "any_of": [
+            "CDC",
+            "publishes persisted messages",
+            "MESSAGE table",
+            "Kafka"
+          ]
+        },
+        {
+          "label": "local transactions not 2pc",
+          "any_of": [
+            "local transactions",
+            "local-transaction saga approach",
+            "own data rather than sharing a database transaction"
+          ]
+        }
+      ]
+    }
+  ]
+}

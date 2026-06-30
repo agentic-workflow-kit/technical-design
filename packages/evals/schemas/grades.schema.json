@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-workflow-kit.local/technical-design/evals/grades.schema.json",
+  "title": "CaseGrades",
+  "type": "object",
+  "required": ["case_id", "verdict", "findings"],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verdict": {
+      "enum": ["red", "yellow", "green", "great"]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "severity", "verdict", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": ["fact", "boundary"]
+          },
+          "severity": {
+            "enum": ["critical", "recommended"]
+          },
+          "verdict": {
+            "enum": [
+              "covered",
+              "missing",
+              "contradicted",
+              "invented",
+              "unknown"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

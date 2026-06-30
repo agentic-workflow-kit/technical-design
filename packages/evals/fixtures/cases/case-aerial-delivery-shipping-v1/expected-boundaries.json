@@ -1,0 +1,274 @@
+{
+  "case_id": "case-aerial-delivery-shipping-v1",
+  "contexts": [
+    {
+      "id": "CTX-001",
+      "name": "Shipping",
+      "source_refs": ["SRC-003", "SRC-004"],
+      "owns": [
+        "shipping-side domain model",
+        "cross-context pickup-to-delivery workflow"
+      ],
+      "reads": ["account information", "drone scheduling information"],
+      "does_not_own": ["drone fleet policy", "account internals"],
+      "must_include_all": [
+        "Shipping owns the shipping-side domain model",
+        "pickup request",
+        "tracked delivery"
+      ],
+      "must_not_include_any": [
+        "Shipping owns drone fleet policy",
+        "Shipping owns account internals"
+      ],
+      "required_concepts": [
+        {
+          "label": "shipping owner",
+          "any_of": ["Shipping"]
+        },
+        {
+          "label": "shipping uses adjacent contexts",
+          "any_of": ["Accounts", "Drone Management"]
+        }
+      ]
+    },
+    {
+      "id": "CTX-002",
+      "name": "Drone Management",
+      "source_refs": ["SRC-003", "SRC-004"],
+      "owns": ["drone availability", "fleet scheduling facts"],
+      "reads": ["shipping demand"],
+      "does_not_own": ["delivery lifecycle", "delivery history"],
+      "must_include_all": [
+        "Drone Management owns drone availability",
+        "fleet scheduling"
+      ],
+      "must_not_include_any": ["Drone Management owns delivery history"],
+      "accepted_alternatives": [
+        {
+          "label": "Drone scheduling service wording",
+          "must_include_all": [
+            "Drone scheduling service",
+            "owns drone availability"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "drone context name",
+          "any_of": ["Drone Management", "Drone scheduling service"]
+        }
+      ]
+    },
+    {
+      "id": "CTX-003",
+      "name": "Accounts",
+      "source_refs": ["SRC-003", "SRC-004", "SRC-005"],
+      "owns": ["business enrollment", "customer account records"],
+      "reads": [],
+      "does_not_own": ["shipping workflow", "delivery scheduling"],
+      "must_include_all": [
+        "Accounts owns business enrollment",
+        "customer account"
+      ],
+      "must_not_include_any": ["Accounts owns delivery scheduling"],
+      "accepted_alternatives": [
+        {
+          "label": "User Account Service wording",
+          "must_include_all": [
+            "User Account Service",
+            "owns business enrollment"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "accounts context name",
+          "any_of": ["Accounts", "Account", "User Account Service"]
+        }
+      ]
+    },
+    {
+      "id": "CTX-004",
+      "name": "Package",
+      "source_refs": ["SRC-005", "SRC-007", "SRC-008"],
+      "owns": ["package aggregate details", "package tagging"],
+      "reads": [],
+      "does_not_own": ["drone assignment", "delivery tracking"],
+      "must_include_all": ["Package", "package tagging"],
+      "accepted_alternatives": [
+        {
+          "label": "Package as a separate aggregate or service candidate",
+          "must_include_all": [
+            "Package",
+            "separate aggregate",
+            "direct microservice candidate"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "package boundary",
+          "any_of": ["Package"]
+        },
+        {
+          "label": "package-owned details",
+          "any_of": ["package tagging", "package tags", "package identity"]
+        },
+        {
+          "label": "package is kept separate",
+          "any_of": [
+            "separate aggregate",
+            "direct microservice candidate",
+            "independent life cycle"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CTX-005",
+      "name": "Delivery",
+      "source_refs": ["SRC-005", "SRC-007", "SRC-011"],
+      "owns": [
+        "scheduled delivery state",
+        "in-progress delivery state",
+        "delivery status transitions"
+      ],
+      "reads": ["drone status events", "package and account identities"],
+      "does_not_own": ["long-term delivery history"],
+      "must_include_all": [
+        "Delivery owns scheduled and in-progress delivery state",
+        "delivery status transitions"
+      ],
+      "must_not_include_any": ["Delivery owns long-term delivery history"],
+      "required_concepts": [
+        {
+          "label": "operational delivery scope",
+          "any_of": ["scheduled", "in-progress", "operational state"]
+        }
+      ]
+    },
+    {
+      "id": "CTX-006",
+      "name": "Scheduler",
+      "source_refs": ["SRC-006", "SRC-008", "SRC-009"],
+      "owns": ["scheduling coordination", "drone assignment workflow"],
+      "reads": [
+        "buffered intake requests",
+        "account information",
+        "drone availability",
+        "package details",
+        "delivery state"
+      ],
+      "does_not_own": [
+        "long-term history storage",
+        "drone availability authority"
+      ],
+      "must_include_all": [
+        "Scheduler owns the scheduling workflow",
+        "assigns a drone"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Drone Scheduler wording",
+          "must_include_all": [
+            "Drone Scheduler",
+            "owns the scheduling workflow"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "scheduler context name",
+          "any_of": ["Scheduler", "Drone Scheduler"]
+        }
+      ]
+    },
+    {
+      "id": "CTX-007",
+      "name": "Supervisor",
+      "source_refs": ["SRC-006", "SRC-008"],
+      "owns": ["step monitoring", "failure and timeout detection"],
+      "reads": ["scheduler step status"],
+      "does_not_own": ["package records", "delivery history"],
+      "must_include_all": [
+        "Supervisor owns monitoring",
+        "failures or timeouts"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Workflow supervisor wording",
+          "must_include_all": ["Supervisor", "detect", "timeouts"]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "supervisor context name",
+          "any_of": ["Supervisor"]
+        }
+      ]
+    },
+    {
+      "id": "CTX-008",
+      "name": "Ingestion",
+      "source_refs": ["SRC-009"],
+      "owns": ["client request buffering", "load leveling"],
+      "reads": ["incoming delivery requests"],
+      "does_not_own": ["scheduling decisions"],
+      "must_include_all": ["Ingestion owns request buffering", "load leveling"],
+      "accepted_alternatives": [
+        {
+          "label": "Request intake wording",
+          "must_include_all": ["Ingestion", "buffer"]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "ingestion feeds scheduler",
+          "any_of": [
+            "Scheduler then reads requests from the buffer",
+            "Scheduler consumes from that buffer",
+            "ahead of scheduling"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CTX-009",
+      "name": "Delivery History",
+      "source_refs": ["SRC-010", "SRC-012"],
+      "owns": [
+        "completed-delivery history",
+        "analytics-oriented storage",
+        "post-completion lookup data"
+      ],
+      "reads": ["DeliveryTracking events"],
+      "does_not_own": ["scheduled or in-progress delivery state"],
+      "must_include_all": [
+        "Delivery History owns long-term completed-delivery history",
+        "analytics-oriented storage"
+      ],
+      "must_not_include_any": [
+        "Delivery History owns scheduled or in-progress delivery state"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "History service wording",
+          "must_include_all": [
+            "Delivery History",
+            "consumes delivery-tracking updates"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "history split from operational delivery",
+          "any_of": [
+            "separate boundary",
+            "completed-delivery history",
+            "should not collapse in-flight state and historical reporting"
+          ]
+        }
+      ]
+    }
+  ]
+}
