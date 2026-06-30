@@ -1,9 +1,9 @@
 node_modules/
 .pnpm-store/
+.git/
 dist/
-.DS_Store
-*.log
-.env
 .codex/
 .claude/
+pnpm-lock.yaml
 evals/enforce/.dependency-cruiser.js
+evals/enforce/depcruise_*.log

@@ -1,14 +1,12 @@
 {
-  "name": "enforce",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "@agentic-workflow-kit/technical-design-enforce-eval",
+  "version": "0.0.0",
+  "description": "Deterministic dependency-cruiser evals for enforce-architecture.",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "eval": "bash run_evals.sh"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "dependency-cruiser": "^18.0.0",
     "typescript": "^6.0.3"
