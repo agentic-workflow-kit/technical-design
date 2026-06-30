@@ -24,6 +24,7 @@ or eval. A lesson with no cover is an open production-readiness gap.
 | LSN-008 | Broad sweeps can ban a design's own vocabulary and create false safety. | Review rubric: sweep vocabulary must cite design terms and allowed-owned tokens. | covered |
 | LSN-009 | Orchestration must not re-derive scope that the planning/design artifact owns. | Orchestrator skill: composition-only; stop boundary; no methodology invention. | covered |
 | LSN-010 | Lessons captured as prose drift under pressure. | This ledger: every lesson must map to a gate, rubric item, rule, or eval. | covered |
+| LSN-011 | Reference anchors and evaluator wording can accidentally become hidden product requirements. | Open: add author input-sufficiency coverage and case-grader calibration before treating product-to-design eval verdicts as release signals. | open |
 
 ## Before adding a new lesson
 
