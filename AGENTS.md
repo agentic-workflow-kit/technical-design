@@ -32,7 +32,8 @@ are stable; methodology-specific behavior lives under `methodologies/`.
   pass vacuously — preserve that property. A new methodology profile must supply the full
   contract (templates, review rubric, enforcement map, examples, eval expectations).
 - **`main`-based:** branch from `main`, PR into it, green `check` required, review conversations
-  resolved, squash-merge. Conventional commit subjects; no attribution footers.
+  resolved, squash-merge. Conventional commit subjects; no attribution footers. Worktrees for
+  non-trivial work are external siblings of this checkout — never nested inside it.
 - **No emojis** anywhere. **Immutability.** Validate inputs and handle errors explicitly.
   Diagrams in Mermaid, inline. No hardcoded secrets; redact secrets, tokens, and PII; rotate any
   exposed secret.
