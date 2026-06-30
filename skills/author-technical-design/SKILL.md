@@ -12,6 +12,7 @@ implementer invent domain scope.
 ## References
 
 - Active methodology profile: `../../methodologies/ddd/README.md`
+- Planner handoff contract: `../../docs/design/technical-design-handoff-contract.md`
 - Main DDD template: `../../methodologies/ddd/templates/technical-design.md`
 - Bounded context template: `../../methodologies/ddd/templates/bounded-context.md`
 - Enforcement map template: `../../methodologies/ddd/templates/enforcement-map.md`
@@ -39,20 +40,24 @@ Record why the chosen depth is sufficient and where deeper tactical ceremony is 
 
 Use the DDD template. The design must include:
 
-1. Frontmatter: `methodology: ddd`, `methodology_version`, `design_status`, `ddd_depth`, `round`.
-2. Source and context audit.
-3. Assumptions and blockers.
-4. Context map with owns/reads/does-not-own.
-5. Ubiquitous language.
-6. Commands/use cases and domain behavior.
-7. Invariant and state matrix with sourced operands.
-8. Ports, adapters, public APIs, and dependency direction.
-9. Data/query/consistency model.
-10. Failure, observability, migration, and deploy surfaces.
-11. Testing and enforcement map.
-12. Delivery inputs: story areas, sequencing constraints, file contention, validation expectations,
+1. Frontmatter: `design_id`, `handoff_contract: technical-design-handoff-v0`,
+   `methodology: ddd`, `methodology_version`, `design_status`, `ddd_depth`, `round`.
+2. Planner Handoff Summary with stable source, context/boundary, invariant, API/surface, failure,
+   observability, enforcement, delivery, sequencing, file-contention, validation, and stop-condition
+   IDs.
+3. Source and context audit.
+4. Assumptions and blockers.
+5. Context map with owns/reads/does-not-own.
+6. Ubiquitous language.
+7. Commands/use cases and domain behavior.
+8. Invariant and state matrix with sourced operands.
+9. Ports, adapters, public APIs, and dependency direction.
+10. Data/query/consistency model.
+11. Failure, observability, migration, and deploy surfaces.
+12. Testing and enforcement map.
+13. Delivery inputs: story areas, sequencing constraints, file contention, validation expectations,
     and stop conditions.
-13. Risks and deferred decisions.
+14. Risks and deferred decisions.
 
 ## Step 4 - Seed decisions log
 
@@ -68,7 +73,8 @@ Before finalizing, check:
 - Every failure token, state, event, or public field has one owner.
 - Every enforceable boundary has an enforcement-map rule and seeded violation.
 - Every non-enforceable rule is called out as manual review or test strategy.
-- Delivery inputs are concrete enough for later planning without adding scope.
+- The Planner Handoff Summary distinguishes required handoff facts from DDD-specific detail and is
+  concrete enough for later planning without adding scope.
 
 If any check fails, revise before handing off to `review-technical-design`.
 

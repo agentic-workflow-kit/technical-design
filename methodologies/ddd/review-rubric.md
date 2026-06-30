@@ -12,12 +12,15 @@ Blocking findings:
 - A public API is promised in prose but no public export/import surface or import test is named.
 - An enforcement rule has no seeded violation or standing gate.
 - A proof claim relies only on a manual spot check when the design claims durable enforcement.
+- A design marks ready for planning without a `Planner Handoff Summary` that names stable source, boundary, delivery, validation, and stop-condition IDs.
 
 Recommended findings:
 
 - Boundary rules are enforceable but not named in a reusable enforcement map.
 - Testing does not distinguish runtime tests, type tests, static checks, and manual review.
 - Observability does not name the event, metric, audit record, or log shape needed for operations.
+- Planner handoff facts exist but are duplicated inconsistently between the handoff summary and
+  methodology-specific sections.
 
 ## Lens 2 - Domain Correctness
 

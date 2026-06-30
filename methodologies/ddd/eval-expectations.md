@@ -9,11 +9,13 @@ The DDD profile is not trusted until eval fixtures prove the skills catch common
 - Unsourced invariant operand.
 - Public API promised but not exposed.
 - Vacuous enforcement rule without a seeded violation.
+- Prose-only or empty planner handoff.
 
 ## Grading expectations
 
 - `frame` should find the source map and ask only blocking questions.
-- `author` should produce DDD frontmatter and technical-solution-compatible sections.
+- `author` should produce DDD frontmatter, planner-facing handoff frontmatter, a
+  `Planner Handoff Summary`, and technical-solution-compatible sections.
 - `review` should emit suggestions with `lens`, `evidence`, `gate_ref`, `lesson_ref`, and `decision_ref`.
 - `enforce` should fail on seeded violations and pass honestly when no enforceable boundary exists.
 

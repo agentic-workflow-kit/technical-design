@@ -75,6 +75,21 @@
         "lesson_ref": "LSN-005",
         "gate_ref": "DDD review rubric: An enforcement rule has no seeded violation or standing gate."
       }
+    },
+    {
+      "id": "empty-planning-handoff",
+      "file": "empty-planning-handoff.md",
+      "required_class": "Prose-only or empty planner handoff",
+      "catching_surface": "review-rubric",
+      "rubric_evidence": "A design marks ready for planning without a `Planner Handoff Summary` that names stable source, boundary, delivery, validation, and stop-condition IDs.",
+      "required_fix": "Add a Planner Handoff Summary with stable source, boundary, delivery, validation, and stop-condition IDs.",
+      "expected_suggestion": {
+        "severity": "blocking",
+        "lens": "architecture-enforceability",
+        "dimension": "delivery-inputs",
+        "lesson_ref": "none",
+        "gate_ref": "DDD review rubric: A design marks ready for planning without a `Planner Handoff Summary` that names stable source, boundary, delivery, validation, and stop-condition IDs."
+      }
     }
   ]
 }

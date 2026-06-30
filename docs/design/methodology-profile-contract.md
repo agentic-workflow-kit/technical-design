@@ -21,10 +21,27 @@ Skills consume the profile through these concepts:
 - **Frame output:** source map, assumptions, blockers, context candidates, complexity drivers, and
   selected methodology depth.
 - **Author output:** a design document with methodology frontmatter, context/boundary sections,
-  behavior sections, failure/consistency model, enforcement map, and delivery inputs.
+  behavior sections, failure/consistency model, enforcement map, delivery inputs, and a
+  methodology-neutral `Planner Handoff Summary` that satisfies
+  [`technical-design-handoff-contract.md`](technical-design-handoff-contract.md).
 - **Review output:** structured suggestions with `lens`, `evidence`, `gate_ref`, `lesson_ref`, and
   `decision_ref`.
 - **Enforcement output:** generated rules plus seeded violation evidence for every declared rule.
+
+## Planning handoff preservation
+
+Every methodology profile must preserve the planner-facing handoff contract, even when its internal
+authoring vocabulary is not DDD. The profile must produce:
+
+- top-level `design_id`, `handoff_contract`, methodology, status, and round fields;
+- stable IDs for source references and planner-facing facts;
+- explicit context, boundary, invariant, API/surface, failure, observability, enforcement, and
+  delivery-planning facts;
+- sequencing, dependency, file-contention, validation, and stop-condition facts;
+- review guidance that treats a blank, prose-only, or methodology-private handoff as blocking.
+
+The profile may add or rename methodology-specific sections, but Planning consumes the handoff
+contract rather than the profile's private concepts.
 
 ## Adding a future profile
 

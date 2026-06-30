@@ -1,4 +1,6 @@
 ---
+design_id: <stable-design-slug>
+handoff_contract: technical-design-handoff-v0
 methodology: ddd
 methodology_version: "1"
 design_status: draft
@@ -8,13 +10,63 @@ round: 1
 
 # Technical Design - <design name>
 
-## 1. Source and Context Audit
+## 1. Planner Handoff Summary
+
+This section is the methodology-neutral contract Planning consumes. DDD sections below may contain
+deeper reasoning, but required planning facts must be summarized here with stable IDs and source refs.
+
+### Handoff Identity
+
+| Field | Value |
+|---|---|
+| Design ID | `<matches frontmatter design_id>` |
+| Handoff contract | `technical-design-handoff-v0` |
+| Design title | `<design name>` |
+| Status | `<draft | reviewed | approved | superseded>` |
+| Methodology profile | `ddd@1`, `<ddd_depth>` depth |
+| Review round | `1` |
+
+### Source and Product References
+
+| ID | Type | Reference | Required for Planning | Notes |
+|---|---|---|---|---|
+| SRC-001 | <prd / brief / issue / source / design / decision> | <path, URL, or stable artifact reference> | <fact, constraint, or product intent Planning must preserve> | <notes> |
+
+### Required Planning Facts
+
+| ID | Category | Required handoff data | Source refs |
+|---|---|---|---|
+| CTX-001 | Context and boundary | <ownership, reads, does-not-own, and dependency direction> | <SRC-*> |
+| INV-001 | Invariant and lifecycle | <guarded predicate/state transition, source operands, owning authority> | <SRC-*> |
+| SURF-001 | API and surface | <public API, port, adapter, event, command, data, or integration surface> | <SRC-*> |
+| FAIL-001 | Failure | <failure mode, token, degraded behavior, retry, or recovery authority> | <SRC-*> |
+| OBS-001 | Observability | <event, metric, log, audit, or trace record> | <SRC-*> |
+| ENF-001 | Enforcement | <test, static rule, seeded violation, manual gate, or manual-only rationale> | <SRC-*> |
+| DEL-001 | Delivery planning | <candidate story area, boundary, expected outcome, facts preserved> | <SRC-*> |
+
+### Sequencing, Contention, Validation, and Stops
+
+| ID | Category | Required handoff data | Source refs |
+|---|---|---|---|
+| SEQ-001 | Sequencing and dependency | <producer-before-consumer constraints, dependencies, parallelism, ordering risks> | <DEL-* / SRC-*> |
+| FILE-001 | File contention | <shared files, generated artifacts, migrations, or None with rationale> | <SRC-*> |
+| VAL-001 | Validation | <commands, checks, review gates, seed expectations, and evidence> | <ENF-* / SRC-*> |
+| STOP-001 | Stop condition | <condition that returns work to owner/design before implementation proceeds> | <CTX-* / INV-* / SRC-*> |
+
+### Methodology-Specific Detail
+
+- **Required handoff data:** the tables above.
+- **DDD-specific authoring detail:** context maps, ubiquitous language, tactical model choices,
+  invariant matrices, and ports/adapters below. Planning may read them for context but must not need
+  to infer missing handoff facts from them.
+
+## 2. Source and Context Audit
 
 | Source | Used for | Notes |
 |---|---|---|
 | <PRD / brief / source file> | <requirements, existing behavior, constraints> | <notes> |
 
-## 2. Assumptions and Blockers
+## 3. Assumptions and Blockers
 
 ### Safe Assumptions
 - <assumption and why it is safe>
@@ -22,7 +74,7 @@ round: 1
 ### Blocking Questions
 - <question that would change ownership, boundaries, data, consistency, deploy, security, or tests>
 
-## 3. DDD Depth
+## 4. DDD Depth
 
 **Selected depth:** <strategic-only | use-case-slices | ports-and-adapters | tactical-ddd>
 
@@ -30,19 +82,19 @@ round: 1
 
 **Where deeper tactical ceremony is unnecessary:** <rationale>
 
-## 4. Context Map
+## 5. Context Map
 
 | Context | Owns | Reads | Does Not Own |
 |---|---|---|---|
 | <context> | <facts, decisions, data, behavior> | <external facts consumed> | <nearby concerns owned elsewhere> |
 
-## 5. Ubiquitous Language
+## 6. Ubiquitous Language
 
 | Term | Meaning | Owner |
 |---|---|---|
 | <term> | <precise meaning> | <context> |
 
-## 6. Domain Behavior
+## 7. Domain Behavior
 
 Use `use-case-slice.md` for detailed slices.
 
@@ -50,31 +102,31 @@ Use `use-case-slice.md` for detailed slices.
 |---|---|---|---|
 | <command> | <actor/system> | <invariant> | <state/event/output> |
 
-## 7. Invariant and State Matrix
+## 8. Invariant and State Matrix
 
 | Invariant / Predicate | Source operands | Enforced by | Failure token |
 |---|---|---|---|
 | <rule> | <declared fields/events/projections> | <context/aggregate/service> | <token> |
 
-## 8. Ports, Adapters, and Public API
+## 9. Ports, Adapters, and Public API
 
 | Surface | Type | Owner | Consumers | Enforcement |
 |---|---|---|---|---|
 | <port/API/export> | <domain port/public export/adapter> | <context> | <consumers> | <import test/rule/manual> |
 
-## 9. Data, Query, and Consistency
+## 10. Data, Query, and Consistency
 
 - **Write model:** <transaction boundary, idempotency, concurrency>
 - **Read model:** <queries, projections, freshness>
 - **Consistency:** <strong/eventual/manual reconciliation>
 
-## 10. Failure, Observability, Migration, and Deploy
+## 11. Failure, Observability, Migration, and Deploy
 
 - **Failure modes:** <dependency failures, degraded states, fail-closed behavior>
 - **Observability:** <events, metrics, logs, audit records>
 - **Migration/deploy:** <schema/data/config/rollout/rollback impacts>
 
-## 11. Testing and Enforcement
+## 12. Testing and Enforcement
 
 | Claim | Proof | Standing gate |
 |---|---|---|
@@ -89,7 +141,7 @@ Use `use-case-slice.md` for detailed slices.
 }
 ```
 
-## 12. Delivery Inputs
+## 13. Delivery Inputs
 
 - **Candidate story areas:** <list>
 - **Sequencing constraints:** <producer before consumer constraints>
@@ -97,6 +149,6 @@ Use `use-case-slice.md` for detailed slices.
 - **Validation expectations:** <commands/gates>
 - **Stop conditions:** <when implementation should stop and return to design>
 
-## 13. Risks and Deferred Decisions
+## 14. Risks and Deferred Decisions
 
 - <risk, deferred suggestion, or accepted tradeoff with decision id>

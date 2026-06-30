@@ -46,5 +46,21 @@
     "lesson_ref": "LSN-004",
     "status": "open",
     "decision_ref": ""
+  },
+  {
+    "id": "S-004",
+    "title": "Make the planner handoff extractable",
+    "severity": "blocking",
+    "lens": "architecture-enforceability",
+    "dimension": "delivery-inputs",
+    "location": "Planner Handoff Summary",
+    "evidence": "The Planner Handoff Summary only says the design is ready for planning and points to sections below, without stable source, boundary, delivery, validation, or stop-condition IDs.",
+    "finding": "Planning would have to infer required handoff facts from DDD prose, so the design can pass as planning-ready without a real contract surface.",
+    "proposed_fix": "Add a Planner Handoff Summary with stable source, boundary, delivery, validation, and stop-condition IDs.",
+    "rationale": "Planning consumes the methodology-neutral handoff contract, not DDD-specific authoring sections.",
+    "gate_ref": "DDD review rubric: A design marks ready for planning without a `Planner Handoff Summary` that names stable source, boundary, delivery, validation, and stop-condition IDs.",
+    "lesson_ref": "none",
+    "status": "open",
+    "decision_ref": ""
   }
 ]

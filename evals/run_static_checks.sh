@@ -12,6 +12,7 @@ node -e "JSON.parse(require('fs').readFileSync('skills/review-technical-design/t
 node evals/validate_eval_fixtures.mjs
 
 required=(
+  "docs/design/technical-design-handoff-contract.md"
   "methodologies/README.md"
   "methodologies/ddd/README.md"
   "methodologies/ddd/templates/technical-design.md"
@@ -25,6 +26,43 @@ required=(
 for path in "${required[@]}"; do
   if [ ! -f "$path" ]; then
     echo "missing required profile file: $path" >&2
+    exit 1
+  fi
+done
+
+if ! rg -q "handoff_contract: technical-design-handoff-v0" methodologies/ddd/templates/technical-design.md; then
+  echo "DDD technical-design template must expose the planner handoff contract frontmatter" >&2
+  exit 1
+fi
+
+if ! rg -q "Planner Handoff Summary" methodologies/ddd/templates/technical-design.md; then
+  echo "DDD technical-design template must include a Planner Handoff Summary" >&2
+  exit 1
+fi
+
+if ! rg -q "Required handoff data" evals/planning/design-to-planning-input.example.md; then
+  echo "planning fixture must distinguish required handoff data" >&2
+  exit 1
+fi
+
+if ! rg -q "Methodology-specific detail" evals/planning/design-to-planning-input.example.md; then
+  echo "planning fixture must distinguish methodology-specific detail" >&2
+  exit 1
+fi
+
+author_handoff_artifacts=(
+  "skills/author-technical-design/templates/design-doc.md"
+  "skills/author-technical-design/examples/simple-crud.md"
+  "skills/author-technical-design/examples/domain-heavy.md"
+)
+
+for path in "${author_handoff_artifacts[@]}"; do
+  if ! rg -q "handoff_contract: technical-design-handoff-v0" "$path"; then
+    echo "author artifact missing planner handoff frontmatter: $path" >&2
+    exit 1
+  fi
+  if ! rg -q "## 1\\. Planner Handoff Summary" "$path"; then
+    echo "author artifact missing Planner Handoff Summary: $path" >&2
     exit 1
   fi
 done
