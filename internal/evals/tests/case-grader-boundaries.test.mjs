@@ -23,6 +23,27 @@ const expectedBoundaries = {
           ],
         },
       ],
+      required_concepts: [
+        {
+          label: "resident verification owner",
+          any_of: ["Resident Verification", "Resident Eligibility"],
+        },
+        {
+          label: "verified resident fact",
+          any_of: [
+            "owns whether a resident is verified",
+            "verified/not-verified resident status",
+            "verified-resident fact",
+          ],
+        },
+        {
+          label: "scheduling does not own verification lifecycle",
+          any_of: [
+            "does not own verification lifecycle",
+            "does not own resident verification policy",
+          ],
+        },
+      ],
     },
     {
       id: "CTX-002",
@@ -113,6 +134,21 @@ describe("gradeBoundaries", () => {
 
     expect(findings[1]).toMatchObject({
       id: "CTX-002",
+      verdict: "covered",
+    });
+  });
+
+  it("accepts verified-resident ownership expressed as a fact question", () => {
+    const findings = gradeBoundaries(
+      [
+        "Resident Verification owns whether a resident is verified.",
+        "Scheduling consumes that fact but does not own verification lifecycle.",
+      ].join("\n"),
+      expectedBoundaries,
+    );
+
+    expect(findings[0]).toMatchObject({
+      id: "CTX-001",
       verdict: "covered",
     });
   });

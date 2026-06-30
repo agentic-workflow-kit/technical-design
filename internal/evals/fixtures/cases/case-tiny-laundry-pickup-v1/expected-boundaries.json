@@ -42,6 +42,7 @@
             "verified-resident fact",
             "verified/not-verified resident status",
             "verified/not-verified fact",
+            "whether a resident is verified",
             "verified resident"
           ]
         },
@@ -50,6 +51,7 @@
           "any_of": [
             "does not own resident verification policy",
             "does not own resident identity proofing",
+            "does not own verification lifecycle",
             "resident proofing rules"
           ]
         }
