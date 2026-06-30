@@ -4,11 +4,21 @@
   "description": "Repository tooling for the technical-design skills pack.",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.5.1",
+  "packageManager": "pnpm@11.9.0",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.13.0",
+    "pnpm": ">=11.9.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^26",
+      "onFail": "warn"
+    }
   },
   "scripts": {
+    "dev:setup": "bash scripts/dev-setup.sh",
+    "worktree:new": "bash scripts/worktree-new.sh",
     "format": "prettier --write \"**/*.{json,js,mjs,ts,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{json,js,mjs,ts,yml,yaml}\"",
     "lint": "pnpm format:check",
