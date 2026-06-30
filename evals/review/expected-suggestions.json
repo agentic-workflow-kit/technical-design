@@ -1,0 +1,26 @@
+[
+  {
+    "id": "S-001",
+    "severity": "blocking",
+    "lens": "architecture-enforceability",
+    "dimension": "enforceability",
+    "location": "Testing and Enforcement",
+    "lesson_ref": "LSN-005"
+  },
+  {
+    "id": "S-002",
+    "severity": "blocking",
+    "lens": "domain-correctness",
+    "dimension": "invariant",
+    "location": "Invariant and State Matrix",
+    "lesson_ref": "LSN-007"
+  },
+  {
+    "id": "S-003",
+    "severity": "recommended",
+    "lens": "architecture-enforceability",
+    "dimension": "public-api",
+    "location": "Ports, Adapters, and Public API",
+    "lesson_ref": "LSN-004"
+  }
+]

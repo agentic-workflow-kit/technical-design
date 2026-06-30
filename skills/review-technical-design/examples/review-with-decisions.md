@@ -1,77 +1,85 @@
 # Example: Review with Decisions
 
-This demonstrates a full loop: `review-technical-design` emits suggestions, the user provides dispositions, and the decisions are recorded to `decisions.md`.
+This demonstrates a full loop: `review-technical-design` emits suggestions, the user provides
+dispositions, and decisions are recorded to `decisions.md`.
 
-## 1. Initial Review (Round 1)
-
-`review-technical-design` analyzes `design-doc.md` and outputs the following report:
+## 1. Initial Review
 
 ```markdown
-## Review — Payment Processing System  (round 1)
+## Review - Payment Authorization (round 1)
 
 **Verdict:** open: 1 blocking, 1 recommended
+
+**Architecture/enforceability lens:** one boundary rule has no seeded violation.
+
+**Domain-correctness lens:** one invariant is undersourced.
+
 **Over-engineering flags:** none
-**Under-engineering flags:** missing idempotency on a financial transaction
 
-| id    | sev        | dimension    | finding                               | proposed fix                  |
-|-------|------------|--------------|---------------------------------------|-------------------------------|
-| S-001 | blocking   | boundary     | domain imports the DB model directly  | introduce a repository port   |
-| S-002 | recommended| consistency  | no idempotency on retried write       | add idempotency key on charge cmd|
+**Under-engineering flags:** invariant source closure missing
 
-_Disposition_: reply per id with **fix / reject / defer (+reason)** → recorded to `decisions.md`.
+| id | sev | lens | dimension | evidence | finding | proposed fix | gate | lesson |
+|---|---|---|---|---|---|---|---|---|
+| S-001 | blocking | architecture-enforceability | enforceability | Enforcement Map | no-domain-to-infrastructure has no seededViolation | add a seed fixture and rerun architecture gate | DDD enforcement rules | LSN-005 |
+| S-002 | recommended | domain-correctness | invariant | Invariant Matrix | "approved amount matches order" names only amount, not order total source | name command.amount and OrderSnapshot.total as operands | DDD review rubric | LSN-007 |
+
+_Disposition_: reply per id with **fix / reject / defer (+reason)**. Dispositions are recorded in
+`decisions.md`; accepted fixes are applied through `author-technical-design` update mode.
 ```
-
-The underlying machine list also outputs the above data in `suggestion.schema.json` format, with `status: "open"`.
 
 ## 2. User Dispositions
 
-The user replies to the AI:
-> - S-001: fix. We should use ports and adapters here.
-> - S-002: defer. We only have a single-writer path today, we will revisit when we add the retry queue.
+```text
+S-001: fix. The architecture gate must prove the rule fails.
+S-002: fix. The invariant needs both operands sourced.
+```
 
-## 3. Decisions Log Updated
-
-The system (via `author-technical-design` in update mode or directly as a tracked decision step) creates/updates `decisions.md`:
+## 3. Decisions Log
 
 ```markdown
-# Design Decisions — Payment Processing System
+# Design Decisions - Payment Authorization
 
-> One entry per review disposition. Status legend: accepted · rejected · deferred.
+> One entry per review disposition. Status legend: accepted, rejected, deferred.
 
 ---
 
-## D-001 — Introduce Repository Port
-- **Date:** 2026-06-30
-- **Suggestion:** S-001 (boundary — domain imports the DB model)
-- **Decision:** accepted
-- **Rationale:** boundary leak; cheap to fix now, expensive later.
-- **Consequence:** added repository port in §Boundaries; enforced by fitness-rule `no-domain-to-infra`.
-- **Status:** applied (design round 2)
+## D-001 - Add architecture seed
 
-## D-002 — Add Idempotency to Charge
 - **Date:** 2026-06-30
-- **Suggestion:** S-002 (consistency — no idempotency on retried write)
-- **Decision:** deferred
-- **Rationale:** single-writer path today; revisit when we add the retry queue.
-- **Consequence:** tracked as a known risk in the design's Risks section.
-- **Status:** open-deferred
+- **Suggestion:** S-001 (architecture-enforceability / enforceability - no seeded violation)
+- **Decision:** accepted
+- **Rationale:** a boundary rule without a failing seed can pass vacuously.
+- **Consequence:** added `seededViolation` to the enforcement map and architecture fixture.
+- **Design round:** 2
+- **Status:** applied
+
+## D-002 - Source invariant operands
+
+- **Date:** 2026-06-30
+- **Suggestion:** S-002 (domain-correctness / invariant - unsourced operand)
+- **Decision:** accepted
+- **Rationale:** the predicate cannot be evaluated without both operands.
+- **Consequence:** invariant matrix now cites `AuthorizePayment.amount` and `OrderSnapshot.total`.
+- **Design round:** 2
+- **Status:** applied
 ```
 
-## 4. Re-review (Round 2)
-
-After applying the accepted changes to `design-doc.md` (which is typically done by `author-technical-design` in update mode), the user runs `review-technical-design` again.
-S-001 was fixed, and S-002 is deferred (tracked). No new issues are found.
+## 4. Re-review
 
 ```markdown
-## Review — Payment Processing System  (round 2)
+## Review - Payment Authorization (round 2)
 
 **Verdict:** settled
+
+**Architecture/enforceability lens:** no open findings.
+
+**Domain-correctness lens:** no open findings.
+
 **Over-engineering flags:** none
+
 **Under-engineering flags:** none
 
-| id    | sev        | dimension | finding                          | proposed fix                  |
-|-------|------------|-----------|----------------------------------|-------------------------------|
-| (No open suggestions) | | | | |
-
-_Disposition_: reply per id with **fix / reject / defer (+reason)** → recorded to `decisions.md`.
+| id | sev | lens | dimension | evidence | finding | proposed fix | gate | lesson |
+|---|---|---|---|---|---|---|---|---|
+| (No open suggestions) | | | | | | | | |
 ```

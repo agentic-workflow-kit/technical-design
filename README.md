@@ -1,51 +1,56 @@
 # technical-design
 
 A self-contained set of AI skills for technical design: **frame** the problem, **author** a
-right-sized design, **review** it in a decision-recording loop, **enforce** its boundaries in CI, and
-**orchestrate** the whole flow. Stands alone today; named to slot into the agentic-workflow-kit suite
-later as its design stage.
+DDD-first design, **review** it in a decision-recording loop, **enforce** its boundaries in CI, and
+**orchestrate** the whole flow. It stands alone today and is shaped so it can later slot into a
+larger agentic workflow suite as the design stage.
 
-It is **architecture-method-agnostic** — it picks the smallest architecture that fits and only reaches
-for DDD when complexity earns it. Inspired by
-[`Sairyss/domain-driven-hexagon`](https://github.com/Sairyss/domain-driven-hexagon), but it does not
-force DDD, hexagonal, or any pattern.
+The framework is **methodology-neutral** at its shell and **DDD-first** in v1. The active methodology
+profile is `methodologies/ddd/`: every design uses strategic DDD vocabulary such as bounded
+contexts, ubiquitous language, ownership, invariants, and context boundaries. Tactical DDD artifacts
+such as aggregates, value objects, and domain events are added only when behavior and invariants need
+them.
 
-> **Status:** Built and ready for use. See `flows.md` and `skills/` directory for details.
+> **Status:** Built and ready for local use. The DDD-first production hardening is encoded in
+> `methodologies/`, `docs/lessons-ledger.md`, the skill templates, and the eval fixtures.
 
 ---
 
 ## What it is
 
-Strong models already hold the design *knowledge* ("define boundaries", "don't overengineer").
-Repeating it changes nothing. This pack packages the parts a model won't do on its own:
+Strong models already hold generic architecture knowledge. This pack packages the discipline a model
+does not reliably apply by itself:
 
-1. **Ask the right questions first** — surface blocking unknowns before drafting.
-2. **Choose the right altitude** — the smallest architecture that fits, justified; DDD only when earned.
-3. **Review as a loop, not a verdict** — suggestions you decide on, with every decision recorded.
-4. **Make boundaries executable** — a CI gate that fails when the domain imports the database.
+1. **Source-grounded framing** - inspect source docs and current technical surfaces before asking.
+2. **DDD-first modeling** - make boundaries, language, ownership, and invariants explicit.
+3. **Ceremony-right-sized depth** - strategic DDD always; tactical DDD only where useful.
+4. **Review as a loop** - suggestions you decide on, with every decision recorded.
+5. **Executable boundaries** - CI gates that fail when the implemented dependency graph violates the
+   agreed design.
 
-## What it provides — five skills, one flow
+## What it provides
 
 ```text
-FRAME ───────────► AUTHOR ──────────► REVIEW ◄──loop──► DECIDE ──────────► ENFORCE
+FRAME -> AUTHOR -> REVIEW <-> DECIDE -> ENFORCE
 frame-technical-    author-technical-   review-technical-   user disposes      enforce-
 design              design              design              + record           architecture
-clarify + scope     right-sized draft   suggest fixes       decisions.md       boundaries → CI gate
+source map +        DDD-first design    two review lenses   decisions.md       boundaries -> CI
+blockers            + delivery inputs   + suggestions
 
-        └──────────────────────── orchestrate-technical-design ────────────────────────┘
-                                   (runs the whole flow; built last)
+        orchestrate-technical-design (composition-only runbook)
 ```
 
-- **`frame-technical-design`** — clarifying questions + complexity drivers (divergent intake).
-- **`author-technical-design`** — the design doc: stated altitude, boundaries, use-case slices,
-  failure/consistency, risks, boundary rules. Tactical DDD only when complexity earns it.
-- **`review-technical-design`** — emits severity-tagged **suggestions** (never auto-edits) + over/under-
-  engineering flags. You dispose of each; decisions land in `decisions.md`. Settled = no blocking
-  suggestion open.
-- **`enforce-architecture`** — turns boundaries into a `dependency-cruiser` + ESLint + CI gate. The
-  verifiable payoff.
-- **`orchestrate-technical-design`** — composes the four into the full flow, pausing for your
-  decisions, stopping where you ask.
+- **`frame-technical-design`** - source map, safe assumptions, blockers, DDD context candidates,
+  complexity drivers, and initial DDD depth.
+- **`author-technical-design`** - technical-solution-compatible design with DDD frontmatter,
+  bounded contexts, language, invariants, commands/use cases, ports/adapters, consistency, failure
+  modes, enforcement map, and delivery inputs.
+- **`review-technical-design`** - architecture/enforceability and domain-correctness review lenses.
+  It emits structured suggestions and never edits the design without a recorded disposition.
+- **`enforce-architecture`** - translates the design's enforcement map into TS-first dependency
+  rules and requires seeded violations so the gate cannot pass vacuously.
+- **`orchestrate-technical-design`** - reads and applies the four skills in order, stopping where the
+  user asks and never inventing methodology behavior.
 
 ## How to use
 
@@ -54,24 +59,29 @@ clarify + scope     right-sized draft   suggest fixes       decisions.md       b
 Use frame-technical-design, then author-technical-design, then review (loop), then enforce.
 Context: <brief / PRD>, stack, scale, constraints.
 
-# review an existing design (RFC)
-Use review-technical-design on <design>. Give me suggestions + over/under flags; I'll dispose, you record.
+# review an existing design
+Use review-technical-design on <design>. Give me architecture/enforceability and domain-correctness
+suggestions; I will dispose, you record.
 
 # hands-off
-Use orchestrate-technical-design from <brief>; stop after <review | enforce>.
+Use orchestrate-technical-design from <brief>; stop after <frame | author | review | enforce>.
 ```
 
-## When to use it / when not
+## Methodology model
 
-**Use it** for a service with real domain logic, external dependencies, and consistency concerns,
-when you want the boundaries to stick. **Skip it** for thin CRUD or glue — `author` will tell you to
-use a layered service or MVC and stop. That's the point: a check against ceremony, not a generator of
-it.
+The five skills are stable. Methodology-specific behavior lives under `methodologies/`.
 
-## What this deliberately is *not*
+The v1 profile is `methodologies/ddd/`. A future profile, for example event-sourced DDD or another
+architecture method, must supply the same contract: templates, review rubric, enforcement map,
+examples, and eval expectations. Event sourcing is intentionally not the v1 replacement methodology;
+it is a future profile or subprofile when audit, replay, or temporal-query needs justify it.
 
-- Not a DDD template — no base classes to copy; you reuse the judgment, not the framework.
-- Not framework-specific — no NestJS, no folder structure to mirror.
-- Not DDD-by-default — tactical DDD is opt-in, chosen only when complexity drivers are present.
+## What this deliberately is not
 
-Start simple. Add architecture only when complexity earns it. Make the important rules enforceable.
+- Not a DDD base-class framework.
+- Not a framework-specific folder template.
+- Not an implementation executor.
+- Not dependent on prior application repositories or private app-specific case studies.
+
+Designs should be human-readable first, checkable second, and enforceable where the design declares a
+boundary worth protecting.

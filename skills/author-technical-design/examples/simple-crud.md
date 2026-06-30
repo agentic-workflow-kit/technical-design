@@ -1,48 +1,102 @@
-# Technical Design — User Profile Service
+---
+methodology: ddd
+methodology_version: "1"
+design_status: settled
+ddd_depth: strategic-only
+round: 1
+---
 
-**Status:** Settled
-**Round:** 1
+# Technical Design - User Profile Settings
 
-## 1. Architecture Altitude
+## 1. Source and Context Audit
 
-**Chosen Altitude:** MVC / Layered Architecture
+| Source | Used for | Notes |
+|---|---|---|
+| Feature brief | user-owned settings update scope | No new lifecycle or external integration. |
 
-**Why simpler is insufficient:**
-We need basic separation between the HTTP controllers and the database queries to allow testing the queries independently of the web framework.
+## 2. Assumptions and Blockers
 
-**Why more complex is unnecessary:**
-This service is just a simple CRUD API over a `users` table. There are no complex domain rules, state transitions, or cross-aggregate invariants to protect. Introducing Tactical DDD (Entities, Value Objects, Aggregates) or Ports & Adapters would be severe over-engineering.
+### Safe Assumptions
+- Email uniqueness remains enforced by the existing database constraint.
 
-## 2. Boundaries & Boundary Rules
+### Blocking Questions
+- None.
 
-**Allowed Dependencies:**
-- Controllers can import Services/Models.
+## 3. DDD Depth
 
-**Forbidden Dependencies (Boundary Rules):**
-- Models MUST NOT import Controllers.
+**Selected depth:** strategic-only
 
-## 3. Use-Case Slices
-### Use Case: Update User Profile
-**Trigger:** `PUT /users/:id/profile`
-**Primary Actor:** The authenticated user.
-**Preconditions:**
-- User must exist and be authenticated.
-**Main Flow:**
-1. Validate input payload.
-2. Update the `users` table record for the given ID.
-3. Return the updated record.
-**Alternative/Error Flows:**
-- User not found -> Return 404
-- Invalid payload -> Return 400
-**Invariants & State:**
-- Email addresses must be unique.
+**Why this depth is sufficient:** The work needs ownership and vocabulary clarity but no aggregate,
+domain event, or anti-corruption layer.
 
-## 4. Failure & Consistency Model
-**Dependencies & Failure Modes:**
-- Database down -> Return 500.
+**Where deeper tactical ceremony is unnecessary:** User settings are updated by one authenticated
+actor in one transaction. A fake aggregate would add ceremony without protecting additional behavior.
 
-**Consistency:**
-- Strong consistency via simple relational DB transaction.
+## 4. Context Map
 
-## 5. Risks & Deferred Decisions
-- Scalability to millions of users deferred until necessary.
+| Context | Owns | Reads | Does Not Own |
+|---|---|---|---|
+| Profile Settings | editable profile fields and validation language | authenticated user id | identity provider lifecycle, billing profile |
+
+## 5. Ubiquitous Language
+
+| Term | Meaning | Owner |
+|---|---|---|
+| Profile settings | User-editable display and contact fields | Profile Settings |
+
+## 6. Domain Behavior
+
+| Command / Use Case | Actor | Invariant guarded | Result |
+|---|---|---|---|
+| Update profile settings | Authenticated user | contact email remains unique and syntactically valid | profile row updated |
+
+## 7. Invariant and State Matrix
+
+| Invariant / Predicate | Source operands | Enforced by | Failure token |
+|---|---|---|---|
+| email is unique | requested email, existing user email index | persistence constraint plus service mapping | email-already-used |
+
+## 8. Ports, Adapters, and Public API
+
+| Surface | Type | Owner | Consumers | Enforcement |
+|---|---|---|---|---|
+| updateProfileSettings | application service | Profile Settings | route handler | service test |
+
+## 9. Data, Query, and Consistency
+
+- **Write model:** single database transaction.
+- **Read model:** profile read refreshes from primary storage.
+- **Consistency:** strong for the updated row.
+
+## 10. Failure, Observability, Migration, and Deploy
+
+- **Failure modes:** invalid input, duplicate email, missing user.
+- **Observability:** existing request/error logs are sufficient.
+- **Migration/deploy:** none.
+
+## 11. Testing and Enforcement
+
+| Claim | Proof | Standing gate |
+|---|---|---|
+| service maps duplicate email to domain error | unit test | package test command |
+
+### Enforcement Map
+
+```json
+{
+  "layers": [],
+  "forbidden": []
+}
+```
+
+## 12. Delivery Inputs
+
+- **Candidate story areas:** update profile settings service and route.
+- **Sequencing constraints:** none.
+- **File contention:** none expected.
+- **Validation expectations:** unit test for validation and duplicate handling.
+- **Stop conditions:** stop if identity lifecycle or billing ownership is pulled into scope.
+
+## 13. Risks and Deferred Decisions
+
+- None.

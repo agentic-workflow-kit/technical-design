@@ -1,16 +1,26 @@
 # CI Gate for Architecture Enforcement
 
-To ensure architectural boundaries are strictly enforced in Continuous Integration, add the following to your CI pipeline or `package.json` scripts:
+Use this after `enforce-architecture` generates `.dependency-cruiser.js` from the settled design's
+enforcement map.
 
 ## package.json script
 
 ```json
 {
   "scripts": {
-    "check:architecture": "npx depcruise src"
+    "check:architecture": "depcruise --config .dependency-cruiser.js src"
   }
 }
 ```
+
+## Required seed proof
+
+For every generated rule, keep a seeded violation fixture or local eval that proves the rule fails.
+The enforcement closeout should record:
+
+| Rule | Seed | Expected result | Gate |
+|---|---|---|---|
+| <no-domain-to-infrastructure> | <seed path> | fails with rule name | `npm run check:architecture` |
 
 ## GitHub Actions example
 
@@ -21,7 +31,7 @@ jobs:
   enforce:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: npm ci
       - run: npm run check:architecture
 ```

@@ -1,21 +1,25 @@
-# Design Decisions — <design name>
+# Design Decisions - <design name>
 
-> One entry per review disposition. Status legend: accepted · rejected · deferred.
+> One entry per review disposition. Status legend: accepted, rejected, deferred.
 
 ---
 
-## D-001 — <short title>
-- **Date:** <YYYY-MM-DD>
-- **Suggestion:** S-001 (boundary — domain imports the DB model)
-- **Decision:** accepted
-- **Rationale:** boundary leak; cheap to fix now, expensive later.
-- **Consequence:** added repository port in §Boundaries; enforced by fitness-rule `no-domain-to-infra`.
-- **Status:** applied (design round 2)
+## D-001 - <short title>
 
-## D-002 — <short title>
 - **Date:** <YYYY-MM-DD>
-- **Suggestion:** S-002 (consistency — no idempotency on retried write)
+- **Suggestion:** S-001 (<lens> / <dimension> - <short finding>)
+- **Decision:** <accepted | rejected | deferred>
+- **Rationale:** <why the user chose this outcome>
+- **Consequence:** <what changed, what risk remains, or what is explicitly deferred>
+- **Design round:** <round number or not applied>
+- **Status:** <applied | open-deferred | rejected>
+
+## D-002 - <short title>
+
+- **Date:** <YYYY-MM-DD>
+- **Suggestion:** S-002 (<lens> / <dimension> - <short finding>)
 - **Decision:** deferred
-- **Rationale:** single-writer path today; revisit when we add the retry queue.
-- **Consequence:** tracked as a known risk in the design's Risks section.
+- **Rationale:** <why this is acceptable for now>
+- **Consequence:** <risk tracked in the design risks section>
+- **Design round:** not applied
 - **Status:** open-deferred

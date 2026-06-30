@@ -1,36 +1,39 @@
-# Example: Simple CRUD (rung 1) — nothing to enforce (anti-vacuous)
+# Example: Strategic-only DDD with no enforceable import boundary
 
-Shows the honest decline path: at an altitude with no architectural separation, the
-skill must NOT emit rules against folders that don't exist (which would make the CI gate
-pass vacuously). It says so plainly instead.
+Shows the honest decline path: a design can be DDD-first at the strategic level while still having no
+static import boundary worth enforcing.
 
 **User:**
-"Here is our settled design for the User Profile service. It's a simple CRUD app over a
-`users` table — standard framework controllers and models, no layered separation. Please
-enforce the boundaries."
+"Here is our settled design for profile settings. It is `ddd_depth: strategic-only`, uses the existing
+framework structure, and declares no folder-level separation. Please enforce the boundaries."
 
 **Agent (`enforce-architecture`):**
 
-**Altitude:** Simple CRUD (rung 1)
-**Boundaries declared:** none — at this altitude there is no domain/persistence separation.
+**DDD depth:** strategic-only
+
+**Boundaries declared:** none
 
 Extracting the layer map:
+
 ```json
 { "layers": [], "forbidden": [] }
 ```
 
 Running the generator:
+
 ```bash
 node scripts/generate_depcruise.mjs layer-map.json --output .dependency-cruiser.js
 ```
 
 **Output:**
-> Notice: No architectural boundaries to enforce at this altitude. Generating empty/vacuous guard config.
-> Wrote minimal config to .dependency-cruiser.js
+
+```text
+Notice: No enforceable architectural boundaries declared. Generating a minimal config for an honest pass.
+Wrote minimal config to .dependency-cruiser.js
+```
 
 **Conclusion:**
-There are no architectural boundaries to enforce at this altitude, so I did **not** invent
-`no-domain-to-infra`-style rules against folders that don't exist — that would be a vacuous
-gate that passes while checking nothing. If you want, `dependency-cruiser` can still be used
-to detect circular dependencies with the minimal config. Climb to a layered or hexagonal
-altitude only when complexity earns it, and re-run this skill.
+
+There are no static import boundaries to enforce. The design remains DDD-first through ownership,
+language, and invariant clarity, but this skill does not invent `domain -> infrastructure` rules
+against folders that do not exist.

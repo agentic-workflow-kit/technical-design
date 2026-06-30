@@ -4,6 +4,11 @@
     { "name": "controller", "path": "src/controller" }
   ],
   "forbidden": [
-    { "from": "model", "to": "controller" }
+    {
+      "from": "model",
+      "to": "controller",
+      "reason": "Model code must not import delivery/controller code.",
+      "seededViolation": "src/model/index.ts imports src/controller/handler.ts"
+    }
   ]
 }

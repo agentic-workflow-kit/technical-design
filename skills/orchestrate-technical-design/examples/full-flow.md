@@ -1,33 +1,46 @@
 # Example: Full Orchestration Flow
 
 **User:**
-"Design a new checkout service. Orchestrate the whole flow and stop after the review loop."
+"Design a new checkout payment service. Orchestrate the whole flow and stop after the review loop."
 
 **Agent (`orchestrate-technical-design`):**
-Running the technical design orchestration pipeline.
+Running the technical design runbook. Active methodology profile: `ddd`.
 
 ## Step 1: Frame
-Invoking `frame-technical-design`...
-*Result:* Created `problem-frame.md` identifying complexity drivers (external payment gateway, idempotency, PCI compliance).
+
+Reading and applying `frame-technical-design`.
+
+*Result:* Created `problem-frame.md` with source map, context candidate, idempotency invariant,
+gateway integration, and initial `ddd_depth: ports-and-adapters`.
 
 ## Step 2: Author
-Invoking `author-technical-design`...
-*Result:* Created `design-doc.md` (Altitude: Ports and Adapters selected due to external gateway). Seeded `decisions.md`.
+
+Reading and applying `author-technical-design`.
+
+*Result:* Created `technical-design.md` with DDD frontmatter, context map, ubiquitous language,
+invariant matrix, ports/adapters, enforcement map, delivery inputs, and seeded `decisions.md`.
 
 ## Step 3: Review Loop
-Invoking `review-technical-design`...
-*Result:* 1 blocking suggestion (S-001: Missing idempotency key for payment retries), 1 recommended suggestion (S-002: Observability span for third-party call).
 
-**Please provide your dispositions for S-001 and S-002 (e.g., "accept S-001, defer S-002 because we will add tracing next sprint").**
+Reading and applying `review-technical-design`.
+
+*Result:* 1 blocking suggestion and 1 recommended suggestion:
+
+- S-001: blocking, architecture-enforceability, enforcement map rule has no seeded violation.
+- S-002: recommended, domain-correctness, authorization amount invariant is missing one operand.
+
+**Please provide dispositions for S-001 and S-002 with reasons.**
 
 **User:**
-"accept S-001. defer S-002, we'll do observability later."
+"S-001 fix; the gate needs a failing seed. S-002 fix; source both operands."
 
 **Agent:**
-*Result:* Logged D-001 (accepted) and D-002 (deferred) to `decisions.md`.
-Invoking `author-technical-design` (Update Mode) to apply S-001.
-Re-running `review-technical-design`...
-*Result:* 0 open blocking suggestions. Design is SETTLED.
+
+- Logged D-001 and D-002 to `decisions.md`.
+- Read and applied `author-technical-design` update mode for accepted decisions.
+- Re-read and applied `review-technical-design`.
+- Result: 0 open blocking suggestions. Design is settled.
 
 **Stopping orchestration at review boundary as requested.**
-Final artifacts: `problem-frame.md`, `design-doc.md`, `decisions.md`.
+
+Final artifacts: `problem-frame.md`, `technical-design.md`, `decisions.md`.

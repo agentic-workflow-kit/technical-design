@@ -1,62 +1,85 @@
 ---
 name: review-technical-design
-description: 'Use when a user wants to review a technical design — when they say "review this design", "check my architecture", "review-technical-design", or provide a design draft. Emits structured suggestions without auto-editing. Flags over/under engineering. Drives a convergence loop where "settled" means no `blocking` suggestions are `open`.'
+description: 'Use when a user wants to review a technical design, check an architecture, review a DDD design, or run review-technical-design. Emits structured suggestions without auto-editing, using architecture/enforceability and domain-correctness lenses. Requires user disposition before design edits and treats settled as zero open blocking suggestions.'
 ---
 
 # review-technical-design
 
-Review a technical design (either a new draft authored by `author-technical-design` or an external RFC) to ensure it is right-sized, boundary-clear, and enforceable. 
-
-It **never auto-edits the design**. Instead, it emits structured **suggestions** and drives a review loop where the user disposes of each suggestion (fix / reject / defer). Accepted fixes are then applied to the design, and the disposition is logged to `decisions.md`. The design is considered **settled** when no `blocking` suggestions remain `open`.
+Review a technical design without editing it. Emit structured suggestions and a human-facing report.
+The user disposes suggestions; accepted items are then applied through `author-technical-design`
+update mode and recorded in `decisions.md`.
 
 ## References
 
-- Suggestion Schema: `templates/suggestion.schema.json`
-- Human Review Report Template: `templates/review-report.md`
-- Review loop example: `examples/review-with-decisions.md`
+- Active DDD profile: `../../methodologies/ddd/README.md`
+- DDD review rubric: `../../methodologies/ddd/review-rubric.md`
+- Lessons ledger: `../../docs/lessons-ledger.md`
+- Suggestion schema: `templates/suggestion.schema.json`
+- Report template: `templates/review-report.md`
 
 ## Step 0 - Show the flow
 
 Before reviewing, show the assumed flow:
 
 ```text
-I will do: analyze design -> identify over/under-engineering -> draft structured suggestions -> present human-facing report -> wait for user dispositions.
+I will do: read design and profile -> review architecture/enforceability -> review domain correctness -> emit structured suggestions with evidence -> present report -> wait for user dispositions.
 ```
 
-## Step 1 - Analyze Design
+## Step 1 - Read inputs
 
-Read the provided design document.
-Look for:
-- **Altitude**: Is the design altitude justified? Or is it over-engineered (e.g. tactical DDD for simple CRUD) or under-engineered (e.g. no invariants when there are complex state transitions)?
-- **Boundaries**: Are boundaries explicit and dependency direction enforced (e.g. domain does not import infra or db)?
-- **Use-cases**: Are vertical slices clear?
-- **Failure & Consistency**: Are edge cases, retries, idempotency handled?
-- **Testability & Observability**: Are there clear seams for testing?
+Read the design, its decision log if present, the active methodology profile, and source artifacts the
+design cites. Do not rely on the design's own "ready" claims without reconstructing them from sections,
+tables, enforcement maps, and cited sources.
 
-## Step 2 - Draft Structured Suggestions
+## Step 2 - Architecture and enforceability lens
 
-For each issue found, formulate a suggestion matching the schema `templates/suggestion.schema.json`.
-- Allocate an `id` (e.g. S-001, S-002).
-- Assign a `severity` (`blocking`, `recommended`, `optional`).
-- Identify the `dimension` (e.g. altitude, boundary, consistency).
-- Propose a concrete fix, without applying it.
+Check:
 
-Always populate over-engineering and under-engineering flags explicitly (even if empty).
+- contexts have owns/reads/does-not-own;
+- dependency direction is explicit;
+- public APIs have export/import evidence or tests;
+- enforceable boundaries have seeded violations and standing gates;
+- manual-only rules are not misrepresented as static enforcement;
+- delivery inputs do not hand scope decisions to implementers.
 
-## Step 3 - Present Review Report
+## Step 3 - Domain-correctness lens
 
-Generate a human-facing report conforming to `templates/review-report.md` and the machine-readable `suggestion.schema.json`.
-It must include:
-- A Verdict: `<settled>` if no blocking suggestions are open, otherwise `<open: X blocking, Y recommended>`.
-- Over-engineering and Under-engineering flags explicitly called out.
-- A markdown table listing the suggestions (`id`, `sev`, `dimension`, `finding`, `proposed fix`).
-- A prompt asking the user for dispositions: "reply per id with **fix / reject / defer (+reason)** → recorded to `decisions.md`."
+Check:
 
-## Step 4 - Await Dispositions
+- ubiquitous language is consistent;
+- commands/use cases name guarded invariants;
+- relational predicates source every operand;
+- failure tokens, states, events, and fields have one owner;
+- lifecycle transitions name the authority for prior state;
+- tactical DDD depth is neither too light nor too heavy for each context.
 
-Wait for the user to provide their dispositions. Do not edit the design document directly.
-- The user will respond with actions for each suggestion (`fix`, `reject`, `defer`).
-- Upon receiving dispositions, update the status of the suggestions.
-- **Accepted** suggestions should prompt `author-technical-design` (or direct user/agent editing) to update the design and bump the design round, then record to `decisions.md`.
-- **Rejected** or **Deferred** suggestions must be recorded in `decisions.md` with their rationale and tracked in the design's Risks section.
-- **Convergence**: The design is settled only when no `blocking` suggestion is `open`. Previously rejected or deferred items remain in their respective statuses and are not re-raised unless the design has changed in a way that reopens them.
+## Step 4 - Draft structured suggestions
+
+For each issue, create a suggestion matching `templates/suggestion.schema.json`.
+
+Required fields include:
+
+- `lens`: `architecture-enforceability` or `domain-correctness`;
+- `evidence`: design section, source artifact, or code surface;
+- `gate_ref`: rubric, gate, enforcement rule, or standing check that should catch recurrence;
+- `lesson_ref`: lesson id from `docs/lessons-ledger.md` when applicable;
+- `decision_ref`: empty until user disposition.
+
+Always populate over-engineering and under-engineering flags, even when empty.
+
+## Step 5 - Present report and wait
+
+Render `templates/review-report.md`. The report must show:
+
+- verdict: `settled` or open counts;
+- both review lenses;
+- over/under-engineering flags;
+- suggestion table;
+- disposition instruction.
+
+Do not edit the design. Wait for the user's `fix`, `reject`, or `defer` disposition with rationale.
+
+## Step 6 - Convergence rule
+
+The design is settled only when no `blocking` suggestion is `open`. Previously rejected or deferred
+items remain recorded and are not re-raised unless the design changed in a way that reopens them.

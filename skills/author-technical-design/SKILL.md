@@ -1,52 +1,83 @@
 ---
 name: author-technical-design
-description: 'Use when the user wants to write a technical design document from a problem frame and brief/PRD. Sets architecture altitude (from simple CRUD to tactical DDD), defines explicit boundaries, failure/consistency model, risks, and boundary rules for enforcement. Also used in update mode to apply an accepted decision to the design.'
+description: 'Use when the user wants to write or update a technical design document from a problem frame, brief, PRD, or design notes. Produces a DDD-first, technical-solution-compatible design with methodology frontmatter, context map, ubiquitous language, invariants, use cases, ports/adapters, consistency, failure modes, enforcement map, delivery inputs, and decisions log.'
 ---
 
 # author-technical-design
 
-Author a technical design document based on a problem frame and brief/PRD. The design focuses on right-sizing the architecture altitude, explicit boundaries, use-case slices, failure/consistency models, and risks. It initializes an ADR-lite decisions log.
+Author or update a DDD-first technical design. The design must be useful to a human reviewer,
+checkable by a later agent, and detailed enough to feed delivery planning without letting the
+implementer invent domain scope.
 
-## References (read before acting)
-- Problem frame (`problem-frame.md`)
-- PRD or feature brief
-- Altitude ladder: `technical-design/docs/altitude-ladder.md`
-- Decision format: `technical-design/skills/author-technical-design/templates/decisions.md`
+## References
 
-## Step 1: Ingest Context
-Read the output of `frame-technical-design` (`problem-frame.md`) and the relevant PRD or feature brief. Identify the stated complexity drivers. 
+- Active methodology profile: `../../methodologies/ddd/README.md`
+- Main DDD template: `../../methodologies/ddd/templates/technical-design.md`
+- Bounded context template: `../../methodologies/ddd/templates/bounded-context.md`
+- Enforcement map template: `../../methodologies/ddd/templates/enforcement-map.md`
+- Decision format: `templates/decisions.md`
+- Lessons ledger: `../../docs/lessons-ledger.md`
 
-## Step 2: Determine Architecture Altitude
-Evaluate the complexity drivers to choose the right architecture altitude. 
-Altitude ladder:
-1. **CRUD / Layered**: Simple data access, no complex domain logic. Bias towards this!
-2. **Use-case slices**: Vertical slices when controllers/services become bloated but logic isn't heavily state-dependent.
-3. **Ports & Adapters**: When you need to isolate business logic from infrastructure (e.g. database, third-party APIs).
-4. **Tactical DDD**: Entities, value objects, aggregates, domain events. **Only** when complexity drivers strongly justify it (e.g. strict invariants, heavy state transitions, complex cross-aggregate consistency).
+## Step 1 - Ingest context
 
-Determine over/under engineering flags. Explicitly state the chosen altitude in the design document and provide:
-- **Why simpler is insufficient.**
-- **Why more complex is unnecessary.**
+Read `problem-frame.md`, the user brief/PRD/design notes, and any source artifacts named in the frame.
+Do not ask questions already answered by those sources. Preserve the frame's blockers and safe
+assumptions.
 
-## Step 3: Draft the Design Document
-Use `templates/design-doc.md` and `templates/use-case-slice.md` to author the technical design.
-The design MUST contain:
-1. **Altitude**: Explicitly stated with justification.
-2. **Boundaries**: Allowed and forbidden imports. What layers are permitted to know about what other layers?
-3. **Use-case slices**: Detailed vertical slices. Do not split this into a separate sub-skill. 
-4. **Failure & Consistency model**: How the system behaves when dependencies fail. Retry logic, idempotency, eventual consistency vs strong consistency.
-5. **Risks**: Open questions or accepted tech debt.
-6. **Boundary rules**: Rules that `enforce-architecture` can use to build CI gates (e.g., no domain to infra imports).
+## Step 2 - Select DDD depth
 
-## Step 4: Seed Decisions Log
-Initialize an ADR-lite log using `templates/decisions.md` if it doesn't already exist. It sits next to the design document.
+Use the frame's initial `ddd_depth`, then confirm it against the evidence:
 
-## Step 5: Self-Evaluation Gate
-Before finalizing, verify:
-- Is the altitude explicitly stated with its justification?
-- Are the boundaries and boundary rules clear enough for enforcement?
-- Are the use-case slices present?
-If not, revise the document.
+- `strategic-only` for simple work that still needs language and ownership clarity;
+- `use-case-slices` for procedural behavior with explicit commands/errors/tests;
+- `ports-and-adapters` when the domain must be isolated from concrete infrastructure;
+- `tactical-ddd` when aggregates, value objects, domain events, and transaction boundaries are needed.
 
-## Update Mode (Loop)
-If invoked with a known design and an `accepted` suggestion from `review-technical-design` (recorded in `decisions.md`), apply the accepted decision to the design document. Bump the round number if applicable. Do not rewrite history or close `rejected`/`deferred` items.
+Record why the chosen depth is sufficient and where deeper tactical ceremony is intentionally omitted.
+
+## Step 3 - Draft the design
+
+Use the DDD template. The design must include:
+
+1. Frontmatter: `methodology: ddd`, `methodology_version`, `design_status`, `ddd_depth`, `round`.
+2. Source and context audit.
+3. Assumptions and blockers.
+4. Context map with owns/reads/does-not-own.
+5. Ubiquitous language.
+6. Commands/use cases and domain behavior.
+7. Invariant and state matrix with sourced operands.
+8. Ports, adapters, public APIs, and dependency direction.
+9. Data/query/consistency model.
+10. Failure, observability, migration, and deploy surfaces.
+11. Testing and enforcement map.
+12. Delivery inputs: story areas, sequencing constraints, file contention, validation expectations,
+    and stop conditions.
+13. Risks and deferred decisions.
+
+## Step 4 - Seed decisions log
+
+Create `decisions.md` from `templates/decisions.md` if it does not exist. If the design already has a
+decision log, append only; do not rewrite history.
+
+## Step 5 - Self-review gate
+
+Before finalizing, check:
+
+- Every context has owns/reads/does-not-own.
+- Every invariant names concrete operands or states that come from declared sources.
+- Every failure token, state, event, or public field has one owner.
+- Every enforceable boundary has an enforcement-map rule and seeded violation.
+- Every non-enforceable rule is called out as manual review or test strategy.
+- Delivery inputs are concrete enough for later planning without adding scope.
+
+If any check fails, revise before handing off to `review-technical-design`.
+
+## Update mode
+
+When invoked with accepted review suggestions:
+
+1. Read the suggestion, user disposition, and decision entry.
+2. Apply only accepted decisions.
+3. Bump `round`.
+4. Update the affected design section, enforcement map, delivery inputs, or risk list.
+5. Do not close rejected or deferred suggestions; keep them visible through the decision log and risks.

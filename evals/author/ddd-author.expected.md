@@ -1,0 +1,22 @@
+# Author Eval - DDD Technical Design
+
+## Input
+
+A problem frame with `ddd_depth: ports-and-adapters`, source map, Payment Processing context, external
+provider webhook, idempotency invariant, and fulfillment integration.
+
+## Expected output properties
+
+- Frontmatter includes:
+  - `methodology: ddd`
+  - `methodology_version`
+  - `design_status`
+  - `ddd_depth`
+- Includes source and context audit.
+- Includes bounded context owns/reads/does-not-own.
+- Includes ubiquitous language.
+- Includes invariant matrix with source operands.
+- Includes ports/adapters and public API section.
+- Includes data/query/consistency, failure, observability, migration/deploy, testing, and delivery
+  inputs.
+- Includes enforcement map where every forbidden rule has `seededViolation`.

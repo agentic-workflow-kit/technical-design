@@ -4,6 +4,11 @@
     { "name": "infra", "path": "src/infra" }
   ],
   "forbidden": [
-    { "from": "domain", "to": "infra" }
+    {
+      "from": "domain",
+      "to": "infra",
+      "reason": "Domain must not import persistence or provider infrastructure.",
+      "seededViolation": "src/domain/index.ts imports src/infra/database.ts"
+    }
   ]
 }

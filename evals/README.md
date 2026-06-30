@@ -1,18 +1,37 @@
 # Evaluation and Acceptance
 
-This directory contains fixtures and tests to ensure the `technical-design` pack functions according to its Key Results.
+This directory contains fixtures and checks for the DDD-first `technical-design` pack.
 
 ## Structure
 
-- `frame/`: Fixtures mapping a brief to expected clarifying questions and complexity flags.
-- `author/`: Fixtures mapping a problem frame to expected design properties (especially ensuring the correct altitude is selected).
-- `review/`: Fixtures mapping a drafted design to expected suggestions (including catching over/under-engineering).
-- `enforce/`: Contains a dummy project structure to verify that the generated CI configuration actively fails when a seeded boundary violation is introduced.
+- `frame/` - expected source-grounded problem-frame behavior.
+- `author/` - expected DDD technical-design output properties.
+- `review/` - intentionally defective design plus expected suggestion classes.
+- `ddd/` - defect-class fixtures for DDD review and methodology readiness.
+- `enforce/` - executable dependency-cruiser fixture proving seeded boundary failures.
+- `run_static_checks.sh` - local validation for skills, schema, profile files, and private source-name
+  leaks.
 
-## The Verifiable Requirement
+## Required eval classes
 
-The `enforce` evaluation is the most critical programmatic check in this pack. 
-To pass:
-1. Generate the `dependency-cruiser.js` configuration.
-2. Run `npx depcruise src` within `evals/enforce`.
-3. The build **must fail** with a boundary violation (specifically, `no-domain-to-infra`) because the seeded `src/domain/index.ts` file intentionally imports from `src/infra/database.ts`.
+- Missing bounded context ownership.
+- Invented failure token.
+- Unsourced invariant operand.
+- Public API exposure gap.
+- Vacuous enforcement rule without seeded violation.
+
+## Verifiable enforcement requirement
+
+The `enforce` eval proves that generated dependency-cruiser rules fail for seeded violations:
+
+1. Generate `.dependency-cruiser.js` from each layer map.
+2. Run dependency-cruiser against `evals/enforce/src`.
+3. Confirm the seeded violation fails for declared rules.
+4. Confirm no-boundary CRUD passes honestly with an empty config.
+
+Run:
+
+```bash
+bash evals/run_static_checks.sh
+bash evals/enforce/run_evals.sh
+```

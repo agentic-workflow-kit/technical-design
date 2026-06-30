@@ -3,7 +3,8 @@
  * generate_depcruise.mjs
  * 
  * Generates a dependency-cruiser configuration from a layer-map.json.
- * If there are no layers or boundaries defined, it will explicitly decline to generate vacuous rules.
+ * Declared boundary rules must include seededViolation metadata so the
+ * generated CI gate can be proven to fail for each rule.
  */
 
 import fs from 'node:fs';
@@ -58,7 +59,7 @@ try {
 }
 
 if (!layerMap.layers || layerMap.layers.length === 0 || !layerMap.forbidden || layerMap.forbidden.length === 0) {
-  console.log('Notice: No architectural boundaries to enforce at this altitude. Generating empty/vacuous guard config.');
+  console.log('Notice: No enforceable architectural boundaries declared. Generating a minimal config for an honest pass.');
   
   const emptyConfig = `module.exports = {
   forbidden: []
@@ -67,6 +68,15 @@ if (!layerMap.layers || layerMap.layers.length === 0 || !layerMap.forbidden || l
   fs.writeFileSync(outputPath, emptyConfig);
   console.log(`Wrote minimal config to ${outputPath}`);
   process.exit(0);
+}
+
+const unseededRules = layerMap.forbidden.filter(rule => !rule.seededViolation);
+if (unseededRules.length > 0) {
+  console.error('Error: every forbidden rule must include seededViolation metadata.');
+  for (const rule of unseededRules) {
+    console.error(`- missing seededViolation for ${rule.from} -> ${rule.to}`);
+  }
+  process.exit(1);
 }
 
 const forbiddenRules = layerMap.forbidden.map((rule, idx) => {
@@ -80,7 +90,7 @@ const forbiddenRules = layerMap.forbidden.map((rule, idx) => {
 
   return `    {
       name: 'no-${rule.from}-to-${rule.to}',
-      comment: 'This design explicitly forbids ${rule.from} from depending on ${rule.to}',
+      comment: '${rule.reason || `This design explicitly forbids ${rule.from} from depending on ${rule.to}`} Seed: ${rule.seededViolation}',
       severity: 'error',
       from: { path: '${fromLayer.path}' },
       to: { path: '${toLayer.path}' }

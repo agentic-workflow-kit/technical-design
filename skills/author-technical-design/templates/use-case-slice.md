@@ -1,18 +1,31 @@
-### Use Case: <Use Case Name>
+### Use Case: <use case name>
 
-**Trigger:** <API endpoint, worker event, etc.>
+**Bounded context:** <context>
 
-**Primary Actor:** <User, system, etc.>
+**Trigger:** <API endpoint, command, event, schedule, user action>
+
+**Primary actor:** <user/system/context>
+
+**Input contract:** <fields/events/projections consumed>
 
 **Preconditions:**
-- <What must be true before this starts?>
+- <what must already be true>
 
-**Main Flow:**
-1. <Step 1>
-2. <Step 2>
+**Main flow:**
+1. <step>
+2. <step>
 
-**Alternative/Error Flows:**
-- <What happens if a step fails or a rule is violated?>
+**Alternative/error flows:**
+- <failure token> - <behavior>
 
-**Invariants & State:**
-- <What business rules must be guarded?>
+**Invariants guarded:**
+- <invariant and source operands>
+
+**Result:**
+- <state transition, domain event, output, projection update>
+
+**Ports/adapters touched:**
+- <port or adapter seam>
+
+**Tests and enforcement:**
+- <test, architecture rule, or manual review item>

@@ -11,7 +11,7 @@ GEN="../../skills/enforce-architecture/scripts/generate_depcruise.mjs"
 DEPCRUISE="./node_modules/.bin/depcruise"
 
 if [ ! -x "$DEPCRUISE" ]; then
-  echo "error: $DEPCRUISE not found — run 'pnpm install --frozen-lockfile' in $(pwd)" >&2
+  echo "error: $DEPCRUISE not found - run 'pnpm install --frozen-lockfile' in $(pwd)" >&2
   exit 2
 fi
 
@@ -34,9 +34,9 @@ run_case() {
 
 # rung 3: hexagonal domain -> infra (must fire)
 run_case hexagonal hexagonal-layer-map.json fail
-# rung 2: layered model -> controller (NON-hexagonal rule must fire) — proves layer-driven generation
+# rung 2: layered model -> controller (NON-hexagonal rule must fire) - proves layer-driven generation
 run_case layered   layered-layer-map.json   fail
-# rung 1: simple CRUD, no boundaries — generator declines, gate passes honestly (not vacuously)
+# rung 1: simple CRUD, no boundaries - generator declines, gate passes honestly (not vacuously)
 run_case crud      crud-layer-map.json      pass
 
 if [ "$failures" -ne 0 ]; then

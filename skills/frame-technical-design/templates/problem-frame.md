@@ -1,35 +1,55 @@
 # Problem Frame
 
-> Intake artifact for technical design. Captures the scope, complexity drivers, and resolved unknowns before choosing an architecture altitude.
+> Intake artifact for DDD-first technical design. It records source evidence, assumptions, blockers,
+> context candidates, and initial depth before authoring.
 
-## 1. Scope & Context
+## 1. Scope and Goal
 
-- **Source:** <link to PRD, brief, or task>
-- **Goal:** <1-2 sentences on what we are building and why>
-- **Out of Scope:** <Explicit boundaries of what we are NOT building>
+- **Source request:** <brief, PRD, task, or design draft>
+- **Goal:** <what we are building and why>
+- **Out of scope:** <what this design must not cover>
 
-## 2. Complexity Drivers
+## 2. Source Map
 
-> These drivers inform the architecture altitude. If these are heavy, we may need tactical DDD or ports/adapters. If they are light, CRUD/layered is best.
+| Source | Authority | Establishes | Gaps / stale risk |
+|---|---|---|---|
+| <path or source id> | <authoritative/supporting/background> | <fact> | <gap or none> |
 
-- **Invariants:** <Rules that must never be broken, e.g., "An account balance cannot go below zero">
-- **State Transitions:** <Complex lifecycles, e.g., "Order goes from Pending to Paid to Shipped">
-- **Integrations:** <External systems we depend on or push to>
-- **Consistency Needs:** <e.g., "Must be strongly consistent on write" or "Can be eventually consistent via events">
-- **Scale / Non-functional:** <e.g., High read throughput, strict latency limits>
+## 3. Assumptions and Blockers
 
-## 3. Clarifying Questions & Unknowns
+### Safe Assumptions
+- <assumption and why it is safe>
 
-| Question | Status | Answer / Safe Assumption |
-|----------|--------|--------------------------|
-| <Question 1> | [Answered] | <User's answer> |
-| <Question 2> | [Assumed] | <Our safe assumption> |
-| <Question 3> | [Open] | <Needs user input> |
+### Blocking Questions
+- <question and why the answer changes the design>
 
-## 4. Altitude Recommendation
+## 4. DDD Context Candidates
 
-> Based on the complexity drivers above, what is the initial leaning for architecture altitude?
-> (e.g., Simple CRUD, Layered MVC, Use-Case Slices, Ports/Adapters, Tactical DDD)
+| Candidate context | Owns | Reads | Does Not Own | Open ownership question |
+|---|---|---|---|---|
+| <context> | <owned facts/decisions/behavior> | <consumed facts> | <nearby concern> | <question or none> |
 
-**Initial Leaning:** <Altitude>
-**Rationale:** <Why this altitude and why not simpler/more complex>
+## 5. Complexity Drivers
+
+- **Invariants:** <rules that must never be broken>
+- **State transitions:** <lifecycles, status changes, temporal rules>
+- **Integrations:** <external systems and anti-corruption needs>
+- **Consistency:** <strong/eventual, idempotency, replay, audit>
+- **Security and authorization:** <tenant/user/role/fail-closed needs>
+- **Migration/deploy:** <schema/config/backfill/rollout constraints>
+- **Observability:** <events, metrics, audit records, logs>
+- **Testing:** <unit, integration, contract, architecture, property tests>
+
+## 6. Initial DDD Depth
+
+**Selected depth:** <strategic-only | use-case-slices | ports-and-adapters | tactical-ddd>
+
+**Why this depth fits:** <rationale from drivers>
+
+**Where tactical depth is intentionally omitted:** <contexts or concerns that stay simpler>
+
+## 7. Handoff to Author
+
+- **Design artifact target:** <path or suggested path>
+- **Required methodology profile:** `ddd`
+- **Delivery constraints to preserve:** <sequencing, files, gates, stop conditions>

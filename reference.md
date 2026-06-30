@@ -1,29 +1,47 @@
 # Reference Heuristics
 
-This document contains reusable design heuristics extracted from common domain-driven design practices, distilled to their essence for use when architecting solutions. Use these to judge whether a design is appropriately rigorous or over-engineered.
+These heuristics support the DDD-first profile. They are not a framework and should not be copied as
+base classes.
 
-## 1. Guarding vs. Validating
-- **Validating** is filtering: It happens at the boundary (e.g., the API controller or input DTO). It rejects bad input with a 400 Bad Request. It's expected that external input can be bad.
-- **Guarding** is failing fast: It happens inside the domain model (e.g., inside an entity or value object). By the time data reaches the domain, it is assumed to be valid. A guard violation means the system itself has a bug (a 500 Internal Server Error) or a domain rule was broken (domain exception).
+## Guarding vs validating
 
-## 2. Make Illegal States Unrepresentable
-Instead of relying on comments or runtime checks to ensure a user has either an email or a phone, encode it in the type system.
-*Bad:* `interface Contact { email?: string; phone?: string; }` (allows neither)
-*Good:* `type Contact = Email | Phone | [Email, Phone]` (compiler enforces valid state)
+- **Validating** happens at system boundaries. External input can be malformed.
+- **Guarding** happens inside domain behavior. A guard failure means a domain rule or system invariant
+  was violated.
 
-## 3. Domain Invariants
-Invariants are rules that must always hold true in a specific context. An entity should never be allowed to exist in an invalid state.
-- A wallet balance cannot be less than 0.
-- An order must have at least one line item.
-Enforce invariants in constructors and mutations. Do not allow "empty" objects to be instantiated and filled later if that violates the invariant.
+Designs should state which rules are boundary validation and which rules are domain invariants.
 
-## 4. Value Objects and Primitives
-Avoid "primitive obsession" where business concepts are just strings or numbers. 
-If an `email` has specific validation rules, create an `Email` value object. If a `money` amount has a currency and a value, create a `Money` value object. 
-*Note on Altitude:* Only apply this when the logic justifies it. In a simple CRUD app, `string` for an email is fine if the framework's input validation handles it.
+## Make illegal states unrepresentable where it pays off
 
-## 5. Explicit Domain Errors
-Instead of throwing generic technical exceptions, use explicit error types for expected domain failures (e.g., `UserAlreadyExistsError`, `InsufficientFundsError`). This forces consumers to handle them and prevents the API layer from leaking stack traces.
+Use types, value objects, discriminated states, or constructor guards when they prevent real domain
+bugs. Do not create tactical artifacts for concepts that have no behavior beyond basic persistence.
 
-## 6. Architecture Enforcement
-Intent is fragile; CI checks are durable. Define boundaries (e.g., "Domain cannot depend on Infrastructure") and enforce them with tools like `dependency-cruiser` or `eslint`. If the boundary is breached, the build should fail.
+## Owns, reads, does not own
+
+Every bounded context should state:
+
+- what facts, decisions, data, and behavior it owns;
+- what it reads from other contexts or systems;
+- what nearby concerns belong elsewhere.
+
+This prevents a later implementer from choosing ownership under pressure.
+
+## Producer and source closure
+
+Every produced field, event, state, failure token, or public symbol needs one source of authority. A
+consumer can cite a producer-owned shape; it must not invent one.
+
+## Predicate operand closure
+
+For relational rules such as "inside workspace", "broader than", "contained by", or "matches policy",
+name both operands as declared fields, events, projections, or resolver outputs.
+
+## Public exposure is evidence
+
+A public API exists only when the design names the public surface and the standing proof: export line,
+import test, contract test, or equivalent.
+
+## Enforcement needs a seed
+
+A generated boundary rule is production-ready only when a seeded violation proves the gate fails for
+that rule. Without a seed, the rule is a claim, not evidence.

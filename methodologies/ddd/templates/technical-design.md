@@ -28,13 +28,13 @@ round: 1
 
 **Why this depth is sufficient:** <rationale>
 
-**Where deeper tactical ceremony is unnecessary:** <rationale>
+**Why deeper tactical ceremony is unnecessary where omitted:** <rationale>
 
 ## 4. Context Map
 
 | Context | Owns | Reads | Does Not Own |
 |---|---|---|---|
-| <context> | <facts, decisions, data, behavior> | <external facts consumed> | <nearby concerns owned elsewhere> |
+| <context> | <facts, decisions, data, behavior> | <external facts it consumes> | <nearby concerns owned elsewhere> |
 
 ## 5. Ubiquitous Language
 
@@ -43,8 +43,6 @@ round: 1
 | <term> | <precise meaning> | <context> |
 
 ## 6. Domain Behavior
-
-Use `use-case-slice.md` for detailed slices.
 
 | Command / Use Case | Actor | Invariant guarded | Result |
 |---|---|---|---|
@@ -79,15 +77,6 @@ Use `use-case-slice.md` for detailed slices.
 | Claim | Proof | Standing gate |
 |---|---|---|
 | <boundary/invariant/public API> | <test/fixture/static rule> | <command or CI lane> |
-
-### Enforcement Map
-
-```json
-{
-  "layers": [],
-  "forbidden": []
-}
-```
 
 ## 12. Delivery Inputs
 

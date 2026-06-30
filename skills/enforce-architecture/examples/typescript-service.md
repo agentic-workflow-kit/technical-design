@@ -1,16 +1,30 @@
-# Example: TypeScript Service Architecture Enforcement
+# Example: TypeScript DDD Ports and Adapters Enforcement
 
-For a TypeScript service with the following structure:
+For a TypeScript service with DDD depth `ports-and-adapters`:
+
 - `src/api`
 - `src/application`
 - `src/domain`
 - `src/infrastructure`
 
-The generated `dependency-cruiser.js` defines paths to match these directories and enforces the core invariant rules:
-1. `no-domain-to-api`
-2. `no-domain-to-app`
-3. `no-domain-to-infra`
-4. `no-infra-to-api`
-5. `no-command-query-to-api`
+The settled design's enforcement map should include only the boundaries it actually owns, for example:
 
-When `npx depcruise src` is run, any cross-layer imports that violate these rules (such as `src/domain/model.ts` importing `src/infrastructure/db.ts`) will cause the build to fail, preventing the architecture from degrading.
+```json
+{
+  "layers": [
+    { "name": "domain", "path": "src/domain" },
+    { "name": "infrastructure", "path": "src/infrastructure" }
+  ],
+  "forbidden": [
+    {
+      "from": "domain",
+      "to": "infrastructure",
+      "reason": "Domain must depend on ports, not concrete persistence or provider SDKs.",
+      "seededViolation": "src/domain/__architecture__/domain-imports-infrastructure.seed.ts"
+    }
+  ]
+}
+```
+
+`enforce-architecture` generates `no-domain-to-infrastructure` and the CI gate is accepted only after
+the seeded violation fails for that rule.

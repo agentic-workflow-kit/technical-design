@@ -1,0 +1,42 @@
+# DDD Methodology Profile
+
+This is the active v1 methodology profile for `technical-design`.
+
+## Default stance
+
+Use DDD for every design at the strategic level:
+
+- Bounded contexts and ownership.
+- Ubiquitous language.
+- Invariants and state transitions.
+- Domain/application/infrastructure boundaries.
+- Explicit consistency and failure models.
+
+Choose tactical depth per context:
+
+- `strategic-only` - ownership and language are useful, but no rich domain model is needed.
+- `use-case-slices` - behavior is mostly procedural but needs clear commands, errors, and tests.
+- `ports-and-adapters` - the domain must be isolated from concrete databases, SDKs, queues, or
+  delivery mechanisms.
+- `tactical-ddd` - aggregates, value objects, domain events, and transaction boundaries are needed.
+
+## Required artifacts
+
+When this profile is active, `author-technical-design` must produce:
+
+- DDD frontmatter: `methodology`, `methodology_version`, `design_status`, `ddd_depth`.
+- Source/context audit and assumptions/blockers.
+- Context map with owns/reads/does-not-own.
+- Ubiquitous language.
+- Commands/use cases and domain behavior.
+- Invariant matrix with source operands.
+- Ports/adapters and public API boundaries.
+- Failure, consistency, observability, migration/deploy, and testing sections.
+- Enforcement map and delivery inputs.
+
+## Non-goals
+
+- No DDD base classes.
+- No framework-specific folder template.
+- No event sourcing by default.
+- No private app-specific examples or repository names.

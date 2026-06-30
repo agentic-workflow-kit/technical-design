@@ -1,32 +1,62 @@
 # Problem Frame
 
-> Intake artifact for technical design. Captures the scope, complexity drivers, and resolved unknowns before choosing an architecture altitude.
+> Intake artifact for DDD-first technical design. It records source evidence, assumptions, blockers,
+> context candidates, and initial depth before authoring.
 
-## 1. Scope & Context
+## 1. Scope and Goal
 
-- **Source:** PRD-payments-stripe.md
-- **Goal:** Implement a payment webhook processor that listens for Stripe events, updates our internal order status, and triggers fulfillment.
-- **Out of Scope:** Creating the initial payment intent (handled by frontend checkout), handling refunds.
+- **Source request:** payment webhook processing brief.
+- **Goal:** Process provider webhooks, update internal payment state, and trigger downstream
+  fulfillment exactly once.
+- **Out of scope:** creating payment intents, refunds, settlement reconciliation.
 
-## 2. Complexity Drivers
+## 2. Source Map
 
-> These drivers inform the architecture altitude. If these are heavy, we may need tactical DDD or ports/adapters. If they are light, CRUD/layered is best.
+| Source | Authority | Establishes | Gaps / stale risk |
+|---|---|---|---|
+| payment webhook brief | authoritative | scope, external provider, fulfillment trigger | no retry policy specified |
+| existing order status model | supporting | current state names | does not define payment failure tokens |
 
-- **Invariants:** An order must only be fulfilled exactly once, even if Stripe sends duplicate webhook events.
-- **State Transitions:** Order status transitions: `Pending` -> `Paid` -> `FulfillmentTriggered`. Cannot go `Paid` -> `Pending`.
-- **Integrations:** Stripe (incoming webhooks), internal Fulfillment Service (outgoing RPC).
-- **Consistency Needs:** Must not lose webhook events. Idempotency is critical.
-- **Scale / Non-functional:** Webhooks must return 200 OK to Stripe within 2 seconds.
+## 3. Assumptions and Blockers
 
-## 3. Clarifying Questions & Unknowns
+### Safe Assumptions
+- Webhook handling can acknowledge receipt before asynchronous processing.
+- Raw payload should be stored for audit and replay.
 
-| Question | Status | Answer / Safe Assumption |
-|----------|--------|--------------------------|
-| Should we queue the webhooks or process them synchronously? | [Answered] | Queue them. Return 200 to Stripe immediately, process asynchronously to avoid timeout. |
-| What if the fulfillment service is down? | [Assumed] | We will retry asynchronously with exponential backoff. |
-| Do we need to store the raw Stripe payload? | [Answered] | Yes, for audit and replay purposes. |
+### Blocking Questions
+- Which component owns fulfillment idempotency? The answer changes whether this context emits a command
+  or directly calls a fulfillment port.
 
-## 4. Altitude Recommendation
+## 4. DDD Context Candidates
 
-**Initial Leaning:** Use-Case Slices with Ports/Adapters for external services.
-**Rationale:** The need for idempotency, async processing, and third-party integration (Stripe, Fulfillment) makes simple CRUD insufficient. However, the domain logic itself (updating status to Paid) is thin, so full tactical DDD (aggregates, domain events) is over-engineering. Explicit boundaries around the Stripe adapter and Fulfillment adapter are needed.
+| Candidate context | Owns | Reads | Does Not Own | Open ownership question |
+|---|---|---|---|---|
+| Payment Processing | payment event intake, payment state, idempotency key | order id, amount, fulfillment eligibility | fulfillment execution, checkout intent creation | who owns fulfillment idempotency |
+
+## 5. Complexity Drivers
+
+- **Invariants:** A payment event should trigger fulfillment at most once.
+- **State transitions:** pending -> paid -> fulfillment-triggered; paid must not return to pending.
+- **Integrations:** provider webhook, fulfillment system.
+- **Consistency:** webhook retries require idempotency and raw event storage.
+- **Security and authorization:** verify provider signature before accepting event.
+- **Migration/deploy:** add processed event table and idempotency index.
+- **Observability:** event received, event deduplicated, fulfillment trigger requested, processing failed.
+- **Testing:** signature verification tests, idempotency tests, architecture boundary test.
+
+## 6. Initial DDD Depth
+
+**Selected depth:** ports-and-adapters
+
+**Why this depth fits:** External provider vocabulary and fulfillment integration need clear ports and
+anti-corruption boundaries. The state machine is strict but not yet rich enough to require many
+aggregates.
+
+**Where tactical depth is intentionally omitted:** No event-sourced aggregate or CQRS read model in v1.
+
+## 7. Handoff to Author
+
+- **Design artifact target:** `technical-design.md`
+- **Required methodology profile:** `ddd`
+- **Delivery constraints to preserve:** source payment state and failure tokens before implementing
+  webhook consumers.

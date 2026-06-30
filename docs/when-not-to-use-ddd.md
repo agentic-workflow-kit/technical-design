@@ -1,21 +1,37 @@
-# When Not to Use Domain-Driven Design (DDD)
+# Avoiding DDD Theater
 
-DDD is a powerful methodology for modeling complex business logic, but it is often misapplied to problems that don't warrant its overhead. 
+The pack is DDD-first, but that does not mean every design gets full tactical DDD. The failure mode is
+not "using DDD"; the failure mode is applying DDD vocabulary without real ownership, invariants, or
+enforceable boundaries.
 
-## The Anti-Pattern: DDD by Default
-Applying tactical DDD (Entities, Value Objects, Aggregates, Domain Events) to a simple CRUD application creates an "architecture theater." You end up with layers of mapping, verbose base classes, and repositories that do nothing but wrap a single SQL query—all for a service that just updates a database row.
+## Strategic DDD is always useful
 
-## Complexity Drivers that Justify DDD
-Only use tactical DDD if you can identify explicit complexity drivers during the framing stage:
-- **Strict Invariants:** The domain has rules that must *never* be broken, and enforcing them requires keeping the entire object graph consistent in memory.
-- **Complex State Transitions:** Entities don't just change from A to B; they follow strict state machines governed by business logic.
-- **Rich Business Logic:** The application makes many decisions, calculations, and policy enforcements before writing data.
-- **Highly Collaborative Domains:** Many actors are modifying the same data concurrently, requiring Aggregate Roots as transaction boundaries.
+Even simple work should name:
 
-## The Alternative: Layered MVC
-If your service simply validates input, reads a record, updates a field, and saves it:
-- Use standard Model-View-Controller or a simple layered architecture.
-- Depend on your framework's validation rules instead of creating Value Objects.
-- Keep boundaries clean (e.g., controllers shouldn't contain SQL), but don't over-engineer the layers in between.
+- The bounded context or context area.
+- What it owns, reads, and explicitly does not own.
+- The core language the team should use.
+- The boundary between domain behavior, persistence, delivery, and external systems.
 
-**Verdict:** The `author-technical-design` skill is instructed to explicitly decline DDD if the problem frame lacks sufficient complexity drivers.
+## Tactical DDD must earn its place
+
+Add aggregates, value objects, domain events, anti-corruption layers, sagas, CQRS, or event sourcing
+only when the design has matching complexity:
+
+- Strict invariants that must never be bypassed.
+- State transitions governed by business rules.
+- Rich policy decisions before persistence.
+- Multiple actors changing the same conceptual state.
+- External systems whose vocabulary should not leak into the domain.
+- Consistency or audit needs that require explicit event history.
+
+## Simpler work still gets DDD discipline
+
+For a CRUD-like feature, use `ddd_depth: strategic-only`. Keep the context, ownership, vocabulary,
+boundary, and tests explicit. Do not create fake aggregates or repositories just to look tactical.
+
+## Event sourcing is not the default
+
+Event sourcing is a persistence and history strategy, not a replacement for DDD in v1. Treat it as a
+future DDD subprofile when audit, replay, temporal queries, or durable event history are real
+requirements.

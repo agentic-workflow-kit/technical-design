@@ -1,16 +1,38 @@
 # Principles of Technical Design
 
-## 1. Start Simple
-Complexity is a cost. Always default to the simplest architecture that solves the problem. A basic layered MVC app is superior to a poorly justified microservice with Domain-Driven Design ceremony.
+## 1. DDD-first, not DDD-theater
 
-## 2. Explicit Boundaries
-The defining characteristic of good architecture is clear, enforced boundaries. Even in a simple application, the domain layer must not import the delivery mechanism (like an HTTP controller) or the database directly.
+Every design starts with strategic DDD: language, bounded contexts, ownership, boundaries, and
+invariants. Tactical DDD is ceremony-right-sized. Add aggregates, value objects, domain events, and
+anti-corruption layers only when behavior, invariants, external integration, or consistency concerns
+need them.
 
-## 3. Review Proposes, User Disposes
-Automated review should never silently edit a design. It should emit suggestions tagged with severity. The human user retains authority over what is accepted, rejected, or deferred.
+## 2. Source-grounded before interview
 
-## 4. Remember Why (Record Decisions)
-Every accepted or rejected change during a design review must be recorded. A design document captures *what* we are building; the decision log (`decisions.md`) captures *why* we chose not to build it differently.
+Read the brief, PRD, existing design docs, source surfaces, and current boundary rules before asking
+questions. Ask only questions that materially change ownership, context boundaries, data/query shape,
+consistency, migration/deploy, observability, security, or testing.
 
-## 5. Intent Becomes Enforceable
-A design document is useless if the code drifts from it immediately. The output of a settled design must include executable CI gates (like `dependency-cruiser` and ESLint rules) that enforce the agreed-upon boundaries.
+## 3. Boundaries are named ownership, not folder taste
+
+A boundary is meaningful only when the design says what a context owns, what it reads, what it does
+not own, and which dependency directions are allowed. Folder names are implementation evidence, not
+the design authority.
+
+## 4. Review proposes, user disposes
+
+Review never silently edits a design. It emits suggestions with severity, lens, evidence, and a
+proposed fix. The user accepts, rejects, or defers each suggestion, and the decision log records the
+rationale.
+
+## 5. Readiness is reconstructed
+
+Do not accept "covered", "enforced", or "ready" as prose. Rebuild the claim from source artifacts:
+requirements to design sections, invariant operands to declared fields, failure tokens to producer
+catalogs, public APIs to export lines, and boundary rules to seeded violations.
+
+## 6. Intent becomes enforceable
+
+A settled design must identify which rules are enforceable and which are manual review obligations.
+For TS-first v1, enforceable boundaries become dependency-cruiser or ESLint rules with seeded
+violations that prove the gate can fail.
