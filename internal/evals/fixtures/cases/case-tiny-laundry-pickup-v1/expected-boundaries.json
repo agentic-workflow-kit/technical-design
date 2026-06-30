@@ -185,6 +185,14 @@
           ]
         },
         {
+          "label": "Notification Delivery leaves booking state decisions to scheduling",
+          "must_include_all": [
+            "Notification Delivery",
+            "Delivery of lifecycle notifications",
+            "Booking state decisions"
+          ]
+        },
+        {
           "label": "Notification Delivery owns delivery mechanics outside booking authority",
           "must_include_all": [
             "Notification Delivery",
@@ -217,6 +225,7 @@
           "label": "notification does not own booking authority",
           "any_of": [
             "does not own booking state transitions",
+            "does not own booking state decisions",
             "does not own booking state authority",
             "booking lifecycle authority",
             "Booking state authority"

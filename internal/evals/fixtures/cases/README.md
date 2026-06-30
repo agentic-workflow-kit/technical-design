@@ -22,7 +22,15 @@ fixtures/cases/<case-id>/
 - Source facts must appear in `product.md` or `source-map.md`.
 - `reference-design.md` is a comparison anchor, not the only valid answer.
 - `expected-facts.json` and `expected-boundaries.json` must cite source IDs.
+- Expected facts and boundaries must be derivable from generation-visible inputs: `product.md` and
+  `source-map.md`. Do not require wording or product scope that appears only in the reference design,
+  rubric, or grader notes.
+- Use `accepted_alternatives` and `required_concepts` for source-equivalent wording instead of
+  encoding one preferred sentence shape as the only passing answer.
 - Boundary fixtures may declare `accepted_alternatives` for source-equivalent ownership evidence.
 - Deterministic checks should grade explicit facts, boundaries, and contradictions, not prose style.
+- If sources name aggregates, domain services, workflow services, or service candidates, expected
+  boundaries should state whether they require standalone ownership evidence or may be covered as
+  internal sub-boundaries inside a larger context.
 - Generated outputs belong under ignored `internal/evals/results/<run-id>/`.
 - Do not add external text unless its license allows committed fixtures and `provenance.md` records it.

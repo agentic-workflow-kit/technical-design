@@ -204,11 +204,16 @@ Deterministic graders own anything mechanically checkable:
 - required files and sections;
 - valid JSON schemas;
 - declared `owns`, `reads`, and `does-not-own` fields;
+- expected case facts and boundaries that cite visible `product.md` or `source-map.md` source refs;
 - one seeded violation per generated enforcement rule;
 - no-boundary cases that produce no fake rules;
 - public API proof references where public APIs are claimed.
 
 Any deterministic blocker makes the run red.
+
+Deterministic text matching should be calibrated for source-equivalent wording. Graders may normalize
+Markdown punctuation and use explicit accepted alternatives or concept groups, but contradiction
+checks remain conservative and authoritative.
 
 ### Reference and Fact Graders
 
@@ -234,6 +239,10 @@ The grader should classify each fact as:
 `contradicted` and `invented` findings are blockers unless explicitly marked as acceptable
 alternative design choices in the case rubric.
 
+Expected facts and boundaries must be source-visible. A fixture must not require wording or product
+scope that appears only in `reference-design.md`, `rubric.md`, or grader notes. Reference designs are
+comparison anchors, not answer keys.
+
 ### LLM Semantic Judge
 
 Use an LLM judge only where deterministic and fact graders cannot reasonably decide:
@@ -247,6 +256,11 @@ Use an LLM judge only where deterministic and fact graders cannot reasonably dec
 The judge must grade against a rubric and cite evidence. It must be allowed to return `unknown`.
 It must not reward length, rhetorical confidence, or familiar architecture vocabulary without
 source support.
+
+Run pointwise coverage judging before pairwise comparison when inspecting generated case outputs.
+The pointwise judge grades each expected `FACT-*` and `CTX-*` item against candidate evidence and
+visible source inputs. Pairwise judging answers which candidate is better overall; it does not prove
+that every required item is satisfied.
 
 Minimum judge output:
 
@@ -272,6 +286,10 @@ For major skill or methodology changes, run pairwise comparisons:
 Pairwise judging should randomize order and ask which candidate is more source-grounded,
 implementation-ready, and enforceable. The judge must explain the winning criteria, not only pick
 a winner.
+
+If deterministic grading and pointwise judging disagree, record the disagreement as calibration
+evidence. Do not let an LLM judge override deterministic blockers until a human-reviewed calibration
+set shows acceptable false-pass and false-fail behavior.
 
 ### Human Calibration
 

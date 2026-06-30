@@ -14,3 +14,4 @@
 | `SRC-010` | microservice-boundaries | `https://learn.microsoft.com/en-us/azure/architecture/microservices/model/microservice-boundaries` | Delivery History is split from Delivery and consumes DeliveryTracking events for long-term storage. |
 | `SRC-011` | data-considerations | `https://learn.microsoft.com/en-us/azure/architecture/microservices/design/data-considerations` | Delivery storage is optimized for scheduled or in-progress state and fast status reads, not historical analysis. |
 | `SRC-012` | data-considerations | `https://learn.microsoft.com/en-us/azure/architecture/microservices/design/data-considerations` | Delivery History needs separate long-term analytical storage and a faster lookup path for completed deliveries. |
+| `SRC-013` | fixture-scope | `product.md#source-facts` | Detailed account internals, drone regulatory workflows, exact public APIs, and production flight-safety policies stay out of scope. |

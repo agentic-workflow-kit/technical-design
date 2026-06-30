@@ -94,6 +94,12 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 |---|---|---|---|
 | <context> | <facts, decisions, data, behavior> | <external facts it consumes> | <nearby concerns owned elsewhere> |
 
+### Source-Named Internal Boundaries
+
+| Source-named aggregate/service candidate | Owning context | Ownership treatment |
+|---|---|---|
+| <aggregate, domain service, workflow service, or service candidate named by sources> | <context> | <explicit ownership, or why it remains an internal sub-boundary> |
+
 ## 7. Ubiquitous Language
 
 | Term | Meaning | Owner |

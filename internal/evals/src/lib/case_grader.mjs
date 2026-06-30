@@ -1,46 +1,40 @@
 export const normalize = (value) =>
   String(value ?? "")
     .toLowerCase()
+    .replace(/[`*_~]/g, "")
+    .replace(/[‘’‛′']/g, "")
+    .replace(/[“”«»"]/g, "")
+    .replace(/[‐‑‒–—―]/g, "-")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
+const normalizedIncludes = (normalizedText, snippet) =>
+  normalizedText.includes(normalize(snippet));
+
+const findIncludedSnippet = (text, snippets = []) => {
+  const normalizedText = normalize(text);
+  return snippets.find((snippet) =>
+    normalizedIncludes(normalizedText, snippet),
+  );
+};
+
+const findMissingSnippets = (text, snippets = []) => {
+  const normalizedText = normalize(text);
+  return snippets.filter(
+    (snippet) => !normalizedIncludes(normalizedText, snippet),
+  );
+};
+
 export const includesAny = (text, snippets = []) =>
-  snippets.some((snippet) => normalize(text).includes(normalize(snippet)));
+  Boolean(findIncludedSnippet(text, snippets));
 
 export const includesAll = (text, snippets = []) =>
-  snippets.every((snippet) => normalize(text).includes(normalize(snippet)));
+  findMissingSnippets(text, snippets).length === 0;
 
-export const gradeFacts = (candidateText, expectedFacts) =>
-  expectedFacts.facts.map((fact) => {
-    const forbiddenHit = includesAny(
-      candidateText,
-      fact.must_not_include_any ?? [],
-    );
-    const anyRequired = fact.must_include_any ?? [];
-    const allRequired = fact.must_include_all ?? [];
-    const requiredHit =
-      (anyRequired.length === 0 || includesAny(candidateText, anyRequired)) &&
-      includesAll(candidateText, allRequired);
-    let verdict = "covered";
-    let evidence = "required text evidence found";
-    if (forbiddenHit) {
-      verdict = "contradicted";
-      evidence = "forbidden text evidence found";
-    } else if (!requiredHit) {
-      verdict = "missing";
-      evidence = "no required text evidence found";
-    }
-    return {
-      id: fact.id,
-      kind: "fact",
-      severity: fact.severity,
-      verdict,
-      evidence,
-    };
-  });
-
-const acceptedAlternativeHit = (candidateText, alternatives = []) =>
-  alternatives.some((alternative) => {
+const findAcceptedAlternativeMatch = (candidateText, alternatives = []) =>
+  alternatives.find((alternative) => {
     const forbiddenHit = includesAny(
       candidateText,
       alternative.must_not_include_any ?? [],
@@ -51,44 +45,112 @@ const acceptedAlternativeHit = (candidateText, alternatives = []) =>
     );
   });
 
-const requiredConceptsHit = (candidateText, conceptGroups = []) =>
-  conceptGroups.length > 0 &&
-  conceptGroups.every((group) =>
+const findRequiredConceptMatch = (candidateText, conceptGroups = []) => {
+  if (conceptGroups.length === 0) {
+    return null;
+  }
+
+  const matchedGroups = conceptGroups.filter((group) =>
     includesAny(candidateText, group.any_of ?? []),
   );
+  if (matchedGroups.length !== conceptGroups.length) {
+    return null;
+  }
+
+  return matchedGroups;
+};
+
+const formatSnippets = (snippets) =>
+  snippets.map((snippet) => `"${snippet}"`).join(", ");
+
+const assessCoverage = (candidateText, expectation, options = {}) => {
+  const forbiddenSnippet = findIncludedSnippet(
+    candidateText,
+    expectation.must_not_include_any ?? [],
+  );
+  if (forbiddenSnippet) {
+    return {
+      verdict: "contradicted",
+      evidence: `forbidden evidence hit: ${formatSnippets([forbiddenSnippet])}`,
+    };
+  }
+
+  const anyRequired = expectation.must_include_any ?? [];
+  const allRequired =
+    expectation.must_include_all ?? options.defaultMustIncludeAll ?? [];
+  const anyHit =
+    anyRequired.length === 0
+      ? null
+      : findIncludedSnippet(candidateText, anyRequired);
+  const missingAll = findMissingSnippets(candidateText, allRequired);
+  const exactRequiredHit =
+    (anyRequired.length === 0 || anyHit) && missingAll.length === 0;
+
+  if (exactRequiredHit) {
+    const evidenceParts = [];
+    if (anyHit) {
+      evidenceParts.push(`any=${formatSnippets([anyHit])}`);
+    }
+    if (allRequired.length > 0) {
+      evidenceParts.push(`all=${formatSnippets(allRequired)}`);
+    }
+    return {
+      verdict: "covered",
+      evidence: `exact evidence hit${evidenceParts.length > 0 ? `: ${evidenceParts.join("; ")}` : ""}`,
+    };
+  }
+
+  const alternativeMatch = findAcceptedAlternativeMatch(
+    candidateText,
+    expectation.accepted_alternatives,
+  );
+  if (alternativeMatch) {
+    return {
+      verdict: "covered",
+      evidence: `accepted alternative matched: ${alternativeMatch.label}`,
+    };
+  }
+
+  const conceptMatch = findRequiredConceptMatch(
+    candidateText,
+    expectation.required_concepts,
+  );
+  if (conceptMatch) {
+    return {
+      verdict: "covered",
+      evidence: `concept groups matched: ${conceptMatch.map((group) => group.label).join(", ")}`,
+    };
+  }
+
+  return {
+    verdict: "missing",
+    evidence: "missing required evidence",
+  };
+};
+
+export const gradeFacts = (candidateText, expectedFacts) =>
+  expectedFacts.facts.map((fact) => {
+    const assessment = assessCoverage(candidateText, fact);
+    return {
+      id: fact.id,
+      kind: "fact",
+      severity: fact.severity,
+      verdict: assessment.verdict,
+      evidence: assessment.evidence,
+    };
+  });
 
 export const gradeBoundaries = (candidateText, expectedBoundaries) =>
   expectedBoundaries.contexts.map((context) => {
-    const forbiddenHit = includesAny(
-      candidateText,
-      context.must_not_include_any ?? [],
-    );
-    const anyRequired = context.must_include_any ?? [];
-    const allRequired = context.must_include_all ?? [
-      context.name,
-      ...context.owns,
-    ];
-    const exactRequiredHit =
-      (anyRequired.length === 0 || includesAny(candidateText, anyRequired)) &&
-      includesAll(candidateText, allRequired);
-    const requiredHit =
-      exactRequiredHit ||
-      acceptedAlternativeHit(candidateText, context.accepted_alternatives) ||
-      requiredConceptsHit(candidateText, context.required_concepts);
+    const assessment = assessCoverage(candidateText, context, {
+      defaultMustIncludeAll: [context.name, ...context.owns],
+    });
     return {
       id: context.id,
       kind: "boundary",
       severity: "critical",
-      verdict: forbiddenHit
-        ? "contradicted"
-        : requiredHit
-          ? "covered"
-          : "missing",
-      evidence: forbiddenHit
-        ? "forbidden boundary text evidence found"
-        : requiredHit
-          ? "context ownership text evidence found"
-          : "no context ownership text evidence found",
+      verdict: assessment.verdict,
+      evidence: assessment.evidence,
     };
   });
 

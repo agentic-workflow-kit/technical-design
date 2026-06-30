@@ -56,4 +56,21 @@ describe("results manifest schema", () => {
       ),
     ).toThrow(/randomization/);
   });
+
+  it("accepts pointwise judge coverage manifests without randomization", () => {
+    expect(() =>
+      validateJsonWithSchema(
+        "results-manifest.schema.json",
+        {
+          ...baseManifest,
+          run_type: "judge-coverage",
+          model: "gpt-5.4",
+          provider: "openai:codex-app-server",
+          prompt_version: "pointwise-prompt-v1",
+          rubric_version: "pointwise-coverage-rubric-v1",
+        },
+        "manifest",
+      ),
+    ).not.toThrow();
+  });
 });

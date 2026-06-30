@@ -21,6 +21,7 @@ customers request pickups, scheduling assigns drones, and users can track active
 | `SRC-010` | `Delivery History` is separated from `Delivery` because long-term history storage and analytics differ from real-time delivery operations. It listens for `DeliveryTracking` events. |
 | `SRC-011` | The `Delivery` service keeps only scheduled or in-progress deliveries, favors high read/write throughput, and serves latest-status lookups instead of heavy analysis. |
 | `SRC-012` | The `Delivery History` service stores long-term delivery data for analytics and post-completion lookups, which can require different storage strategies for bulk analysis versus per-delivery lookup. |
+| `SRC-013` | Detailed account internals, drone regulatory workflows, exact public APIs, and production flight-safety policies are intentionally out of scope for this fixture. |
 
 ## Constraints
 

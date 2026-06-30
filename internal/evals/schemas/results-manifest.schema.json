@@ -52,6 +52,7 @@
         "deterministic",
         "generation",
         "judge",
+        "judge-coverage",
         "outcome",
         "manual-report"
       ]
@@ -144,6 +145,25 @@
           "randomization": true
         },
         "required": ["model", "provider", "prompt_version"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "run_type": {
+            "const": "judge-coverage"
+          }
+        },
+        "required": ["run_type"]
+      },
+      "then": {
+        "properties": {
+          "model": true,
+          "provider": true,
+          "prompt_version": true,
+          "rubric_version": true
+        },
+        "required": ["model", "provider", "prompt_version", "rubric_version"]
       }
     },
     {

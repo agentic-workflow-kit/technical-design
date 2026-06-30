@@ -45,7 +45,9 @@ The required product inputs include: product goal/non-goals; producer-owned fact
 context owns/reads/does-not-own; invariant operands and owning authority; lifecycle states and
 transition authority; public APIs, ports, events, and commands; failure tokens and recovery
 authority; consistency, concurrency, and idempotency needs; observability; enforcement gates; and
-delivery stop conditions.
+delivery stop conditions. When sources name aggregates, domain services, workflow services, or
+service candidates, either give each one explicit ownership treatment or state why it remains an
+internal sub-boundary inside a larger context and what owns its decisions.
 
 If a required input is missing, do not invent a confident owner or boundary. Either record a
 source-backed safe assumption, or ask the user for approval before drafting that decision. If the user
@@ -98,6 +100,8 @@ Before finalizing, check:
 - Required input gaps are resolved as source-backed safe assumptions, user-approved decisions,
   or explicit Blocking Questions; the design must not invent ownership from missing input.
 - Every context has owns/reads/does-not-own.
+- Every source-named aggregate, domain service, workflow service, or service candidate has explicit
+  ownership treatment, or is recorded as an internal sub-boundary whose owning context is named.
 - Every invariant names concrete operands or states that come from declared sources.
 - Every failure token, state, event, or public field has one owner.
 - Every enforceable boundary has an enforcement-map rule and seeded violation.

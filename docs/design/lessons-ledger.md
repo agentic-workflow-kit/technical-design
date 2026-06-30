@@ -24,7 +24,8 @@ or eval. A lesson with no cover is an open production-readiness gap.
 | LSN-008 | Broad sweeps can ban a design's own vocabulary and create false safety. | Review rubric: sweep vocabulary must cite design terms and allowed-owned tokens. | covered |
 | LSN-009 | Orchestration must not re-derive scope that the planning/design artifact owns. | Orchestrator skill: composition-only; stop boundary; no methodology invention. | covered |
 | LSN-010 | Lessons captured as prose drift under pressure. | This ledger: every lesson must map to a gate, rubric item, rule, or eval. | covered |
-| LSN-011 | Reference anchors and evaluator wording can accidentally become hidden product requirements. | Author input-sufficiency step and unresolved-required-input eval cover missing-input invention; case-grader calibration remains required before product-to-design verdicts become release signals. | conditional |
+| LSN-011 | Reference anchors and evaluator wording can accidentally become hidden product requirements. | Case fixture validation requires expected facts and boundaries to cite visible `product.md` or `source-map.md` source refs; pointwise judges remain advisory until calibrated. | covered |
+| LSN-012 | Source-named aggregates or service candidates can be acknowledged in prose while still missing usable ownership rows. | Author skill and DDD template require explicit ownership treatment or an internal sub-boundary decision for each source-named aggregate/service candidate. | covered |
 
 ## Before adding a new lesson
 

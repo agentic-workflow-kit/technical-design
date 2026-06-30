@@ -89,6 +89,13 @@ const normalizeWhitespace = (value) =>
 const includesNormalized = (text, expected) =>
   normalizeWhitespace(text).includes(normalizeWhitespace(expected));
 
+const extractSourceRefs = (text) =>
+  new Set(
+    [...String(text ?? "").matchAll(/\bSRC-[0-9]{3}\b/g)].map(
+      (match) => match[0],
+    ),
+  );
+
 const extractLessonIds = (ledgerText) =>
   new Set(
     [...ledgerText.matchAll(/\|\s+(LSN-\d{3})\s+\|/g)].map((match) => match[1]),
@@ -136,6 +143,29 @@ const validateNoBlankStrings = (value, label, options = {}) => {
   if (value && typeof value === "object") {
     for (const [key, item] of Object.entries(value)) {
       validateNoBlankStrings(item, `${label}.${key}`, options);
+    }
+  }
+};
+
+const validateNoReferenceAnchorLabels = (value, label) => {
+  if (Array.isArray(value)) {
+    for (const [index, item] of value.entries()) {
+      validateNoReferenceAnchorLabels(item, `${label}[${index}]`);
+    }
+    return;
+  }
+  if (!value || typeof value !== "object") {
+    return;
+  }
+  if (
+    typeof value.label === "string" &&
+    /\breference(?:\s+anchor|\s+design)?\b/i.test(value.label)
+  ) {
+    failures.push(`${label}.label must not cite reference-anchor wording`);
+  }
+  for (const [key, item] of Object.entries(value)) {
+    if (key !== "label") {
+      validateNoReferenceAnchorLabels(item, `${label}.${key}`);
     }
   }
 };
@@ -401,6 +431,9 @@ const validateAuthorSkillInputResolution = () => {
     "ask the user",
     "Blocking Questions",
     "must not invent",
+    "source-named aggregate",
+    "service candidate",
+    "internal sub-boundary",
   ]) {
     assert(
       authorSkill.includes(marker),
@@ -468,6 +501,16 @@ const validateCaseFixtures = () => {
     const expectedBoundaries = readJson(
       path.join("fixtures/cases", caseId, "expected-boundaries.json"),
     );
+    const productText = readText(
+      path.join("fixtures/cases", caseId, "product.md"),
+    );
+    const sourceMapText = readText(
+      path.join("fixtures/cases", caseId, "source-map.md"),
+    );
+    const visibleSourceRefs = new Set([
+      ...extractSourceRefs(productText),
+      ...extractSourceRefs(sourceMapText),
+    ]);
     if (expectedFactsShape) {
       recordAjvErrors(
         `fixtures/cases/${caseId}/expected-facts.json`,
@@ -490,6 +533,42 @@ const validateCaseFixtures = () => {
       expectedBoundaries?.case_id === caseId,
       `fixtures/cases/${caseId}/expected-boundaries.json case_id must match ${caseId}`,
     );
+
+    for (const [index, fact] of (expectedFacts?.facts ?? []).entries()) {
+      validateNoReferenceAnchorLabels(
+        fact.accepted_alternatives ?? [],
+        `fixtures/cases/${caseId}/expected-facts.json facts[${index}].accepted_alternatives`,
+      );
+      validateNoReferenceAnchorLabels(
+        fact.required_concepts ?? [],
+        `fixtures/cases/${caseId}/expected-facts.json facts[${index}].required_concepts`,
+      );
+      for (const sourceRef of fact.source_refs ?? []) {
+        assert(
+          visibleSourceRefs.has(sourceRef),
+          `fixtures/cases/${caseId}/expected-facts.json facts[${index}].source_refs includes ${sourceRef}, which is not present in product.md or source-map.md`,
+        );
+      }
+    }
+
+    for (const [index, context] of (
+      expectedBoundaries?.contexts ?? []
+    ).entries()) {
+      validateNoReferenceAnchorLabels(
+        context.accepted_alternatives ?? [],
+        `fixtures/cases/${caseId}/expected-boundaries.json contexts[${index}].accepted_alternatives`,
+      );
+      validateNoReferenceAnchorLabels(
+        context.required_concepts ?? [],
+        `fixtures/cases/${caseId}/expected-boundaries.json contexts[${index}].required_concepts`,
+      );
+      for (const sourceRef of context.source_refs ?? []) {
+        assert(
+          visibleSourceRefs.has(sourceRef),
+          `fixtures/cases/${caseId}/expected-boundaries.json contexts[${index}].source_refs includes ${sourceRef}, which is not present in product.md or source-map.md`,
+        );
+      }
+    }
   }
 };
 

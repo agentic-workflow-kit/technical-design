@@ -91,14 +91,36 @@
       "id": "CTX-004",
       "name": "Package",
       "source_refs": ["SRC-005", "SRC-007", "SRC-008"],
-      "owns": ["package identity", "package metadata", "package tags"],
+      "owns": ["package aggregate details", "package tagging"],
       "reads": [],
       "does_not_own": ["drone assignment", "delivery tracking"],
-      "must_include_all": ["Package owns package identity", "package metadata"],
+      "must_include_all": ["Package", "package tagging"],
+      "accepted_alternatives": [
+        {
+          "label": "Package as a separate aggregate or service candidate",
+          "must_include_all": [
+            "Package",
+            "separate aggregate",
+            "direct microservice candidate"
+          ]
+        }
+      ],
       "required_concepts": [
         {
-          "label": "package details",
-          "any_of": ["package tags", "package dimensions", "package metadata"]
+          "label": "package boundary",
+          "any_of": ["Package"]
+        },
+        {
+          "label": "package-owned details",
+          "any_of": ["package tagging", "package tags", "package identity"]
+        },
+        {
+          "label": "package is kept separate",
+          "any_of": [
+            "separate aggregate",
+            "direct microservice candidate",
+            "independent life cycle"
+          ]
         }
       ]
     },

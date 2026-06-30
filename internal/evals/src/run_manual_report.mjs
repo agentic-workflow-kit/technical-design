@@ -17,12 +17,19 @@ import {
   resolveRunDir,
 } from "./lib/paths.mjs";
 
-const optionalRunKeys = ["generate", "deterministic", "judge", "outcome"];
+const optionalRunKeys = [
+  "generate",
+  "deterministic",
+  "judge",
+  "judge-coverage",
+  "outcome",
+];
 const judgeFileCandidates = [
   "pairwise-result.json",
   "pairwise.json",
   "judge-output.json",
 ];
+const pointwiseFileCandidates = ["pointwise-result.json", "pointwise.json"];
 const reportFileCandidates = ["report.md", "final-report.md"];
 
 const exists = (filePath) => fs.existsSync(filePath);
@@ -258,6 +265,14 @@ const loadRunBundle = (label, runId) => {
         `${label} pairwise result`,
       )
     : { status: "missing", value: null, error: null };
+  const pointwiseFile = findFirstExistingFile(runDir, pointwiseFileCandidates);
+  const pointwise = pointwiseFile
+    ? loadValidatedJson(
+        pointwiseFile.absolutePath,
+        "pointwise-judge-result.schema.json",
+        `${label} pointwise result`,
+      )
+    : { status: "missing", value: null, error: null };
 
   const outcome = loadValidatedJson(
     path.join(runDir, "outcome-study.json"),
@@ -277,6 +292,8 @@ const loadRunBundle = (label, runId) => {
     grades,
     pairwise,
     pairwisePath: judgeFile?.relativePath ?? null,
+    pointwise,
+    pointwisePath: pointwiseFile?.relativePath ?? null,
     outcome,
     metrics,
   };
@@ -366,6 +383,91 @@ const judgeSummary = (bundle) => {
   };
 };
 
+const verdictOrder = [
+  "covered",
+  "partial",
+  "missing",
+  "contradicted",
+  "unknown",
+];
+
+const pointwiseSummary = (bundle) => {
+  if (!bundle) {
+    return {
+      schemaStatus: "not requested",
+      counts: null,
+    };
+  }
+  if (bundle.pointwise.status === "valid") {
+    const counts = Object.fromEntries(
+      verdictOrder.map((verdict) => [verdict, 0]),
+    );
+    for (const item of bundle.pointwise.value.items) {
+      counts[item.verdict] += 1;
+    }
+    return {
+      schemaStatus: "valid",
+      counts,
+    };
+  }
+  if (bundle.pointwise.status === "invalid") {
+    return {
+      schemaStatus: `invalid: ${bundle.pointwise.error}`,
+      counts: null,
+    };
+  }
+  return {
+    schemaStatus: "missing",
+    counts: null,
+  };
+};
+
+const summarizePointwiseCounts = (counts) => {
+  if (!counts) {
+    return "unavailable";
+  }
+  return verdictOrder
+    .map((verdict) => `${verdict}=${counts[verdict]}`)
+    .join(", ");
+};
+
+const deterministicPointwiseDisagreements = (
+  deterministicBundle,
+  pointwiseBundle,
+) => {
+  if (
+    !deterministicBundle ||
+    deterministicBundle.grades.status !== "valid" ||
+    !pointwiseBundle ||
+    pointwiseBundle.pointwise.status !== "valid"
+  ) {
+    return null;
+  }
+
+  const findingsById = new Map(
+    deterministicBundle.grades.value.findings.map((finding) => [
+      finding.id,
+      finding,
+    ]),
+  );
+  const disagreements = [];
+  for (const item of pointwiseBundle.pointwise.value.items) {
+    const finding = findingsById.get(item.item_id);
+    if (!finding) {
+      disagreements.push(
+        `${item.item_id}: deterministic=missing-item, pointwise=${item.verdict}`,
+      );
+      continue;
+    }
+    if (finding.verdict !== item.verdict) {
+      disagreements.push(
+        `${item.item_id}: deterministic=${finding.verdict}, pointwise=${item.verdict}`,
+      );
+    }
+  }
+  return disagreements;
+};
+
 const outcomeStatus = (bundle) => {
   if (!bundle) {
     return "not requested";
@@ -440,11 +542,21 @@ const main = () => {
   const runId = requireArg(args, "run-id");
 
   const bundles = optionalRunKeys.map((key) => loadRunBundle(key, args[key]));
-  const [generateBundle, deterministicBundle, judgeBundle, outcomeBundle] =
-    bundles;
+  const [
+    generateBundle,
+    deterministicBundle,
+    judgeBundle,
+    pointwiseBundle,
+    outcomeBundle,
+  ] = bundles;
   const resultDir = resolveRunDir(runId);
 
   const judge = judgeSummary(judgeBundle);
+  const pointwise = pointwiseSummary(pointwiseBundle);
+  const disagreements = deterministicPointwiseDisagreements(
+    deterministicBundle,
+    pointwiseBundle,
+  );
   const combinedMetrics = bundles
     .filter(Boolean)
     .flatMap((bundle) => bundle.metrics);
@@ -475,6 +587,8 @@ const main = () => {
     `Deterministic verdict: ${deterministicStatus(deterministicBundle)}`,
     `Judge schema-valid: ${judge.schemaStatus}`,
     `Judge winner: ${judge.winner}`,
+    `Pointwise judge schema-valid: ${pointwise.schemaStatus}`,
+    `Pointwise coverage: ${summarizePointwiseCounts(pointwise.counts)}`,
     `Outcome validation: ${outcomeStatus(outcomeBundle)}`,
     `Git commit: ${manifest.git_commit}`,
     `Approximate cost: ${totalApproximateCost === null ? "unavailable" : totalApproximateCost}`,
@@ -496,7 +610,20 @@ const main = () => {
     judgeBundle?.pairwisePath
       ? `- pairwise result: ${relativeToRepo(path.join(judgeBundle.runDir, judgeBundle.pairwisePath))}`
       : "- pairwise result: unavailable",
-    "",
+    pointwiseBundle?.pointwisePath
+      ? `- pointwise result: ${relativeToRepo(path.join(pointwiseBundle.runDir, pointwiseBundle.pointwisePath))}`
+      : "- pointwise result: unavailable",
+    `- pointwise coverage counts: ${summarizePointwiseCounts(pointwise.counts)}`,
+    `- deterministic disagreements: ${disagreements ? disagreements.length : "unavailable"}`,
+    ...(disagreements && disagreements.length > 0
+      ? [
+          "",
+          "## Deterministic vs Pointwise Disagreements",
+          "",
+          ...disagreements.map((item) => `- ${item}`),
+          "",
+        ]
+      : [""]),
     ...renderMetricSection("Token Metadata", tokenLines),
     ...renderMetricSection("Runtime Metadata", runtimeLines),
     ...renderMetricSection("Cost Metadata", costLines),

@@ -13,6 +13,7 @@
     "eval:enforce": "bash src/run_enforce_eval.sh",
     "eval:generate": "node src/run_generate_eval.mjs",
     "eval:judge": "node src/run_judge_eval.mjs",
+    "eval:judge:coverage": "node src/run_pointwise_judge_eval.mjs",
     "eval:outcome": "node src/run_outcome_eval.mjs",
     "eval:manual-report": "node src/run_manual_report.mjs"
   },

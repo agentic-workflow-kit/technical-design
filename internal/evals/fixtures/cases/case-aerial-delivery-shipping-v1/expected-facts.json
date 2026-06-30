@@ -8,7 +8,13 @@
       "source_refs": ["SRC-001"],
       "description": "Businesses register with the service and users request pickup for delivery.",
       "must_include_any": ["businesses register", "business enrollment"],
-      "must_include_all": ["users request pickup"]
+      "must_include_all": ["users request pickup"],
+      "accepted_alternatives": [
+        {
+          "label": "Plural pickup-request wording",
+          "must_include_all": ["users request pickups"]
+        }
+      ]
     },
     {
       "id": "FACT-002",
@@ -68,14 +74,14 @@
       "id": "FACT-007",
       "category": "non-goal",
       "severity": "critical",
-      "source_refs": ["SRC-004", "SRC-008"],
+      "source_refs": ["SRC-013"],
       "description": "The fixture stays out of scope for detailed account internals, drone regulatory workflows, exact APIs, and production safety policies.",
       "must_include_any": ["remain out of scope", "out of scope"],
       "must_include_all": [
         "account internals",
         "drone regulatory workflows",
-        "exact APIs",
-        "production safety policies"
+        "exact public APIs",
+        "flight-safety policies"
       ],
       "must_not_include_any": [
         "Accounts owns billing",

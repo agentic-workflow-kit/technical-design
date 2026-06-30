@@ -3,9 +3,11 @@
 This directory contains fixtures and checks for the DDD-first `technical-design` pack.
 
 The layered design-quality strategy lives in
-[`docs/design/evaluation-strategy.md`](../docs/design/evaluation-strategy.md).
+[`docs/design/evaluation-strategy.md`](../../docs/design/evaluation-strategy.md).
 The implementation and execution plan lives in
 [`implementation-plan.md`](./implementation-plan.md).
+The Promptfoo/Codex pilot design lives in
+[`docs/design/promptfoo-codex-eval-pilot.md`](../../docs/design/promptfoo-codex-eval-pilot.md).
 
 ## Structure
 
@@ -21,6 +23,11 @@ The implementation and execution plan lives in
 - `fixtures/outcomes/` - redacted outcome-study templates for downstream delivery friction.
 - `results/` - ignored local run outputs; only `results/README.md` is committed.
 - `src/run_case_eval.mjs` - deterministic case runner for candidate designs.
+- `src/run_generate_eval.mjs` - manual Promptfoo candidate-generation runner.
+- `src/run_pointwise_judge_eval.mjs` - manual Promptfoo pointwise coverage judge runner.
+- `src/run_judge_eval.mjs` - manual Promptfoo pairwise judge runner.
+- `src/run_manual_report.mjs` - manual report combiner for generation, deterministic, judge, and
+  outcome bundles.
 - `src/validate_eval_fixtures.mjs` - deterministic validation for review expectations and DDD
   defect manifests.
 - `src/run_static_checks.sh` - local validation for skills, schema, profile files, and private
@@ -81,6 +88,90 @@ Run a deterministic case manually:
 pnpm --filter @agentic-workflow-kit/technical-design-evals eval:case -- --case case-tiny-laundry-pickup-v1 --candidate internal/evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md
 ```
 
+## Manual Product-to-Design Flow
+
+Manual model-graded runs use Promptfoo with the Codex App Server provider and local Codex auth. They
+are not part of `pnpm check` and must be treated as advisory until human calibration exists.
+
+Check local auth before model-graded runs:
+
+```bash
+codex login status
+```
+
+Generate a candidate design:
+
+```bash
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:generate -- --case <case-id> --model gpt-5.4 --provider openai --effort medium --run-id <run-id>-generate
+```
+
+Input:
+
+- `fixtures/cases/<case-id>/product.md`
+- `fixtures/cases/<case-id>/source-map.md`
+- active design skill and methodology instructions included by the generation runner
+
+Output:
+
+- `results/<run-id>-generate/cases/<case-id>/candidate.md`
+- `results/<run-id>-generate/promptfoo-results.json`
+- `results/<run-id>-generate/promptfoo-report.html`
+- `results/<run-id>-generate/manifest.json`
+- `results/<run-id>-generate/report.md`
+
+Grade the generated candidate deterministically:
+
+```bash
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:case -- --case <case-id> --candidate internal/evals/results/<run-id>-generate/cases/<case-id>/candidate.md --run-id <run-id>-deterministic
+```
+
+Input:
+
+- candidate design markdown
+- `fixtures/cases/<case-id>/expected-facts.json`
+- `fixtures/cases/<case-id>/expected-boundaries.json`
+
+Output:
+
+- `results/<run-id>-deterministic/grades.json`
+- `results/<run-id>-deterministic/report.md`
+- `results/<run-id>-deterministic/manifest.json`
+- `results/<run-id>-deterministic/cases/<case-id>/candidate.md`
+
+Run pointwise coverage judging:
+
+```bash
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:judge:coverage -- --case <case-id> --candidate internal/evals/results/<run-id>-generate/cases/<case-id>/candidate.md --model gpt-5.4 --provider openai --effort medium --run-id <run-id>-pointwise
+```
+
+Input:
+
+- `product.md` and `source-map.md`
+- expected facts and boundaries
+- candidate design markdown
+
+Output:
+
+- `results/<run-id>-pointwise/pointwise-result.json`
+- `results/<run-id>-pointwise/promptfooconfig.json`
+- `results/<run-id>-pointwise/promptfoo-results.json`
+- `results/<run-id>-pointwise/promptfoo-report.html`
+- `results/<run-id>-pointwise/manifest.json`
+- `results/<run-id>-pointwise/report.md`
+
+Run pairwise judging only after deterministic blockers are understood:
+
+```bash
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:judge -- --case <case-id> --candidate-a <candidate-a.md> --candidate-b <candidate-b.md> --model gpt-5.4 --provider openai --effort medium --seed <seed> --run-id <run-id>-pairwise
+```
+
+Write a final manual report:
+
+```bash
+pnpm --filter @agentic-workflow-kit/technical-design-evals eval:manual-report -- --run-id <run-id> --generate <run-id>-generate --deterministic <run-id>-deterministic --judge-coverage <run-id>-pointwise
+```
+
 Generated outputs belong under `internal/evals/results/<run-id>/` and are ignored by default. A result bundle
 should include `manifest.json`, `report.md`, `grades.json`, and per-case evidence files when a
-runner writes case outputs.
+runner writes case outputs. Model-graded bundles additionally include Promptfoo JSON/HTML exports
+and structured judge output such as `pointwise-result.json` or `pairwise-result.json`.

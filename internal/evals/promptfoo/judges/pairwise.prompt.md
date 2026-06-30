@@ -25,7 +25,9 @@ Inputs:
 
 Rubric version: `judge-rubric-v1`.
 
-Use this rubric only after deterministic graders have passed.
+Use this rubric only after deterministic graders have passed and any pointwise coverage judge results
+have been reviewed. Pairwise comparison chooses the stronger candidate overall; it does not prove
+that every expected fact or boundary is covered.
 
 | Criterion           | Severity    | Pass signal                                                                        |
 | ------------------- | ----------- | ---------------------------------------------------------------------------------- |
@@ -42,6 +44,8 @@ Use this rubric only after deterministic graders have passed.
 - Do not infer missing facts from reference design wording.
 - Do not reward length, familiar architecture vocabulary, or rhetorical confidence without source
   support.
+- Do not override deterministic or pointwise coverage blockers. If a candidate is better overall but
+  still misses required evidence, explain that limitation.
 
 Choose which candidate is more source-grounded, implementation-ready, and enforceable.
 

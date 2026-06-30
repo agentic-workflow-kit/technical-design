@@ -15,6 +15,7 @@ lower layers are explicit, reproducible, and reviewable.
 | 1. Deterministic fixture contracts     | Done    | Review expectations and DDD defect fixtures are validated in `pnpm check`.              |
 | 2. Schema-backed deterministic harness | Done    | Ajv schemas and Vitest validator tests are wired into `pnpm check`.                     |
 | 3. Product-to-design case runner       | Done    | One self-contained deterministic case and local result runner are available.            |
+| 3.5. Case grader calibration           | Done    | Source-visible expectations, calibrated text matching, and pointwise judging are covered. |
 | 4. LLM judge and pairwise regression   | Scaffolded | Manual judge rubrics, output schemas, and Promptfoo template exist outside the gate. |
 | 5. Outcome studies                     | Scaffolded | Redacted outcome-study template and schema exist for future manual studies.          |
 
@@ -26,7 +27,7 @@ flowchart TD
     Plan["Execution plan<br/>internal/evals/implementation-plan.md"]
     Deterministic["Deterministic checks<br/>schema, fixtures, enforcement"]
     Cases["Case runner<br/>product/source to candidate outputs"]
-    Judge["Semantic judge<br/>rubric and pairwise comparison"]
+    Judge["Semantic judge<br/>pointwise coverage and pairwise comparison"]
     Outcomes["Outcome studies<br/>delivery friction and rework"]
     Gate["CI gate<br/>pnpm check"]
     Results["Local outputs<br/>internal/evals/results/<run-id>/"]
@@ -186,6 +187,57 @@ Verification:
 - `pnpm check`
 - `node <case-runner> --case <case-id> --candidate <candidate-design>`
 - Inspect `internal/evals/results/<run-id>/<case-id>/report.md` before accepting fixture changes.
+
+## Phase 3.5 - Case Grader Calibration
+
+Status: Done.
+
+Goal:
+
+Keep deterministic product-to-design grading precise without turning reference anchors or exact
+wording into hidden product requirements.
+
+Implemented:
+
+- Calibrated deterministic text matching for Markdown punctuation and source-equivalent wording.
+- Added fact-level accepted alternatives and concept groups to match boundary-grader behavior.
+- Added fixture validation that expected facts and boundaries cite `SRC-*` IDs visible in
+  `product.md` or `source-map.md`.
+- Calibrated the three current product-to-design cases against known false blockers from the
+  three-case pilot.
+- Added a manual pointwise judge to grade expected `FACT-*` and `CTX-*` items before pairwise
+  comparison.
+- Updated the authoring contract so source-named aggregates and service candidates receive explicit
+  ownership treatment or an internal sub-boundary decision.
+
+Agents and review:
+
+- Architect: review schema and grader contract.
+- Implementer: update deterministic grader, schemas, fixtures, and tests.
+- Implementer: add pointwise judge schema, Promptfoo prompt, runner, and report support.
+- Reviewer: inspect source grounding, hidden-reference leakage, judge bias, and CI gating.
+
+Integration point:
+
+- `pnpm check` remains deterministic-only.
+- Pointwise and pairwise judge runs remain manual and advisory until human calibration exists.
+- Deterministic/judge disagreement is recorded as calibration evidence, not as a release pass.
+
+Verification:
+
+- `pnpm --filter @agentic-workflow-kit/technical-design-evals eval:unit`
+- `node internal/evals/src/validate_eval_fixtures.mjs`
+- deterministic `eval:case` runs for all committed reference designs
+- optional manual pointwise judge run with local Codex auth
+
+Ongoing enhancements:
+
+- Regenerate the aerial delivery candidate after `SRC-013` is visible in `product.md` and
+  `source-map.md`; older generated artifacts cannot prove that newly visible non-goal.
+- Build a small human-labeled pointwise calibration packet before treating model coverage judgments
+  as release signals.
+- Keep pairwise comparison secondary to deterministic and pointwise coverage results; use pairwise
+  only for relative quality once blockers are understood.
 
 ## Phase 4 - LLM Judge and Pairwise Regression
 

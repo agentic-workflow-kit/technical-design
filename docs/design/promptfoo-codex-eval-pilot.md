@@ -13,9 +13,11 @@ The pilot needs one end-to-end eval flow:
 
 1. Generate a candidate technical design from the case brief.
 2. Run deterministic grading against expected facts and boundaries.
-3. Run a model-graded semantic judge comparing the candidate to the case reference anchor.
-4. Validate judge output against the repo JSON schema.
-5. Produce a final report with commands, provenance, verdicts, token and runtime metadata, and caveats.
+3. Run a pointwise model-graded coverage judge against expected facts and boundaries when manual
+   calibration evidence is needed.
+4. Run a pairwise semantic judge comparing the candidate to the case reference anchor.
+5. Validate judge outputs against repo JSON schemas.
+6. Produce a final report with commands, provenance, verdicts, token and runtime metadata, and caveats.
 
 The model calls must use local Codex authentication. The pilot must not require `OPENAI_API_KEY`.
 
@@ -78,9 +80,11 @@ The implementation should create Promptfoo suites, not bespoke shell wrappers:
    and the repo's `author-technical-design` expectations.
 2. The existing deterministic case runner grades that generated candidate against expected facts and
    boundaries.
-3. A pairwise judge suite asks Codex to compare the generated candidate with the existing reference
+3. A pointwise judge suite asks Codex to inspect each expected fact and boundary against candidate
+   evidence without using the reference design.
+4. A pairwise judge suite asks Codex to compare the generated candidate with the existing reference
    anchor and return schema-constrained JSON.
-4. A report command collects the Promptfoo outputs, deterministic grades, judge JSON, provenance, and
+5. A report command collects the Promptfoo outputs, deterministic grades, judge JSON, provenance, and
    caveats into one final local report.
 
 This keeps the value of Promptfoo intact:
@@ -174,6 +178,7 @@ script.
 Add `promptfoo` as a development dependency of the internal eval package and add manual scripts:
 
 - `eval:generate` - run the candidate-generation Promptfoo suite.
+- `eval:judge:coverage` - run the pointwise coverage judge Promptfoo suite.
 - `eval:judge` - run the pairwise judge Promptfoo suite.
 - `eval:outcome` - validate and report a redacted outcome-study summary.
 - `eval:manual-report` - combine generation, deterministic, judge, and outcome results into one
@@ -205,6 +210,16 @@ The suites should live under `internal/evals/promptfoo/`:
     reference anchor, candidate order, original order, randomization method, and seed.
   - Assertions: JSON output, schema-valid output, evidence present, model/provider/rubric/prompt
     metadata present, and randomization proof present.
+
+- Pointwise coverage judge suite:
+  - Provider: `openai:codex-app-server`.
+  - Model: `gpt-5.4`.
+  - Reasoning effort: medium.
+  - Output schema: `internal/evals/schemas/pointwise-judge-result.schema.json`.
+  - Test variables: case id, source facts, expected facts and boundaries, generated candidate, and
+    deterministic grades if available.
+  - Assertions: JSON output, schema-valid output, evidence on every covered/partial/contradicted
+    item, and no dependency on `reference-design.md`.
 
 ## Result Flow
 
