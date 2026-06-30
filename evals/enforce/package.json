@@ -1,0 +1,16 @@
+{
+  "name": "enforce",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "dependency-cruiser": "^18.0.0",
+    "typescript": "^6.0.3"
+  }
+}

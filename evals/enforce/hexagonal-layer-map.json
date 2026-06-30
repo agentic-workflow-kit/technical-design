@@ -1,0 +1,9 @@
+{
+  "layers": [
+    { "name": "domain", "path": "src/domain" },
+    { "name": "infra", "path": "src/infra" }
+  ],
+  "forbidden": [
+    { "from": "domain", "to": "infra" }
+  ]
+}

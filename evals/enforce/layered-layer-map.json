@@ -1,0 +1,9 @@
+{
+  "layers": [
+    { "name": "model", "path": "src/model" },
+    { "name": "controller", "path": "src/controller" }
+  ],
+  "forbidden": [
+    { "from": "model", "to": "controller" }
+  ]
+}
