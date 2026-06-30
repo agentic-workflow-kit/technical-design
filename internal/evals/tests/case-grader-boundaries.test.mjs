@@ -44,6 +44,20 @@ const expectedBoundaries = {
           ],
         },
       ],
+      required_concepts: [
+        {
+          label: "appliance owner",
+          any_of: ["Laundry Scheduling", "Booking Scheduling", "Catalog"],
+        },
+        {
+          label: "appliance type vocabulary",
+          any_of: ["appliance types", "washer", "dryer"],
+        },
+        {
+          label: "maintenance hold ownership",
+          any_of: ["maintenance holds", "maintenance-hold"],
+        },
+      ],
     },
   ],
 };
@@ -78,6 +92,21 @@ describe("gradeBoundaries", () => {
       [
         "Booking Scheduling owns appliance read surface for v1.",
         "Maintenance Administration or Hold Producer owns Creation and lifecycle of maintenance holds at the source.",
+      ].join("\n"),
+      expectedBoundaries,
+    );
+
+    expect(findings[1]).toMatchObject({
+      id: "CTX-002",
+      verdict: "covered",
+    });
+  });
+
+  it("accepts source-equivalent concept groups independent of context name", () => {
+    const findings = gradeBoundaries(
+      [
+        "Laundry Scheduling owns appliances in v1 scope and appliance types.",
+        "Maintenance holds are authoritative scheduling data inside the service boundary.",
       ].join("\n"),
       expectedBoundaries,
     );

@@ -26,6 +26,33 @@
             "Resident verification status and policy"
           ]
         }
+      ],
+      "required_concepts": [
+        {
+          "label": "resident verification owner",
+          "any_of": [
+            "Identity",
+            "Resident Eligibility",
+            "Resident Verification"
+          ]
+        },
+        {
+          "label": "verified resident fact",
+          "any_of": [
+            "verified-resident fact",
+            "verified/not-verified resident status",
+            "verified/not-verified fact",
+            "verified resident"
+          ]
+        },
+        {
+          "label": "scheduling does not own resident proofing",
+          "any_of": [
+            "does not own resident verification policy",
+            "does not own resident identity proofing",
+            "resident proofing rules"
+          ]
+        }
       ]
     },
     {
@@ -58,6 +85,25 @@
             "Maintenance Administration or Hold Producer",
             "Creation and lifecycle of maintenance holds"
           ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "appliance authority",
+          "any_of": [
+            "Catalog",
+            "Appliance Availability",
+            "Booking Scheduling",
+            "Laundry Scheduling"
+          ]
+        },
+        {
+          "label": "appliance type vocabulary",
+          "any_of": ["appliance type", "appliance types", "washer", "dryer"]
+        },
+        {
+          "label": "maintenance hold authority",
+          "any_of": ["maintenance holds", "maintenance-hold", "hold producer"]
         }
       ]
     },
@@ -98,6 +144,24 @@
             "cancellation cutoff enforcement"
           ]
         }
+      ],
+      "required_concepts": [
+        {
+          "label": "scheduling owner",
+          "any_of": ["Scheduling", "Booking Scheduling", "Laundry Scheduling"]
+        },
+        {
+          "label": "booking lifecycle",
+          "any_of": ["booking lifecycle"]
+        },
+        {
+          "label": "overlap or active booking rule",
+          "any_of": ["overlap", "active booking", "active-booking"]
+        },
+        {
+          "label": "cancellation rule",
+          "any_of": ["cancellation", "cancelled"]
+        }
       ]
     },
     {
@@ -123,6 +187,36 @@
           "must_include_all": [
             "Notification Delivery",
             "Delivery of lifecycle notifications",
+            "Booking state authority"
+          ]
+        }
+      ],
+      "required_concepts": [
+        {
+          "label": "notification owner",
+          "any_of": [
+            "Notifications",
+            "Notification Delivery",
+            "Notification delivery"
+          ]
+        },
+        {
+          "label": "notification delivery mechanics",
+          "any_of": [
+            "outbound lifecycle messages",
+            "delivery of lifecycle notifications",
+            "delivery-channel mechanics",
+            "Message transport mechanics",
+            "notification channel",
+            "notification delivery"
+          ]
+        },
+        {
+          "label": "notification does not own booking authority",
+          "any_of": [
+            "does not own booking state transitions",
+            "does not own booking state authority",
+            "booking lifecycle authority",
             "Booking state authority"
           ]
         }

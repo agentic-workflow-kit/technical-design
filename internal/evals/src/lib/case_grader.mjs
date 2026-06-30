@@ -51,6 +51,12 @@ const acceptedAlternativeHit = (candidateText, alternatives = []) =>
     );
   });
 
+const requiredConceptsHit = (candidateText, conceptGroups = []) =>
+  conceptGroups.length > 0 &&
+  conceptGroups.every((group) =>
+    includesAny(candidateText, group.any_of ?? []),
+  );
+
 export const gradeBoundaries = (candidateText, expectedBoundaries) =>
   expectedBoundaries.contexts.map((context) => {
     const forbiddenHit = includesAny(
@@ -67,7 +73,8 @@ export const gradeBoundaries = (candidateText, expectedBoundaries) =>
       includesAll(candidateText, allRequired);
     const requiredHit =
       exactRequiredHit ||
-      acceptedAlternativeHit(candidateText, context.accepted_alternatives);
+      acceptedAlternativeHit(candidateText, context.accepted_alternatives) ||
+      requiredConceptsHit(candidateText, context.required_concepts);
     return {
       id: context.id,
       kind: "boundary",
