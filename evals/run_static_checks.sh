@@ -9,6 +9,7 @@ for skill in skills/*; do
 done
 
 node -e "JSON.parse(require('fs').readFileSync('skills/review-technical-design/templates/suggestion.schema.json', 'utf8'))"
+node evals/validate_eval_fixtures.mjs
 
 required=(
   "methodologies/README.md"

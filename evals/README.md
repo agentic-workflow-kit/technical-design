@@ -12,16 +12,23 @@ The layered design-quality strategy lives in
 - `review/` - intentionally defective design plus expected suggestion classes.
 - `ddd/` - defect-class fixtures for DDD review and methodology readiness.
 - `enforce/` - executable dependency-cruiser fixture proving seeded boundary failures.
+- `validate_eval_fixtures.mjs` - deterministic validation for review expectations and DDD defect
+  manifests.
 - `run_static_checks.sh` - local validation for skills, schema, profile files, and private source-name
   leaks.
 
-## Required eval classes
+## Initial deterministic eval classes
 
 - Missing bounded context ownership.
 - Invented failure token.
 - Unsourced invariant operand.
 - Public API exposure gap.
 - Vacuous enforcement rule without seeded violation.
+
+The current deterministic DDD defect classes are declared in `ddd/defect-manifest.json`. Static
+checks verify that each initial defect class points to an existing fixture, a known lesson, and
+exact DDD review-rubric text. `review/expected-suggestions.json` uses the same suggestion shape as
+`skills/review-technical-design/templates/suggestion.schema.json`.
 
 ## Verifiable enforcement requirement
 

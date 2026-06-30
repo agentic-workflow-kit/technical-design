@@ -85,6 +85,16 @@ Layer 2 evaluates each skill in isolation with small fixtures:
 
 Layer 2 should prefer pass/fail expectations over prose quality scores.
 
+Implemented first slice:
+
+- `evals/review/expected-suggestions.json` stores complete expected review suggestions and is
+  validated against the review suggestion schema.
+- `evals/ddd/defect-manifest.json` declares the initial deterministic DDD defect classes, their
+  expected catching surface, lesson reference, and exact review-rubric evidence. The manifest may
+  grow as future Layer 3 classes move from target strategy to executable fixtures.
+- `evals/validate_eval_fixtures.mjs` runs inside the static check gate so malformed fixture
+  expectations fail `pnpm check`.
+
 ### Layer 3 - Defect Injection
 
 Layer 3 seeds known failure classes and verifies that review or enforcement catches them:
