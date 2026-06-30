@@ -283,7 +283,7 @@ Use gate-oriented verdicts instead of average scores:
 | Verdict | Meaning |
 |---|---|
 | `red` | Any hard blocker exists. |
-| `yellow` | No blocker, but less than 90 percent of critical criteria pass. |
+| `yellow` | No blocker, but the run does not meet the green bar: less than 90 percent of critical criteria pass or less than 70 percent of recommended criteria pass. |
 | `green` | No blocker, at least 90 percent of critical criteria pass, and at least 70 percent of recommended criteria pass. |
 | `great` | Green and wins pairwise against the raw-model baseline or prior pack output. |
 
