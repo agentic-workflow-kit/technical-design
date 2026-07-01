@@ -7,9 +7,10 @@ never edits. They become design changes only after the user disposes them and th
 
 - `id` - stable suggestion id such as `S-001`.
 - `severity` - `blocking`, `recommended`, or `optional`.
-- `lens` - `architecture-enforceability` or `domain-correctness`.
-- `dimension` - source map, bounded context, invariant, boundary, public API, consistency, failure,
-  enforceability, delivery inputs, or another schema dimension.
+- `lens` - `architecture-enforceability`, `domain-correctness`, or `agreement-integrity`.
+- `dimension` - source map, input resolution, system model, docs structure, diagram, approval status,
+  bounded context, invariant, boundary, public API, consistency, failure, enforceability, delivery
+  inputs, or another schema dimension.
 - `location` - design section, source path, use case, or boundary.
 - `evidence` - the specific design/source evidence supporting the finding.
 - `finding` - what is wrong or missing.
