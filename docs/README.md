@@ -9,8 +9,8 @@ Documentation is organized by **altitude**: product (intent) above design (mecha
 
 | Layer | Owns | Status |
 |---|---|---|
-| [product/](./product/) | **What and why** — what the pack is, where it sits in the suite, and when to use it. | drafted |
-| [design/](./design/) | **How** — methodology mechanics, the profile contract, formats, and the lessons ledger. | drafted |
+| [product/](./product/) | **What and why** — what the pack is, the technical-design PRD, and fit guidance. | seeded |
+| [design/](./design/) | **How** — methodology mechanics, the handoff contract, decisions log, and lessons ledger. | seeded |
 
 Source lives outside `docs/`: [`skills/`](../skills/), [`methodologies/`](../methodologies/),
 [`packages/evals/`](../packages/evals/), and [`scripts/`](../scripts/).

@@ -1,7 +1,6 @@
 # Product
 
-What `technical-design` is, where it sits in the suite, and when to reach for it. For *how* it
-works internally, see [`../design/`](../design/).
+What `technical-design` is, where it sits in the suite, and when to reach for it. The authoritative product definition and acceptance criteria are in the [PRD](./technical-design.md). For *how* it works internally, see [`../design/`](../design/).
 
 ## What it is
 
@@ -47,3 +46,9 @@ The pack is DDD-first in v1. DDD ceremony is not always warranted — see
 ## Status
 
 Built for local use via manual skill invocation. Not yet packaged as an installable plugin.
+
+## Related Documents
+
+- [PRD](./technical-design.md) — the authoritative product definition and acceptance criteria.
+- [when-not-to-use-ddd.md](when-not-to-use-ddd.md) — product-level fit and avoidance guidelines.
+- [`../design/`](../design/) — how these product promises are designed and implemented.

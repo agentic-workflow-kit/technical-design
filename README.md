@@ -17,6 +17,15 @@ invariants need them.
 > **Status:** Built and ready for local use. The DDD-first production hardening is encoded in
 > `methodologies/`, `docs/design/lessons-ledger.md`, the skill templates, and the eval fixtures.
 
+## Documentation
+
+- [`docs/product/`](docs/product/) - what this is, where it sits in the suite, and when to use it.
+- [`docs/design/`](docs/design/) - methodology mechanics, profile contract, formats, and the
+  lessons ledger.
+
+Source lives in [`skills/`](skills/), [`methodologies/`](methodologies/),
+[`packages/evals/`](packages/evals/), and [`scripts/`](scripts/).
+
 ---
 
 ## What it is
@@ -92,15 +101,6 @@ pnpm check
 skill/profile static checks, Vitest fixture tests, and the seeded `enforce-architecture`
 dependency-cruiser evals. Manual or model-graded evals are run directly through
 `@agentic-workflow-kit/technical-design-evals`, not root scripts.
-
-## Documentation
-
-- [`docs/product/`](docs/product/) - what this is, where it sits in the suite, and when to use it.
-- [`docs/design/`](docs/design/) - methodology mechanics, profile contract, formats, and the
-  lessons ledger.
-
-Source lives in [`skills/`](skills/), [`methodologies/`](methodologies/),
-[`packages/evals/`](packages/evals/), and [`scripts/`](scripts/).
 
 ## Methodology model
 

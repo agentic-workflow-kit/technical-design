@@ -25,6 +25,7 @@ the recurring lessons that shape the gates. For *what & why*, see [`../product/`
   IDs, handoff facts, methodology-neutral preservation rules, and vacuous-handoff review guidance.
 - [`methodology-profile-contract.md`](methodology-profile-contract.md) — the stable interface a
   methodology profile under `methodologies/` must satisfy.
+- [`decisions.md`](decisions.md) — the repository's own append-only design decisions log.
 - [`decision-log-format.md`](decision-log-format.md) — the `decisions.md` disposition format.
 - [`suggestion-format.md`](suggestion-format.md) — the review suggestion shape.
 
