@@ -1,0 +1,34 @@
+{
+  "$schema": "../packages/eval-kit/schemas/eval-kit.config.schema.json",
+  "schema_version": "eval-kit.config.v1",
+  "suite_id": "technical-design",
+  "suite_root": ".",
+  "results_root": "results",
+  "adapter": "adapter.mjs",
+  "cases": {
+    "root": "cases",
+    "include": ["case-*-v1"]
+  },
+  "methods": {
+    "deterministic": {
+      "enabled": true,
+      "grader": "facts-boundaries",
+      "reporter": "markdown"
+    },
+    "generate": {
+      "enabled": true,
+      "prompt": "@eval-kit/generation"
+    },
+    "judge_coverage": {
+      "enabled": true,
+      "prompt": "@eval-kit/pointwise",
+      "rubric": "case:rubric.md"
+    },
+    "judge_pairwise": {
+      "enabled": false
+    },
+    "report": {
+      "enabled": true
+    }
+  }
+}

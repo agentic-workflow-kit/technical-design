@@ -3,7 +3,6 @@
 
 packages:
   - packages/eval-kit
-  - packages/evals
 
 # --- Supply-chain / toolchain baseline (every archetype) ---
 allowBuilds:

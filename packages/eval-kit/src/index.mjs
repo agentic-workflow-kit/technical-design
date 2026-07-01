@@ -20,3 +20,24 @@ export {
   runPromptfooRaw,
 } from "./promptfoo.mjs";
 export { aggregateVerdict, criticalBlockerCount } from "./verdict.mjs";
+
+export { loadConfig } from "./config.mjs";
+export {
+  normalize,
+  candidateSegments,
+  includesAny,
+  includesAll,
+  assessCoverage,
+  gradeFacts,
+} from "./grading.mjs";
+export {
+  configuredCaseManifestPaths,
+  resolveCaseManifest,
+  discoverCaseIds,
+  runCase,
+  generateCandidate,
+  judgeCoverage,
+  judgePairwise,
+  compileReport,
+  validateFixtures,
+} from "./sdk.mjs";

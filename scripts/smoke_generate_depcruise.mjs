@@ -2,7 +2,7 @@
 /**
  * Lightweight smoke checks for the enforce-architecture dependency-cruiser generator.
  *
- * These checks stay outside packages/evals so root tooling can prove generator
+ * These checks stay outside eval-kit so root tooling can prove generator
  * fail-closed behavior without depending on eval fixtures or model-graded flows.
  */
 

@@ -2,7 +2,7 @@
 
 This document defines how `technical-design` should be evaluated as a design-stage skills pack. It
 is a design target, not a claim that every harness exists today. The current repository already has
-static checks and enforceability fixtures under `packages/evals/`; this strategy describes how those checks
+static checks and enforceability fixtures under `evals/`; this strategy describes how those checks
 grow into a layered evaluation system for design quality.
 
 ## Goal
@@ -68,8 +68,8 @@ Layer 1 protects contracts that are cheap to verify:
 - generated enforcement rules require seeded violations;
 - no-boundary CRUD cases pass honestly with empty enforcement.
 
-This layer is the natural extension of the current `packages/evals/src/run_static_checks.sh` and
-`packages/evals/src/run_enforce_eval.sh` gates.
+This layer is the natural extension of the current `scripts/check_eval_static.mjs` and
+`scripts/run_enforce_eval.mjs` gates.
 
 Current status: implemented and gated by `pnpm check` through static schema/fixture checks, skill and
 profile checks, deterministic unit tests, and seeded enforcement evals.
@@ -78,24 +78,24 @@ profile checks, deterministic unit tests, and seeded enforcement evals.
 
 Layer 2 evaluates each skill in isolation with small fixtures:
 
-| Skill | Fixture Input | Expected Signal |
-|---|---|---|
-| `frame` | brief, source map, blockers | source-grounded frame, only blocking questions |
-| `author` | accepted frame and product facts | DDD frontmatter, context ownership, invariants, enforcement map |
-| `review` | defective design | structured suggestions with evidence, gate refs, and lesson refs |
-| `enforce` | layer map and seeded source tree | dependency rule fails on seed, passes honest no-boundary case |
-| `orchestrate` | requested stop point | composes sibling skills without inventing methodology behavior |
+| Skill         | Fixture Input                    | Expected Signal                                                  |
+| ------------- | -------------------------------- | ---------------------------------------------------------------- |
+| `frame`       | brief, source map, blockers      | source-grounded frame, only blocking questions                   |
+| `author`      | accepted frame and product facts | DDD frontmatter, context ownership, invariants, enforcement map  |
+| `review`      | defective design                 | structured suggestions with evidence, gate refs, and lesson refs |
+| `enforce`     | layer map and seeded source tree | dependency rule fails on seed, passes honest no-boundary case    |
+| `orchestrate` | requested stop point             | composes sibling skills without inventing methodology behavior   |
 
 Layer 2 should prefer pass/fail expectations over prose quality scores.
 
 Implemented first slice:
 
-- `packages/evals/fixtures/review/expected-suggestions.json` stores complete expected review suggestions and is
+- `evals/fixtures/review/expected-suggestions.json` stores complete expected review suggestions and is
   validated against the review suggestion schema.
-- `packages/evals/fixtures/ddd/defect-manifest.json` declares the initial deterministic DDD defect classes, their
+- `evals/fixtures/ddd/defect-manifest.json` declares the initial deterministic DDD defect classes, their
   expected catching surface, lesson reference, and exact review-rubric evidence. The manifest may
   grow as future Layer 3 classes move from target strategy to executable fixtures.
-- `packages/evals/src/validate_eval_fixtures.mjs` runs inside the static check gate so malformed fixture
+- `evals/adapter.mjs` validates fixtures inside the static check gate so malformed fixture
   expectations fail `pnpm check`.
 
 Current status: implemented and gated for the committed review, DDD, planning, enforcement, and case
@@ -144,7 +144,7 @@ flowchart LR
 Case inputs should include:
 
 ```text
-packages/evals/fixtures/cases/<case-id>/
+evals/cases/<case-id>/
   product.md
   source-map.md
   reference-design.md
@@ -157,7 +157,7 @@ packages/evals/fixtures/cases/<case-id>/
 Case outputs should include:
 
 ```text
-packages/evals/results/<run-id>/
+evals/results/<run-id>/
   frame.md
   design.md
   review.md
@@ -169,7 +169,7 @@ packages/evals/results/<run-id>/
 Reference designs are comparison anchors, not exact targets. A generated design can pass when it
 preserves required facts and makes defensible alternative boundary choices.
 
-Current status: seven self-contained cases are committed under `packages/evals/fixtures/cases/`.
+Current status: seven self-contained cases are committed under `evals/cases/`.
 Their reference designs are intentionally compact anchors, not full canonical-template outputs. The
 deterministic grader uses source-visible expected facts and boundaries, accepted alternatives, and
 concept groups. Default boundary coverage requires local ownership evidence instead of scattered
@@ -241,13 +241,13 @@ Reference/fact graders compare the candidate design with expected case facts:
 
 The grader should classify each fact as:
 
-| Verdict | Meaning |
-|---|---|
-| `covered` | Candidate preserves the fact or requirement. |
-| `contradicted` | Candidate conflicts with the source or reference fact. |
-| `invented` | Candidate introduces an unsupported producer-owned fact. |
-| `missing` | Candidate omits a required fact. |
-| `unknown` | Evidence is insufficient to grade. |
+| Verdict        | Meaning                                                  |
+| -------------- | -------------------------------------------------------- |
+| `covered`      | Candidate preserves the fact or requirement.             |
+| `contradicted` | Candidate conflicts with the source or reference fact.   |
+| `invented`     | Candidate introduces an unsupported producer-owned fact. |
+| `missing`      | Candidate omits a required fact.                         |
+| `unknown`      | Evidence is insufficient to grade.                       |
 
 `contradicted` and `invented` findings are blockers unless explicitly marked as acceptable
 alternative design choices in the case rubric.
@@ -282,7 +282,10 @@ Minimum judge output:
   "criterion": "bounded_context_ownership",
   "verdict": "pass",
   "severity": "critical",
-  "evidence": ["design.md#bounded-contexts", "expected-boundaries.json#billing"],
+  "evidence": [
+    "design.md#bounded-contexts",
+    "expected-boundaries.json#billing"
+  ],
   "explanation": "The Billing context owns invoice lifecycle decisions and reads account status.",
   "confidence": "medium"
 }
@@ -321,12 +324,12 @@ Calibration should track:
 
 Use gate-oriented verdicts instead of average scores:
 
-| Verdict | Meaning |
-|---|---|
-| `red` | Any hard blocker exists. |
-| `yellow` | No blocker, but the run does not meet the green bar: less than 90 percent of critical criteria pass or less than 70 percent of recommended criteria pass. |
-| `green` | No blocker, at least 90 percent of critical criteria pass, and at least 70 percent of recommended criteria pass. |
-| `great` | Manual/report-level only: green and wins calibrated pairwise comparison against the raw-model baseline or prior pack output. Deterministic `eval:case` does not currently emit this verdict. |
+| Verdict  | Meaning                                                                                                                                                                                      |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `red`    | Any hard blocker exists.                                                                                                                                                                     |
+| `yellow` | No blocker, but the run does not meet the green bar: less than 90 percent of critical criteria pass or less than 70 percent of recommended criteria pass.                                    |
+| `green`  | No blocker, at least 90 percent of critical criteria pass, and at least 70 percent of recommended criteria pass.                                                                             |
+| `great`  | Manual/report-level only: green and wins calibrated pairwise comparison against the raw-model baseline or prior pack output. Deterministic `eval:case` does not currently emit this verdict. |
 
 Hard blockers:
 
@@ -360,13 +363,13 @@ Recommended criteria:
 
 The initial portfolio should stay small enough to maintain:
 
-| Case Type | Count | Purpose |
-|---|---:|---|
-| Tiny contract fixture | 2 | Fast regression on required output shape. |
-| Seeded defect fixture | 2 | Prove review catches known failure classes. |
-| Snapshotted public proposal/reference case | 2 | Exercise product-to-design comparison. |
-| DDD-heavy reference case | 1 | Exercise ownership, invariants, context boundaries, and tactical depth. |
-| Negative fit case | 1 | Prove the pack can recommend strategic-only or low-ceremony design. |
+| Case Type                                  | Count | Purpose                                                                 |
+| ------------------------------------------ | ----: | ----------------------------------------------------------------------- |
+| Tiny contract fixture                      |     2 | Fast regression on required output shape.                               |
+| Seeded defect fixture                      |     2 | Prove review catches known failure classes.                             |
+| Snapshotted public proposal/reference case |     2 | Exercise product-to-design comparison.                                  |
+| DDD-heavy reference case                   |     1 | Exercise ownership, invariants, context boundaries, and tactical depth. |
+| Negative fit case                          |     1 | Prove the pack can recommend strategic-only or low-ceremony design.     |
 
 Public samples should prefer artifacts with stable product intent, goals, non-goals, proposal
 details, rollout/test concerns, and an existing reference design. Infrastructure RFCs and
@@ -376,7 +379,7 @@ useful for boundary and ownership comparison, but often need supplementary produ
 Case selection rules:
 
 - Source and reference material used by a case must be committed or snapshotted under
-  `packages/evals/fixtures/cases/<case-id>/`; evals must not depend on live external fetches.
+  `evals/cases/<case-id>/`; evals must not depend on live external fetches.
 - Case IDs and fixture names must stay generic even when source material came from a public project.
 - Each case should include provenance and license notes when source material is derived from a
   public artifact.

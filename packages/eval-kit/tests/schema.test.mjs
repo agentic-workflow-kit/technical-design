@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { createSchemaRegistry } from "../src/index.mjs";
+import { createSchemaRegistry, loadConfig } from "../src/index.mjs";
 
 const writeJson = (filePath, value) => {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -12,6 +12,24 @@ const writeJson = (filePath, value) => {
 };
 
 describe("eval-kit schema registry", () => {
+  it("keeps bundled schema ids under the eval-kit namespace", () => {
+    const registry = createSchemaRegistry({
+      schemaRoots: [path.resolve(import.meta.dirname, "../schemas")],
+    });
+
+    expect(registry.schemaIds).toEqual(
+      expect.arrayContaining([
+        "https://agentic-workflow-kit.local/eval-kit/eval-kit.config.schema.json",
+        "https://agentic-workflow-kit.local/eval-kit/pairwise-result.schema.json",
+      ]),
+    );
+    expect(
+      registry.schemaIds.filter((schemaId) =>
+        schemaId.includes("/technical-design/evals/"),
+      ),
+    ).toEqual([]);
+  });
+
   it("fails on duplicate schema ids", () => {
     const rootA = fs.mkdtempSync(path.join(os.tmpdir(), "eval-kit-schema-a-"));
     const rootB = fs.mkdtempSync(path.join(os.tmpdir(), "eval-kit-schema-b-"));
@@ -88,6 +106,106 @@ describe("eval-kit schema registry", () => {
           prompt_version: "generation-prompt-v1",
         },
         "manifest",
+      ),
+    ).not.toThrow();
+  });
+
+  it("resolves bundled prompt and schema fallbacks for consumer configs", () => {
+    const config = loadConfig(
+      path.resolve(import.meta.dirname, "../../../evals/eval-kit.config.json"),
+    );
+
+    expect(
+      config.resolvePromptTemplate("generation", "generation.prompt.md"),
+    ).toBe(
+      path.resolve(import.meta.dirname, "../promptfoo/generation.prompt.md"),
+    );
+    expect(
+      config.resolveKitSchemaPath("pointwise-judge-result.schema.json"),
+    ).toBe(
+      path.resolve(
+        import.meta.dirname,
+        "../schemas/pointwise-judge-result.schema.json",
+      ),
+    );
+  });
+
+  it("resolves method prompt aliases from simplified configs", () => {
+    const config = loadConfig(
+      path.resolve(import.meta.dirname, "../../../evals/eval-kit.config.json"),
+    );
+
+    expect(
+      config.resolvePromptTemplate(
+        "pointwise_judge",
+        "judges/pointwise.prompt.md",
+      ),
+    ).toBe(
+      path.resolve(
+        import.meta.dirname,
+        "../promptfoo/judges/pointwise.prompt.md",
+      ),
+    );
+  });
+
+  it("validates pointwise judge results", () => {
+    const registry = createSchemaRegistry({
+      schemaRoots: [path.resolve(import.meta.dirname, "../schemas")],
+    });
+    expect(() =>
+      registry.validateWithSchema(
+        "pointwise-judge-result.schema.json",
+        {
+          case_id: "case-a",
+          model: "gpt-5.4",
+          provider: "openai:codex-app-server",
+          rubric_version: "v1",
+          prompt_version: "v1",
+          items: [
+            {
+              item_id: "FACT-001",
+              kind: "fact",
+              verdict: "covered",
+              severity: "critical",
+              confidence: "high",
+              candidate_evidence: ["evidence"],
+              source_refs: ["SRC-001"],
+              explanation: "explain",
+            },
+          ],
+        },
+        "result",
+      ),
+    ).not.toThrow();
+  });
+
+  it("validates pairwise judge results with randomized candidate order", () => {
+    const registry = createSchemaRegistry({
+      schemaRoots: [path.resolve(import.meta.dirname, "../schemas")],
+    });
+    expect(() =>
+      registry.validateWithSchema(
+        "pairwise-result.schema.json",
+        {
+          case_id: "case-a",
+          model: "gpt-5.4",
+          provider: "openai:codex-app-server",
+          rubric_version: "judge-rubric-v1",
+          prompt_version: "pairwise-prompt-v1",
+          candidate_order: ["candidate_b", "candidate_a"],
+          randomization: {
+            method: "sha256-seed-parity-v1",
+            seed: 1234,
+            original_order: ["candidate_a", "candidate_b"],
+            candidate_order: ["candidate_b", "candidate_a"],
+          },
+          winner: "candidate_a",
+          criteria: ["Source preservation"],
+          evidence: ["candidate_a cites SRC-001"],
+          explanation: "candidate_a preserves the required source fact.",
+          confidence: "high",
+        },
+        "pairwise result",
       ),
     ).not.toThrow();
   });
