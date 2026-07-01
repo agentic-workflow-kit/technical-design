@@ -90,27 +90,54 @@ if (unseededRules.length > 0) {
   process.exit(1);
 }
 
-const forbiddenRules = layerMap.forbidden
-  .map((rule, idx) => {
-    const fromLayer = layerMap.layers.find((l) => l.name === rule.from);
-    const toLayer = layerMap.layers.find((l) => l.name === rule.to);
+const layerByName = new Map(
+  layerMap.layers.map((layer) => [layer.name, layer]),
+);
+const missingLayerErrors = [];
 
-    if (!fromLayer || !toLayer) {
-      console.warn(
-        `Warning: Could not find layer definition for from=${rule.from} or to=${rule.to} in rule ${idx}`,
-      );
-      return null;
-    }
+for (const [idx, rule] of layerMap.forbidden.entries()) {
+  const missing = [];
+  if (!layerByName.has(rule.from)) {
+    missing.push(`from=${String(rule.from)}`);
+  }
+  if (!layerByName.has(rule.to)) {
+    missing.push(`to=${String(rule.to)}`);
+  }
+  if (missing.length > 0) {
+    missingLayerErrors.push(
+      `- rule ${idx} has missing layer definition(s): ${missing.join(", ")}`,
+    );
+  }
+}
 
-    return `    {
-      name: 'no-${rule.from}-to-${rule.to}',
-      comment: '${rule.reason || `This design explicitly forbids ${rule.from} from depending on ${rule.to}`} Seed: ${rule.seededViolation}',
-      severity: 'error',
-      from: { path: '${fromLayer.path}' },
-      to: { path: '${toLayer.path}' }
+if (missingLayerErrors.length > 0) {
+  console.error(
+    "Error: forbidden rules reference missing layer definition(s).",
+  );
+  for (const error of missingLayerErrors) {
+    console.error(error);
+  }
+  process.exit(1);
+}
+
+const jsString = (value) => JSON.stringify(String(value));
+
+const forbiddenRules = layerMap.forbidden.map((rule) => {
+  const fromLayer = layerByName.get(rule.from);
+  const toLayer = layerByName.get(rule.to);
+  const reason =
+    rule.reason ||
+    `This design explicitly forbids ${rule.from} from depending on ${rule.to}`;
+  const comment = `${reason} Seed: ${rule.seededViolation}`;
+
+  return `    {
+      name: ${jsString(`no-${rule.from}-to-${rule.to}`)},
+      comment: ${jsString(comment)},
+      severity: "error",
+      from: { path: ${jsString(fromLayer.path)} },
+      to: { path: ${jsString(toLayer.path)} }
     }`;
-  })
-  .filter(Boolean);
+});
 
 const configSource = `/** @type {import('dependency-cruiser').IConfiguration} */
 module.exports = {

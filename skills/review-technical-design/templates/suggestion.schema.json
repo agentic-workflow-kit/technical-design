@@ -31,11 +31,20 @@
       "enum": ["blocking", "recommended", "optional"]
     },
     "lens": {
-      "enum": ["architecture-enforceability", "domain-correctness"]
+      "enum": [
+        "architecture-enforceability",
+        "domain-correctness",
+        "agreement-integrity"
+      ]
     },
     "dimension": {
       "enum": [
         "source-map",
+        "input-resolution",
+        "system-model",
+        "docs-structure",
+        "diagram",
+        "approval-status",
         "bounded-context",
         "ubiquitous-language",
         "domain-model",

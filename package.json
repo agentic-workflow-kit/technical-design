@@ -23,7 +23,17 @@
     "format": "prettier --write \"**/*.{json,js,mjs,ts,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{json,js,mjs,ts,yml,yaml}\"",
     "lint": "pnpm format:check",
-    "check": "pnpm lint && pnpm --filter @agentic-workflow-kit/technical-design-evals check:deterministic"
+    "skills:check": "pnpm check:skills",
+    "docs:check": "pnpm check:docs",
+    "profile:check": "pnpm check:methodology",
+    "links:check": "pnpm check:links",
+    "check:skills": "node scripts/check_non_eval.mjs skills",
+    "check:docs": "node scripts/check_non_eval.mjs docs",
+    "check:methodology": "node scripts/check_non_eval.mjs methodology",
+    "check:links": "node scripts/check_non_eval.mjs links",
+    "check:non-eval": "node scripts/check_non_eval.mjs all",
+    "smoke:enforce-generator": "node scripts/smoke_generate_depcruise.mjs",
+    "check": "pnpm lint && pnpm check:non-eval && pnpm smoke:enforce-generator && pnpm --filter @agentic-workflow-kit/technical-design-evals check:deterministic"
   },
   "devDependencies": {
     "prettier": "^3.6.2"

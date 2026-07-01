@@ -3,6 +3,7 @@ design_id: payment-authorization
 handoff_contract: technical-design-handoff-v0
 methodology: ddd
 methodology_version: "1"
+architecture_mode: lifecycle/state-machine
 design_status: settled
 ddd_depth: tactical-ddd
 round: 2
@@ -20,6 +21,7 @@ round: 2
 | Handoff contract | `technical-design-handoff-v0` |
 | Design title | Payment Authorization |
 | Status | Settled, ready for planning |
+| Architecture mode | `lifecycle/state-machine` |
 | Methodology profile | `ddd@1`, `tactical-ddd` depth |
 | Review round | 2 |
 
@@ -29,6 +31,7 @@ round: 2
 |---|---|---|---|---|
 | SRC-001 | brief | Payment authorization brief | Core workflow, gateway constraints, idempotency, and provider isolation requirements. | Example fixture source. |
 | SRC-002 | decision | `D-004` | Event sourcing is deferred until replay or audit requirements exceed gateway plus audit table history. | Deferred decision. |
+| SRC-003 | design | `problem-frame.md` | Approved InputResolution, AgreedSystemModel, and DocStructurePlan for payment authorization. | Example approval source. |
 
 ### Required Planning Facts
 
@@ -62,13 +65,51 @@ round: 2
 - **DDD-specific authoring detail:** the context map, tactical invariant model, ports, enforcement
   map, and delivery inputs below explain the DDD reasoning behind the handoff.
 
-## 2. Source and Context Audit
+## 2. Pre-Authoring Approval Record
+
+### InputResolution
+
+**InputResolution approval status:** approved
+
+| Required input | Source evidence | Resolution | Owner / impact | Approval status |
+|---|---|---|---|---|
+| authorization lifecycle owner | SRC-001 | provided | Payment Authorization owns attempt state transitions | approved |
+| idempotency key authority | SRC-001 | provided | Payment Authorization owns duplicate-attempt decision | approved |
+| event sourcing need | SRC-002 | safe assumption | deferred until replay or audit needs justify it | approved |
+
+### AgreedSystemModel
+
+**AgreedSystemModel approval status:** approved
+
+| Entity | Responsibilities | Owns | Reads | Does Not Own |
+|---|---|---|---|---|
+| Payment Authorization | authorize attempts, guard state transitions, own failure tokens | authorization state, idempotency decisions | order total, customer payment method reference | fulfillment, provider settlement |
+| Gateway Adapter | translate provider authorization calls | provider request/response mapping | PaymentGatewayPort command | authorization state |
+| Repository Adapter | persist attempts | storage mapping | PaymentAttemptRepository port | lifecycle decisions |
+
+| From | Relation | To | Notes |
+|---|---|---|---|
+| Payment Authorization | calls | PaymentGatewayPort | provider SDK stays outside domain |
+| Payment Authorization | calls | PaymentAttemptRepository | repository port preserves domain-owned lifecycle decisions |
+
+### DocStructurePlan
+
+**DocStructurePlan approval status:** approved
+
+| File | Responsibility | Status |
+|---|---|---|
+| `technical-design.md` | design overview, lifecycle model, enforcement map, and planning handoff | contract |
+| `decisions.md` | review dispositions and deferred event-sourcing decision | decision-log |
+
+**Structure approval status:** approved
+
+## 3. Source and Context Audit
 
 | Source | Used for | Notes |
 |---|---|---|
 | Payment authorization brief | core workflow and gateway constraints | Requires idempotency and external provider isolation. |
 
-## 3. Assumptions and Blockers
+## 4. Assumptions and Blockers
 
 ### Safe Assumptions
 - Gateway responses are retriable when the provider reports timeout or unknown status.
@@ -76,9 +117,14 @@ round: 2
 ### Blocking Questions
 - None.
 
-## 4. DDD Depth
+## 5. Architecture Mode and DDD Depth
+
+**Selected architecture_mode:** lifecycle/state-machine
 
 **Selected depth:** tactical-ddd
+
+**Why this mode is the first lens:** Authorization correctness depends on who owns prior state,
+transition authority, duplicate handling, and failure tokens.
 
 **Why this depth is sufficient:** Payment authorization has strict lifecycle transitions,
 idempotency, external provider language, and failure tokens consumed by downstream contexts.
@@ -86,53 +132,64 @@ idempotency, external provider language, and failure tokens consumed by downstre
 **Where deeper tactical ceremony is unnecessary:** Event sourcing is not required because the payment
 gateway and audit table provide enough history for v1.
 
-## 5. Context Map
+## 6. Context Map
 
 | Context | Owns | Reads | Does Not Own |
 |---|---|---|---|
 | Payment Authorization | authorization state, idempotency decisions, failure tokens | order total, customer payment method reference | order fulfillment, provider settlement |
 
-## 6. Ubiquitous Language
+## 7. Ubiquitous Language
 
 | Term | Meaning | Owner |
 |---|---|---|
 | Authorization | Provider-approved hold on funds before capture | Payment Authorization |
 | PaymentAttempt | One idempotent attempt to authorize a payment | Payment Authorization |
 
-## 7. Domain Behavior
+## 8. Domain Behavior
 
 | Command / Use Case | Actor | Invariant guarded | Result |
 |---|---|---|---|
 | Authorize payment | checkout flow | pending attempt can authorize at most once per idempotency key | Authorized or Failed attempt |
 
-## 8. Invariant and State Matrix
+## 9. Invariant and State Matrix
 
 | Invariant / Predicate | Source operands | Enforced by | Failure token |
 |---|---|---|---|
 | attempt authorizes only from pending | PaymentAttempt.status, AuthorizePayment command | PaymentAttempt aggregate | payment-state-invalid |
 | idempotency key is single-writer | command.idempotencyKey, stored attempt.idempotencyKey | authorization repository port | duplicate-payment-attempt |
 
-## 9. Ports, Adapters, and Public API
+## 10. Ports, Adapters, and Public API
 
 | Surface | Type | Owner | Consumers | Enforcement |
 |---|---|---|---|---|
 | PaymentGatewayPort | domain/application port | Payment Authorization | provider adapter | port contract test |
 | PaymentAttemptRepository | repository port | Payment Authorization | infrastructure adapter | no-domain-to-infrastructure |
 
-## 10. Data, Query, and Consistency
+## 11. Data, Query, and Consistency
 
 - **Write model:** PaymentAttempt aggregate is the transaction boundary.
 - **Read model:** status projection reads committed attempts.
 - **Consistency:** strong for attempt state, eventual for analytics.
 
-## 11. Failure, Observability, Migration, and Deploy
+## 12. Failure, Observability, Migration, and Deploy
 
 - **Failure modes:** gateway timeout, duplicate attempt, invalid transition.
 - **Observability:** payment_authorization_requested, payment_authorization_completed,
   payment_authorization_failed.
 - **Migration/deploy:** add payment_attempts table and idempotency key index.
 
-## 12. Testing and Enforcement
+## 13. Diagrams
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> Authorized
+    Pending --> Failed
+```
+
+The diagram only shows approved lifecycle states from `AgreedSystemModel`.
+
+## 14. Testing and Enforcement
 
 | Claim | Proof | Standing gate |
 |---|---|---|
@@ -158,7 +215,7 @@ gateway and audit table provide enough history for v1.
 }
 ```
 
-## 13. Delivery Inputs
+## 15. Delivery Inputs
 
 - **Candidate story areas:** aggregate and tokens, gateway port, repository adapter, architecture gate.
 - **Sequencing constraints:** aggregate and failure token catalog before adapters.
@@ -166,6 +223,6 @@ gateway and audit table provide enough history for v1.
 - **Validation expectations:** unit tests, contract tests, check:architecture.
 - **Stop conditions:** stop if settlement or fulfillment behavior is pulled into this context.
 
-## 14. Risks and Deferred Decisions
+## 16. Risks and Deferred Decisions
 
 - D-004 deferred event sourcing until replay/audit requirements exceed the gateway plus audit table.

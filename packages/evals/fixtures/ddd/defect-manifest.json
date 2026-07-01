@@ -96,14 +96,14 @@
       "file": "empty-planning-handoff.md",
       "required_class": "Prose-only or empty planner handoff",
       "catching_surface": "review-rubric",
-      "rubric_evidence": "A design marks ready for planning without a `Planner Handoff Summary` that names stable source, boundary, delivery, validation, and stop-condition IDs.",
-      "required_fix": "Add a Planner Handoff Summary with stable source, boundary, delivery, validation, and stop-condition IDs.",
+      "rubric_evidence": "A design marks ready for planning without a `Planner Handoff Summary` that names, or explicitly marks `None` with source-backed rationale, every required handoff category: `SRC`, `CTX`, `INV`, `SURF`, `FAIL`, `OBS`, `ENF`, `DEL`, `SEQ`, `FILE`, `VAL`, and `STOP`.",
+      "required_fix": "Add a Planner Handoff Summary that names every required category, or explicitly marks a category None with source-backed rationale: SRC, CTX, INV, SURF, FAIL, OBS, ENF, DEL, SEQ, FILE, VAL, STOP.",
       "expected_suggestion": {
         "severity": "blocking",
         "lens": "architecture-enforceability",
         "dimension": "delivery-inputs",
         "lesson_ref": "none",
-        "gate_ref": "DDD review rubric: A design marks ready for planning without a `Planner Handoff Summary` that names stable source, boundary, delivery, validation, and stop-condition IDs."
+        "gate_ref": "DDD review rubric: A design marks ready for planning without a `Planner Handoff Summary` that names, or explicitly marks `None` with source-backed rationale, every required handoff category: `SRC`, `CTX`, `INV`, `SURF`, `FAIL`, `OBS`, `ENF`, `DEL`, `SEQ`, `FILE`, `VAL`, and `STOP`."
       }
     }
   ]

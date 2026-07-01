@@ -3,6 +3,7 @@ design_id: <stable-design-slug>
 handoff_contract: technical-design-handoff-v0
 methodology: ddd
 methodology_version: "1"
+architecture_mode: <system-entity-model | lifecycle/state-machine | ports-and-adapters | control-plane/runtime | contract/seam design | strategic-ddd | tactical-ddd>
 design_status: draft
 ddd_depth: <strategic-only | use-case-slices | ports-and-adapters | tactical-ddd>
 round: 1
@@ -22,7 +23,8 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 | Design ID | `<matches frontmatter design_id>` |
 | Handoff contract | `technical-design-handoff-v0` |
 | Design title | `<design name>` |
-| Status | `<draft | reviewed | approved | superseded>` |
+| Status | `<draft / reviewed / approved / superseded>` |
+| Architecture mode | `<architecture_mode>` |
 | Methodology profile | `ddd@1`, `<ddd_depth>` depth |
 | Review round | `1` |
 
@@ -31,6 +33,7 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 | ID | Type | Reference | Required for Planning | Notes |
 |---|---|---|---|---|
 | SRC-001 | <prd / brief / issue / source / design / decision> | <path, URL, or stable artifact reference> | <fact, constraint, or product intent Planning must preserve> | <notes> |
+| SRC-002 | design | <InputResolution / AgreedSystemModel / DocStructurePlan reference> | Preserve approved input, model, and docs-structure decisions. | <approval notes> |
 
 ### Required Planning Facts
 
@@ -60,17 +63,43 @@ deeper reasoning, but required planning facts must be summarized here with stabl
   invariant matrices, and ports/adapters below. Planning may read them for context but must not need
   to infer missing handoff facts from them.
 
-## 2. Source and Context Audit
+## 2. Pre-Authoring Approval Record
+
+### InputResolution
+
+**InputResolution approval status:** <approved / pending / blocked>
+
+| Required input | Source evidence | Resolution | Owner / impact | Approval status |
+|---|---|---|---|---|
+| <ownership, invariant, lifecycle, API, data, failure, observability, enforcement, or delivery input> | <SRC-* or missing> | <provided / safe assumption / requires approval / blocked> | <context, fact ID, or blocking question> | <approved / pending / blocked / not required> |
+
+### AgreedSystemModel
+
+**AgreedSystemModel approval status:** <approved / pending / blocked>
+
+| Entity | Responsibilities | Owns | Reads | Does Not Own |
+|---|---|---|---|---|
+| <entity> | <responsibilities> | <facts, decisions, data, behavior> | <external facts consumed> | <nearby concerns owned elsewhere> |
+
+| From | Relation | To | Notes |
+|---|---|---|---|
+| <entity> | <reads/calls/emits/configures/runs> | <entity> | <direction and constraints> |
+
+### DocStructurePlan
+
+**DocStructurePlan approval status:** <approved / pending / blocked>
+
+| File | Responsibility | Status |
+|---|---|---|
+| <technical-design.md> | <overview / contract / lifecycle / enforcement / decision log / archive responsibility> | <overview / stub / contract / decision-log / archive> |
+
+**Structure approval status:** <approved / pending / blocked>
+
+## 3. Source and Context Audit
 
 | Source | Used for | Notes |
 |---|---|---|
 | <PRD / brief / source file> | <requirements, existing behavior, constraints> | <notes> |
-
-## 3. Input Sufficiency and Ownership Resolution
-
-| Required input | Source evidence | Resolution | Owner / impact |
-|---|---|---|---|
-| <ownership, invariant, lifecycle, API, data, failure, observability, enforcement, or delivery input> | <SRC-* or missing> | <provided | safe assumption | requires approval | blocked> | <context, fact ID, or blocking question> |
 
 ## 4. Assumptions and Blockers
 
@@ -80,9 +109,13 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 ### Blocking Questions
 - <question that would change ownership, boundaries, data, consistency, deploy, security, or tests>
 
-## 5. DDD Depth
+## 5. Architecture Mode and DDD Depth
+
+**Selected architecture_mode:** <system-entity-model | lifecycle/state-machine | ports-and-adapters | control-plane/runtime | contract/seam design | strategic-ddd | tactical-ddd>
 
 **Selected depth:** <strategic-only | use-case-slices | ports-and-adapters | tactical-ddd>
+
+**Why this mode is the first lens:** <rationale>
 
 **Why this depth is sufficient:** <rationale>
 
@@ -136,13 +169,23 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 - **Observability:** <events, metrics, logs, audit records>
 - **Migration/deploy:** <schema/data/config/rollout/rollback impacts>
 
-## 13. Testing and Enforcement
+## 13. Diagrams
+
+Add Mermaid diagrams only when they explain approved entities, flows, lifecycles, or boundaries.
+Diagrams must not introduce architecture without a decision-log entry.
+
+```mermaid
+flowchart LR
+    A["approved entity"] --> B["approved seam"]
+```
+
+## 14. Testing and Enforcement
 
 | Claim | Proof | Standing gate |
 |---|---|---|
 | <boundary/invariant/public API> | <test/fixture/static rule> | <command or CI lane> |
 
-## 14. Delivery Inputs
+## 15. Delivery Inputs
 
 - **Candidate story areas:** <list>
 - **Sequencing constraints:** <producer before consumer constraints>
@@ -150,6 +193,6 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 - **Validation expectations:** <commands/gates>
 - **Stop conditions:** <when implementation should stop and return to design>
 
-## 15. Risks and Deferred Decisions
+## 16. Risks and Deferred Decisions
 
 - <risk, deferred suggestion, or accepted tradeoff with decision id>

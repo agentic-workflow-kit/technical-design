@@ -1,7 +1,28 @@
 # DDD Depth Ladder
 
 `technical-design` is DDD-first in v1. The choice is no longer whether to use DDD at all; the choice
-is how much DDD depth the design needs.
+is which `architecture_mode` should frame the system first, then how much DDD depth the design needs.
+
+## Architecture mode
+
+Select one primary framing lens before `ddd_depth`:
+
+- `system-entity-model` - entities, responsibilities, relations, ownership, and seams are the main
+  uncertainty.
+- `lifecycle/state-machine` - state terms, transition authority, retries, or recovery shape the
+  design.
+- `ports-and-adapters` - the domain must be isolated from databases, SDKs, queues, HTTP frameworks, or
+  delivery mechanisms.
+- `control-plane/runtime` - configuration, operators, trusted execution, records, and runtime control
+  surfaces are the dominant model.
+- `contract/seam design` - cross-layer or cross-repo input/output contracts are the main artifact.
+- `strategic-ddd` - bounded contexts, language, ownership, and invariants are the primary framing
+  lens.
+- `tactical-ddd` - aggregates, value objects, domain events, and transaction boundaries are central
+  enough to lead.
+
+`architecture_mode` is not a replacement for DDD. It prevents the method from hiding the first useful
+system shape.
 
 ## 1. Strategic-only DDD
 
