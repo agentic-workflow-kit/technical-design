@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { createSchemaRegistry } from "../src/index.mjs";
+import { createSchemaRegistry, loadConfig } from "../src/index.mjs";
 
 const writeJson = (filePath, value) => {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -91,6 +91,27 @@ describe("eval-kit schema registry", () => {
       ),
     ).not.toThrow();
   });
+
+  it("resolves bundled prompt and schema fallbacks for consumer configs", () => {
+    const config = loadConfig(
+      path.resolve(import.meta.dirname, "../../../evals/eval-kit.config.json"),
+    );
+
+    expect(
+      config.resolvePromptTemplate("generation", "generation.prompt.md"),
+    ).toBe(
+      path.resolve(import.meta.dirname, "../promptfoo/generation.prompt.md"),
+    );
+    expect(
+      config.resolveKitSchemaPath("pointwise-judge-result.schema.json"),
+    ).toBe(
+      path.resolve(
+        import.meta.dirname,
+        "../schemas/pointwise-judge-result.schema.json",
+      ),
+    );
+  });
+
   it("validates pointwise judge results", () => {
     const registry = createSchemaRegistry({
       schemaRoots: [path.resolve(import.meta.dirname, "../schemas")],
@@ -104,19 +125,21 @@ describe("eval-kit schema registry", () => {
           provider: "openai:codex-app-server",
           rubric_version: "v1",
           prompt_version: "v1",
-          items: [{
-            item_id: "FACT-001",
-            kind: "fact",
-            verdict: "covered",
-            severity: "critical",
-            confidence: "high",
-            candidate_evidence: ["evidence"],
-            source_refs: ["SRC-001"],
-            explanation: "explain"
-          }]
+          items: [
+            {
+              item_id: "FACT-001",
+              kind: "fact",
+              verdict: "covered",
+              severity: "critical",
+              confidence: "high",
+              candidate_evidence: ["evidence"],
+              source_refs: ["SRC-001"],
+              explanation: "explain",
+            },
+          ],
         },
         "result",
-      )
+      ),
     ).not.toThrow();
   });
 });

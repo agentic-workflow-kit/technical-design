@@ -12,7 +12,7 @@ evals/results/**
 !evals/results/
 !evals/results/README.md
 
-# Legacy local eval artifacts from before the package moved to packages/evals.
+# Legacy local eval artifacts from before the root evals layout.
 internal/evals/fixtures/enforce/.dependency-cruiser.js
 internal/evals/fixtures/enforce/.dependency-cruiser.cjs
 internal/evals/results/**

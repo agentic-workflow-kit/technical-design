@@ -106,6 +106,17 @@ export const loadConfig = (configFilePath) => {
     return fallbackPath;
   };
 
+  const resolveKitSchemaPath = (schemaFileName) => {
+    if (path.isAbsolute(schemaFileName) || schemaFileName.includes(path.sep)) {
+      throw new Error(`schema file name must not be a path: ${schemaFileName}`);
+    }
+    const schemaPath = path.resolve(defaultSchemasRoot, schemaFileName);
+    if (!fs.existsSync(schemaPath)) {
+      throw new Error(`Kit-bundled schema not found: ${schemaPath}`);
+    }
+    return schemaPath;
+  };
+
   return {
     raw: config,
     configDir,
@@ -113,5 +124,6 @@ export const loadConfig = (configFilePath) => {
     schemaRegistry,
     loadModule,
     resolvePromptTemplate,
+    resolveKitSchemaPath,
   };
 };

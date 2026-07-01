@@ -598,9 +598,8 @@ export const judgeCoverage = async ({
   const promptVersion = extractVersion(promptText, "Prompt version");
   const rubricVersion = extractVersion(promptText, "Rubric version");
 
-  const outputSchemaPath = resolver.resolveSuitePath(
-    "schemas/pointwise-judge-result.schema.json",
-    "pointwise schema",
+  const outputSchemaPath = config.resolveKitSchemaPath(
+    "pointwise-judge-result.schema.json",
   );
   const outputSchema = JSON.parse(fs.readFileSync(outputSchemaPath, "utf8"));
 
@@ -875,9 +874,8 @@ export const judgePairwise = async ({
   const promptVersion = extractVersion(promptText, "Prompt version");
   const rubricVersion = extractVersion(promptText, "Rubric version");
 
-  const outputSchemaPath = resolver.resolveSuitePath(
-    "schemas/judge-output.schema.json",
-    "pairwise schema",
+  const outputSchemaPath = config.resolveKitSchemaPath(
+    "judge-output.schema.json",
   );
   const outputSchema = JSON.parse(fs.readFileSync(outputSchemaPath, "utf8"));
 

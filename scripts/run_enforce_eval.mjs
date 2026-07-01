@@ -4,7 +4,7 @@
  *
  * Proves the layer-map generator produces correct, non-vacuous rules for any
  * layer taxonomy (hexagonal AND non-hexagonal), and declines gracefully when a
- * design has no boundaries. Replaces evals/src/run_enforce_eval.sh.
+ * design has no boundaries.
  */
 
 import fs from "node:fs";

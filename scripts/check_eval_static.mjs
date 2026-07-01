@@ -3,7 +3,7 @@
  * Static eval checks for the technical-design repo.
  *
  * Validates skills, required profile files, template contracts, planning
- * fixture markers, and author artifact contracts. Replaces evals/src/run_static_checks.sh.
+ * fixture markers, and author artifact contracts.
  */
 
 import fs from "node:fs";

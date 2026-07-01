@@ -2,7 +2,7 @@
 /**
  * Root-visible non-eval validation for the technical-design skills pack.
  *
- * This script deliberately avoids packages/evals so contributors can run cheap
+ * This script deliberately avoids eval-kit runs so contributors can run cheap
  * static checks for skills, docs, methodology profiles, and contract links
  * without invoking deterministic or model-graded eval flows.
  */

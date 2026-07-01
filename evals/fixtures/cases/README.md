@@ -10,13 +10,13 @@ be generalized across repositories without a separate design decision.
 
 The repository uses a layered eval model. Do not collapse these layers into a numeric average.
 
-| Layer | Purpose | Gate |
-| --- | --- | --- |
-| 1. Static/schema gates | Repo and fixture contract safety. | Always blocking. |
-| 2. Skill fixtures | Specific skill behavior. | Blocking when deterministic. |
-| 3. Defect injection | Known bad patterns must be caught. | Blocking when deterministic or enforceable. |
-| 4. Product-to-design cases | Full design quality from source inputs. | Deterministic facts and boundaries block; judges advise until calibrated. |
-| 5. Downstream outcome studies | Measure downstream delivery friction. | Manual and periodic only for now. |
+| Layer                         | Purpose                                 | Gate                                                                      |
+| ----------------------------- | --------------------------------------- | ------------------------------------------------------------------------- |
+| 1. Static/schema gates        | Repo and fixture contract safety.       | Always blocking.                                                          |
+| 2. Skill fixtures             | Specific skill behavior.                | Blocking when deterministic.                                              |
+| 3. Defect injection           | Known bad patterns must be caught.      | Blocking when deterministic or enforceable.                               |
+| 4. Product-to-design cases    | Full design quality from source inputs. | Deterministic facts and boundaries block; judges advise until calibrated. |
+| 5. Downstream outcome studies | Measure downstream delivery friction.   | Manual and periodic only for now.                                         |
 
 Layer 4 deterministic case runs emit only `red`, `yellow`, or `green`. `great` is
 manual/report-level only after green deterministic coverage and calibrated pairwise evidence.
@@ -199,7 +199,7 @@ private material.
 
 ## Operating Rules
 
-- Generated outputs belong under ignored `packages/evals/results/<run-id>/`.
+- Generated outputs belong under ignored `evals/results/<run-id>/`.
 - Do not add external text unless its license allows committed fixtures and `provenance.md` records it.
 - Model-graded Promptfoo and Codex judge runs remain advisory until human calibration exists.
 - Reference designs are comparison anchors, not exact answer keys.

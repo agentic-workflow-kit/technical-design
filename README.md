@@ -98,8 +98,8 @@ pnpm check
 
 `pnpm check` runs formatting validation plus the eval package's deterministic checks:
 skill/profile static checks, Vitest fixture tests, and the seeded `enforce-architecture`
-dependency-cruiser evals. Manual or model-graded evals are run directly through
-`@agentic-workflow-kit/technical-design-evals`, not root scripts.
+dependency-cruiser evals. Manual or model-graded evals use the root `pnpm eval:*` commands backed
+by `@agentic-workflow-kit/eval-kit`.
 
 ## Methodology model
 
