@@ -174,6 +174,10 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 Add Mermaid diagrams only when they explain approved entities, flows, lifecycles, or boundaries.
 Diagrams must not introduce architecture without a decision-log entry.
 
+Match each diagram to its document's altitude: an overview shows the skeleton, a child document
+zooms into the one piece it owns. Do not pull child-level detail up into the overview, and do not
+draw an arrow for a flow the system does not take.
+
 ```mermaid
 flowchart LR
     A["approved entity"] --> B["approved seam"]

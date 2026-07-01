@@ -51,6 +51,8 @@ Blocking findings:
 - The docs tree or file responsibilities contradict the approved `DocStructurePlan`.
 - A diagram changes architecture instead of explaining approved entities, flows, lifecycles, or
   boundaries.
+- An overview diagram duplicates detail a child document owns, or an arrow implies a flow the system
+  does not perform.
 - The `Planner Handoff Summary` contradicts the approved system model.
 
 Recommended findings:

@@ -29,6 +29,7 @@ or eval. A lesson with no cover is an open production-readiness gap.
 | LSN-013 | A polished design can still be wrong if the agent never exposed the high-level system model for approval. | Flow contract: `AgreedSystemModel`; review lens: agreement integrity. | covered |
 | LSN-014 | A single large design document can become structurally wrong before anyone agrees what files should own. | Flow contract: `DocStructurePlan`; author skill requires approved docs structure before durable docs. | covered |
 | LSN-015 | Diagrams can smuggle in unapproved architecture changes. | Principles: diagrams explain, not decide; review lens: agreement integrity. | covered |
+| LSN-016 | An overview diagram can pass a traceability check edge-by-edge and still fail a reader by duplicating child-doc detail or drawing untaken flows. | Principle: diagrams carry altitude (skeleton vs. zoom); review lens: agreement integrity. | covered |
 
 ## Before adding a new lesson
 
