@@ -20,6 +20,11 @@ const readText = (...parts) => fs.readFileSync(casePath(...parts), "utf8");
 const verdictFor = (findings, id) =>
   findings.find((finding) => finding.id === id)?.verdict;
 
+const findingsForCaseCandidate = (caseId, candidate) => [
+  ...gradeFacts(candidate, readJson(caseId, "expected-facts.json")),
+  ...gradeBoundaries(candidate, readJson(caseId, "expected-boundaries.json")),
+];
+
 describe("public reference cases", () => {
   it("rejects 2PC as a customer-credit saga contradiction", () => {
     const expectedFacts = readJson(
@@ -159,6 +164,37 @@ describe("public reference cases", () => {
     expect(verdictFor(pluralVerbBothServices, "FACT-007")).toBe("covered");
   });
 
+  it("accepts negated customer saga shared-transaction wording", () => {
+    const expectedFacts = readJson(
+      "case-customer-credit-order-saga-v1",
+      "expected-facts.json",
+    );
+
+    const findings = gradeFacts(
+      [
+        "A shared database transaction, distributed transaction, and 2PC contradict the local-transaction saga approach.",
+        "Customer Service and Order Service do not share one database transaction.",
+      ].join("\n"),
+      expectedFacts,
+    );
+
+    expect(verdictFor(findings, "FACT-008")).toBe("covered");
+  });
+
+  it("accepts negated laundry multiple-booking wording", () => {
+    const expectedFacts = readJson(
+      "case-tiny-laundry-pickup-v1",
+      "expected-facts.json",
+    );
+
+    const findings = gradeFacts(
+      "Scheduling does not allow multiple active bookings per resident; each resident has at most one active booking.",
+      expectedFacts,
+    );
+
+    expect(verdictFor(findings, "FACT-002")).toBe("covered");
+  });
+
   it("accepts aerial pickup requests using the source-native plural wording", () => {
     const expectedFacts = readJson(
       "case-aerial-delivery-shipping-v1",
@@ -181,6 +217,20 @@ describe("public reference cases", () => {
 
     const findings = gradeFacts(
       "Detailed account internals, drone regulatory workflows, exact public APIs, and production flight-safety policies remain out of scope for this fixture.",
+      expectedFacts,
+    );
+
+    expect(verdictFor(findings, "FACT-007")).toBe("covered");
+  });
+
+  it("accepts singular aerial regulatory non-goal wording", () => {
+    const expectedFacts = readJson(
+      "case-aerial-delivery-shipping-v1",
+      "expected-facts.json",
+    );
+
+    const findings = gradeFacts(
+      "Detailed account internals, drone regulatory workflow, exact public APIs, and production flight-safety policies remain out of scope.",
       expectedFacts,
     );
 
@@ -264,5 +314,90 @@ describe("public reference cases", () => {
 
     expect(expectedBoundaries).not.toMatch(/fleet status|drone telemetry/i);
     expect(referenceDesign).not.toMatch(/fleet status|drone telemetry/i);
+  });
+
+  it("rejects documented aerial delivery deterministic blocker snippets", () => {
+    const caseId = "case-aerial-delivery-shipping-v1";
+    const referenceDesign = readText(caseId, "reference-design.md");
+
+    const snippets = [
+      ["Delivery owns long-term delivery history", "CTX-005"],
+      ["Ingestion owns scheduling decisions", "FACT-008"],
+      ["Accounts owns delivery scheduling", "CTX-003"],
+      ["Drone Management owns delivery history", "CTX-002"],
+      ["Shipping owns drone fleet policy", "CTX-001"],
+      [
+        "Telemetry owns fleet status and drone regulatory workflow for this fixture",
+        "FACT-007",
+      ],
+    ];
+
+    for (const [snippet, expectedFindingId] of snippets) {
+      const findings = findingsForCaseCandidate(
+        caseId,
+        [referenceDesign, snippet].join("\n\n"),
+      );
+
+      expect(verdictFor(findings, expectedFindingId), snippet).toBe(
+        "contradicted",
+      );
+      expect(verdictForFindings(findings), snippet).toBe("red");
+    }
+  });
+
+  it("rejects documented customer-credit saga deterministic blocker snippets", () => {
+    const caseId = "case-customer-credit-order-saga-v1";
+    const referenceDesign = readText(caseId, "reference-design.md");
+
+    const snippets = [
+      ["Customer Credit owns order rejection reason", "CTX-002"],
+      ["Messaging and Integration Infrastructure owns order state", "CTX-003"],
+      ["Messaging owns credit policy", "CTX-003"],
+      [
+        "The design uses 2PC for consistency between Order Service and Customer Service",
+        "FACT-008",
+      ],
+      [
+        "Customer Service and Order Service share one database transaction",
+        "FACT-008",
+      ],
+    ];
+
+    for (const [snippet, expectedFindingId] of snippets) {
+      const findings = findingsForCaseCandidate(
+        caseId,
+        [referenceDesign, snippet].join("\n\n"),
+      );
+
+      expect(verdictFor(findings, expectedFindingId), snippet).toBe(
+        "contradicted",
+      );
+      expect(verdictForFindings(findings), snippet).toBe("red");
+    }
+  });
+
+  it("rejects documented laundry deterministic blocker snippets", () => {
+    const caseId = "case-tiny-laundry-pickup-v1";
+    const referenceDesign = readText(caseId, "reference-design.md");
+
+    const snippets = [
+      ["Billing owns laundry payment collection", "FACT-007"],
+      ["Dynamic Pricing owns washer surge prices", "FACT-007"],
+      ["Identity owns scheduling conflict logic", "FACT-011"],
+      ["Residents may keep multiple active bookings", "FACT-002"],
+      ["Notification Delivery owns Booking state transitions", "FACT-003"],
+    ];
+
+    for (const [snippet, expectedFindingId] of snippets) {
+      const findings = findingsForCaseCandidate(
+        caseId,
+        [referenceDesign, snippet].join("\n\n"),
+      );
+
+      expect(verdictFor(findings, expectedFindingId), snippet).toBe(
+        "contradicted",
+      );
+      expect(verdictForFindings(findings), snippet).toBe("red");
+    }
   });
 });

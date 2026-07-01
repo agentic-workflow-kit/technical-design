@@ -22,7 +22,8 @@
       "must_include_any": [
         "one active booking per resident",
         "at most one active booking"
-      ]
+      ],
+      "must_not_include_any": ["Residents may keep multiple active bookings"]
     },
     {
       "id": "FACT-003",
@@ -37,6 +38,10 @@
         "in_use",
         "completed",
         "cancelled"
+      ],
+      "must_not_include_any": [
+        "Notification Delivery owns Booking state transitions",
+        "Notification Delivery owns booking lifecycle"
       ]
     },
     {
