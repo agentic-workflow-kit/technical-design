@@ -37,6 +37,11 @@ Use diagrams only to explain approved entities, flows, lifecycles, or boundaries
 to add a new entity, seam, state, or dependency, record it as a design decision before treating it as
 part of the architecture.
 
+Diagrams also carry an altitude: an overview or parent diagram shows only its own document's
+skeleton, and a child diagram zooms into the one piece it owns. Detail that belongs to a child does
+not cascade up into the overview — a hairball of crossing, labeled edges is a defect, not rigor — and
+no diagram may draw a flow the system does not actually perform.
+
 ## 7. Review proposes, user disposes
 
 Review never silently edits a design. It emits suggestions with severity, lens, evidence, and a

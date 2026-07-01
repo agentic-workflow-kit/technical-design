@@ -71,6 +71,8 @@ Check:
   absent from the approved system model or decision log;
 - diagrams trace to approved entities, flows, lifecycles, or boundaries and do not change
   architecture without a decision;
+- overview diagrams stay at skeleton altitude and do not duplicate detail the child document owns;
+  no arrow implies a flow the system does not perform;
 - `Planner Handoff Summary` facts do not contradict the approved system model.
 
 Blocking findings include missing approval artifacts, unapproved architecture additions, or planner
