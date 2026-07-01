@@ -1,0 +1,74 @@
+{
+  "case_id": "case-fineract-loan-lifecycle-v1",
+  "contexts": [
+    {
+      "id": "CTX-001",
+      "name": "Loan Account Lifecycle",
+      "source_refs": ["SRC-002", "SRC-003", "SRC-004"],
+      "owns": [
+        "loan status transitions",
+        "repayment posting",
+        "transaction dates"
+      ],
+      "reads": ["loan product template", "charge validation outcomes"],
+      "does_not_own": ["loan product configuration", "credit scoring"],
+      "must_include_all": [
+        "Loan Account Lifecycle owns loan status transitions",
+        "repayment posting",
+        "transaction dates"
+      ],
+      "must_not_include_any": [
+        "Loan Account Lifecycle owns product configuration",
+        "Loan Account Lifecycle owns loan product configuration",
+        "Loan Account Lifecycle owns credit scoring"
+      ]
+    },
+    {
+      "id": "CTX-002",
+      "name": "Loan Charges",
+      "source_refs": ["SRC-005", "SRC-006", "SRC-007", "SRC-008"],
+      "owns": [
+        "loan-account charge attachment",
+        "charge validation",
+        "waive and pay commands"
+      ],
+      "reads": ["loan lifecycle status", "loan product charge defaults"],
+      "does_not_own": ["loan product template", "accounting journal entries"],
+      "must_include_all": [
+        "Loan Charges owns loan-account charge attachment",
+        "charge validation",
+        "waive and pay commands"
+      ],
+      "must_not_include_any": [
+        "Loan Charges owns loan product template",
+        "Loan Charges owns accounting journal entries"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Slash-separated waive/pay command wording",
+          "must_include_all": [
+            "Loan Charges",
+            "owns loan-account charge attachment",
+            "charge validation",
+            "waive/pay commands"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CTX-003",
+      "name": "Accounting Integration",
+      "source_refs": ["SRC-009"],
+      "owns": ["journal entry posting", "accrual processing"],
+      "reads": ["loan transactions", "business events"],
+      "does_not_own": ["loan account state transitions"],
+      "must_include_all": [
+        "Accounting Integration owns journal entry posting",
+        "accrual processing"
+      ],
+      "must_not_include_any": [
+        "Accounting Integration owns loan account state transitions"
+      ]
+    }
+  ]
+}

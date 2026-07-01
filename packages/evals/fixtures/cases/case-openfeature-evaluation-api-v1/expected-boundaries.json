@@ -1,0 +1,55 @@
+{
+  "case_id": "case-openfeature-evaluation-api-v1",
+  "contexts": [
+    {
+      "id": "CTX-001",
+      "name": "Evaluation API",
+      "source_refs": ["SRC-001", "SRC-002", "SRC-005"],
+      "owns": [
+        "vendor-agnostic flag evaluation",
+        "no-op provider fallback",
+        "provider registration"
+      ],
+      "reads": ["provider resolution results", "evaluation context"],
+      "does_not_own": ["flag management UI", "application business logic"],
+      "must_include_all": [
+        "Evaluation API owns vendor-agnostic flag evaluation",
+        "no-op provider fallback",
+        "provider registration"
+      ],
+      "must_not_include_any": [
+        "Evaluation API owns flag management UI",
+        "Evaluation API owns application business logic"
+      ]
+    },
+    {
+      "id": "CTX-002",
+      "name": "Provider Adapter",
+      "source_refs": ["SRC-003", "SRC-004"],
+      "owns": ["backend flag resolution", "provider interface"],
+      "reads": ["flag management system", "evaluation context"],
+      "does_not_own": [
+        "application product decisions",
+        "evaluation API resolution contract"
+      ],
+      "must_include_all": [
+        "Provider Adapter owns backend flag resolution",
+        "provider interface"
+      ],
+      "must_not_include_any": [
+        "Provider Adapter owns application product decisions",
+        "Provider owns application business logic"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Provider naming",
+          "must_include_all": [
+            "Provider",
+            "owns backend flag resolution",
+            "adapter"
+          ]
+        }
+      ]
+    }
+  ]
+}

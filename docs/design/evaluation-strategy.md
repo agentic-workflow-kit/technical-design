@@ -169,7 +169,7 @@ packages/evals/results/<run-id>/
 Reference designs are comparison anchors, not exact targets. A generated design can pass when it
 preserves required facts and makes defensible alternative boundary choices.
 
-Current status: three self-contained cases are committed under `packages/evals/fixtures/cases/`.
+Current status: seven self-contained cases are committed under `packages/evals/fixtures/cases/`.
 Their reference designs are intentionally compact anchors, not full canonical-template outputs. The
 deterministic grader uses source-visible expected facts and boundaries, accepted alternatives, and
 concept groups. Default boundary coverage requires local ownership evidence instead of scattered

@@ -1,0 +1,109 @@
+{
+  "case_id": "case-kubernetes-sidecar-containers-v1",
+  "facts": [
+    {
+      "id": "FACT-001",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-001", "SRC-002"],
+      "description": "Sidecars are restartable init containers declared under initContainers with restartPolicy Always.",
+      "must_include_any": [
+        "restartable init containers",
+        "special init containers"
+      ],
+      "must_include_all": ["initContainers", "restartPolicy: Always"],
+      "must_not_include_any": [
+        "sidecars are ordinary app containers",
+        "sidecars are regular app containers",
+        "containers field owns sidecar lifecycle"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Singular special init container wording",
+          "must_include_all": [
+            "special init container",
+            "initContainers",
+            "restartPolicy: Always"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "FACT-002",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-003"],
+      "description": "Init-container ordering is preserved for sidecar-style init containers.",
+      "must_include_any": [
+        "ordering guarantees",
+        "init-container ordering",
+        "starts the next init container"
+      ],
+      "must_include_all": ["started", "next init container"]
+    },
+    {
+      "id": "FACT-003",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-004"],
+      "description": "Sidecars can restart independently of app and init containers.",
+      "must_include_any": [
+        "restarted independently",
+        "independent lifecycles",
+        "started, stopped, or restarted independently"
+      ],
+      "must_include_all": ["app containers"]
+    },
+    {
+      "id": "FACT-004",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-005"],
+      "description": "Sidecar termination waits until main app containers stop and then uses reverse spec order.",
+      "must_include_any": ["termination", "Pod termination"],
+      "must_include_all": ["main app containers", "reverse spec order"],
+      "must_not_include_any": [
+        "sidecars must finish before pod termination",
+        "sidecars terminate before main containers",
+        "sidecars must complete before main containers stop"
+      ]
+    },
+    {
+      "id": "FACT-005",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-006"],
+      "description": "Sidecars do not prevent Job completion after the main container finishes.",
+      "must_include_any": [
+        "does not prevent Job completion",
+        "does not block Job completion"
+      ],
+      "must_include_all": ["main container finishes"]
+    },
+    {
+      "id": "FACT-006",
+      "category": "constraint",
+      "severity": "recommended",
+      "source_refs": ["SRC-007", "SRC-008"],
+      "description": "Readiness and resource accounting concerns remain visible.",
+      "must_include_any": ["readiness", "readiness probes"],
+      "must_include_all": ["resource accounting"]
+    },
+    {
+      "id": "FACT-007",
+      "category": "non-goal",
+      "severity": "critical",
+      "source_refs": ["SRC-009"],
+      "description": "The case must not invent a new workload API or collapse sidecars into ordinary app containers.",
+      "must_include_any": ["out of scope", "non-goal", "No new workload API"],
+      "must_include_all": ["workload API", "app containers"],
+      "must_not_include_any": [
+        "SidecarWorkload API",
+        "SidecarWorkload API is selected",
+        "Use a new workload API",
+        "new workload API for sidecars",
+        "sidecars are ordinary app containers"
+      ]
+    }
+  ]
+}

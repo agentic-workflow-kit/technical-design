@@ -1,0 +1,37 @@
+{
+  "case_id": "case-cloudevents-core-contract-v1",
+  "contexts": [
+    {
+      "id": "CTX-001",
+      "name": "Event Contract",
+      "source_refs": ["SRC-001", "SRC-002", "SRC-003", "SRC-004", "SRC-007"],
+      "owns": [
+        "CloudEvents context attributes",
+        "event data separation",
+        "JSON event-format compatibility"
+      ],
+      "reads": ["domain payload schemas", "transport constraints"],
+      "does_not_own": ["domain payload lifecycle", "broker operations"],
+      "must_include_all": [
+        "Event Contract owns CloudEvents context attributes",
+        "event data separation",
+        "JSON event-format compatibility"
+      ],
+      "must_not_include_any": [
+        "Event Contract owns domain payload lifecycle",
+        "Event Contract owns broker operations"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "CloudEvents Contract naming",
+          "must_include_all": [
+            "CloudEvents Contract",
+            "owns context attributes",
+            "event data separation",
+            "JSON format"
+          ]
+        }
+      ]
+    }
+  ]
+}
