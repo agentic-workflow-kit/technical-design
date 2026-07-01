@@ -55,6 +55,12 @@ requirements to design sections, invariant operands to declared fields, failure 
 catalogs, approved system model to authored sections, public APIs to export lines, and boundary rules
 to seeded violations.
 
+Reconstruction uses the right substrate. Runtime coverage proves runtime code, type/compile fixtures
+prove erased or type-only contracts, static rules prove dependency direction, seeded negative fixtures
+prove the gate can fail, and manual review proves only the reviewed claim. A design that reports a
+percentage, pass/fail label, or planning-ready status without naming that substrate is still
+unproven.
+
 ## 9. Intent becomes enforceable
 
 A settled design must identify which rules are enforceable and which are manual review obligations.

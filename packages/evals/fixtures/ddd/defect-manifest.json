@@ -105,6 +105,51 @@
         "lesson_ref": "none",
         "gate_ref": "DDD review rubric: A design marks ready for planning without a `Planner Handoff Summary` that names, or explicitly marks `None` with source-backed rationale, every required handoff category: `SRC`, `CTX`, `INV`, `SURF`, `FAIL`, `OBS`, `ENF`, `DEL`, `SEQ`, `FILE`, `VAL`, and `STOP`."
       }
+    },
+    {
+      "id": "source-invisible-handoff-fact",
+      "file": "source-invisible-handoff-fact.md",
+      "required_class": "Source-invisible planner handoff fact",
+      "catching_surface": "review-rubric",
+      "rubric_evidence": "A planner-facing fact cites no visible product, design, source, or decision reference and can only be justified from hidden context or methodology-private prose.",
+      "required_fix": "cite a visible product, design, source, or decision reference for the planner-facing fact, or remove it from the planning-ready handoff",
+      "expected_suggestion": {
+        "severity": "blocking",
+        "lens": "architecture-enforceability",
+        "dimension": "delivery-inputs",
+        "lesson_ref": "LSN-017",
+        "gate_ref": "DDD review rubric: A planner-facing fact cites no visible product, design, source, or decision reference and can only be justified from hidden context or methodology-private prose."
+      }
+    },
+    {
+      "id": "missing-producer-source-closure",
+      "file": "missing-producer-source-closure.md",
+      "required_class": "Missing producer/source closure",
+      "catching_surface": "review-rubric",
+      "rubric_evidence": "A public surface, produced record, failure token, observability event, or catalog value lacks a single producer/source authority.",
+      "required_fix": "name the single producer/source authority for every consumed public surface, produced record, failure token, observability event, or catalog value",
+      "expected_suggestion": {
+        "severity": "blocking",
+        "lens": "architecture-enforceability",
+        "dimension": "public-api",
+        "lesson_ref": "LSN-018",
+        "gate_ref": "DDD review rubric: A public surface, produced record, failure token, observability event, or catalog value lacks a single producer/source authority."
+      }
+    },
+    {
+      "id": "proof-substrate-mismatch",
+      "file": "proof-substrate-mismatch.md",
+      "required_class": "Proof-substrate mismatch",
+      "catching_surface": "review-rubric",
+      "rubric_evidence": "A validation, coverage, or enforcement claim does not name the proof substrate that the standing gate actually exercises.",
+      "required_fix": "name the proof substrate that the standing gate actually exercises for each validation, coverage, or enforcement claim",
+      "expected_suggestion": {
+        "severity": "blocking",
+        "lens": "architecture-enforceability",
+        "dimension": "enforceability",
+        "lesson_ref": "LSN-019",
+        "gate_ref": "DDD review rubric: A validation, coverage, or enforcement claim does not name the proof substrate that the standing gate actually exercises."
+      }
     }
   ]
 }

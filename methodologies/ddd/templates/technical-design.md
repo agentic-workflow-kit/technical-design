@@ -41,10 +41,10 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 |---|---|---|---|
 | CTX-001 | Context and boundary | <ownership, reads, does-not-own, and dependency direction> | <SRC-*> |
 | INV-001 | Invariant and lifecycle | <guarded predicate/state transition, source operands, owning authority> | <SRC-*> |
-| SURF-001 | API and surface | <public API, port, adapter, event, command, data, or integration surface> | <SRC-*> |
-| FAIL-001 | Failure | <failure mode, token, degraded behavior, retry, or recovery authority> | <SRC-*> |
-| OBS-001 | Observability | <event, metric, log, audit, or trace record> | <SRC-*> |
-| ENF-001 | Enforcement | <test, static rule, seeded violation, manual gate, or manual-only rationale> | <SRC-*> |
+| SURF-001 | API and surface | <public API, port, adapter, event, command, data, or integration surface, producer authority, and exposure proof> | <SRC-*> |
+| FAIL-001 | Failure | <failure mode, producer-owned token, degraded behavior, retry, or recovery authority> | <SRC-*> |
+| OBS-001 | Observability | <producer-owned event, metric, log, audit, or trace record> | <SRC-*> |
+| ENF-001 | Enforcement | <test, static rule, seeded violation, manual gate, proof substrate, or manual-only rationale> | <SRC-*> |
 | DEL-001 | Delivery planning | <candidate story area, boundary, expected outcome, facts preserved> | <SRC-*> |
 
 ### Sequencing, Contention, Validation, and Stops
@@ -157,19 +157,29 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 |---|---|---|---|---|
 | <port/API/export> | <domain port/public export/adapter> | <context> | <consumers> | <import test/rule/manual> |
 
-## 11. Data, Query, and Consistency
+## 11. Source and Producer Closure
+
+Use this section for produced obligations that Planning or implementation must preserve. Consumers
+must cite producer-owned shapes verbatim instead of inventing stronger tokens, events, fields, or
+surfaces.
+
+| Produced obligation | Producer/source authority | Consumers | Closure proof |
+|---|---|---|---|
+| <public symbol / event / failure token / audit record / metric / data field> | <SRC-* / owning context / producer catalog / resolver output> | <consumer contexts or adapters> | <export/import test, catalog fixture, route test, static rule, or manual gate> |
+
+## 12. Data, Query, and Consistency
 
 - **Write model:** <transaction boundary, idempotency, concurrency>
 - **Read model:** <queries, projections, freshness>
 - **Consistency:** <strong/eventual/manual reconciliation>
 
-## 12. Failure, Observability, Migration, and Deploy
+## 13. Failure, Observability, Migration, and Deploy
 
 - **Failure modes:** <dependency failures, degraded states, fail-closed behavior>
 - **Observability:** <events, metrics, logs, audit records>
 - **Migration/deploy:** <schema/data/config/rollout/rollback impacts>
 
-## 13. Diagrams
+## 14. Diagrams
 
 Add Mermaid diagrams only when they explain approved entities, flows, lifecycles, or boundaries.
 Diagrams must not introduce architecture without a decision-log entry.
@@ -183,13 +193,13 @@ flowchart LR
     A["approved entity"] --> B["approved seam"]
 ```
 
-## 14. Testing and Enforcement
+## 15. Testing and Enforcement
 
-| Claim | Proof | Standing gate |
-|---|---|---|
-| <boundary/invariant/public API> | <test/fixture/static rule> | <command or CI lane> |
+| Claim | Proof substrate | Proof | Standing gate |
+|---|---|---|---|
+| <boundary/invariant/public API> | <runtime test / type fixture / static rule / seeded negative / documentation review / manual-only> | <test/fixture/static rule/manual review evidence> | <command or CI lane> |
 
-## 15. Delivery Inputs
+## 16. Delivery Inputs
 
 - **Candidate story areas:** <list>
 - **Sequencing constraints:** <producer before consumer constraints>
@@ -197,6 +207,6 @@ flowchart LR
 - **Validation expectations:** <commands/gates>
 - **Stop conditions:** <when implementation should stop and return to design>
 
-## 16. Risks and Deferred Decisions
+## 17. Risks and Deferred Decisions
 
 - <risk, deferred suggestion, or accepted tradeoff with decision id>

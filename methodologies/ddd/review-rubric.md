@@ -10,7 +10,10 @@ Blocking findings:
 - A domain or application layer imports concrete persistence, provider SDKs, delivery framework code,
   or another context's internals.
 - A public API is promised in prose but no public export/import surface or import test is named.
+- A planner-facing fact cites no visible product, design, source, or decision reference and can only be justified from hidden context or methodology-private prose.
+- A public surface, produced record, failure token, observability event, or catalog value lacks a single producer/source authority.
 - An enforcement rule has no seeded violation or standing gate.
+- A validation, coverage, or enforcement claim does not name the proof substrate that the standing gate actually exercises.
 - A proof claim relies only on a manual spot check when the design claims durable enforcement.
 - A design marks ready for planning without a `Planner Handoff Summary` that names, or explicitly marks `None` with source-backed rationale, every required handoff category: `SRC`, `CTX`, `INV`, `SURF`, `FAIL`, `OBS`, `ENF`, `DEL`, `SEQ`, `FILE`, `VAL`, and `STOP`.
 - A required handoff category is blank, prose-only, unchecked, or `TBD`.
@@ -20,6 +23,8 @@ Recommended findings:
 - Boundary rules are enforceable but not named in a reusable enforcement map.
 - Testing does not distinguish runtime tests, type tests, static checks, and manual review.
 - Observability does not name the event, metric, audit record, or log shape needed for operations.
+- Review suggestions cite hidden prior-art context instead of visible product, design, source, or
+  current code evidence.
 - Planner handoff facts exist but are duplicated inconsistently between the handoff summary and
   methodology-specific sections.
 

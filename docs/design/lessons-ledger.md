@@ -30,6 +30,10 @@ or eval. A lesson with no cover is an open production-readiness gap.
 | LSN-014 | A single large design document can become structurally wrong before anyone agrees what files should own. | Flow contract: `DocStructurePlan`; author skill requires approved docs structure before durable docs. | covered |
 | LSN-015 | Diagrams can smuggle in unapproved architecture changes. | Principles: diagrams explain, not decide; review lens: agreement integrity. | covered |
 | LSN-016 | An overview diagram can pass a traceability check edge-by-edge and still fail a reader by duplicating child-doc detail or drawing untaken flows. | Principle: diagrams carry altitude (skeleton vs. zoom); review lens: agreement integrity. | covered |
+| LSN-017 | Planner-facing facts can become hidden requirements when they cite no visible product, design, source, or decision reference. | Handoff contract: fact closure; DDD rubric: source-visible planner facts; DDD eval for source-invisible handoff fact. | covered |
+| LSN-018 | Produced records, public symbols, failure tokens, observability events, or catalog values can be consumed before any producer/source owns them. | DDD template: Source and Producer Closure; DDD rubric: producer/source authority; DDD eval for missing producer/source closure. | covered |
+| LSN-019 | A validation or coverage claim can pass vacuously when the standing gate exercises the wrong substrate. | DDD template: proof-substrate testing table; DDD rubric: proof-substrate claim; DDD eval for proof-substrate mismatch. | covered |
+| LSN-020 | Review findings can smuggle in prior-art expectations if their evidence cites hidden context instead of visible product/source facts. | Suggestion format: visible evidence requirement; DDD rubric: hidden-prior-art suggestion finding. | covered |
 
 ## Before adding a new lesson
 

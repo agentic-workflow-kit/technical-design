@@ -252,6 +252,8 @@ function checkMethodology() {
     "AgreedSystemModel approval status",
     "DocStructurePlan approval status",
     "Source-Named Internal Boundaries",
+    "Source and Producer Closure",
+    "Proof substrate",
   ]) {
     assertContains(
       "methodologies/ddd/templates/technical-design.md",
@@ -511,6 +513,17 @@ function checkContractReferences() {
       "source-backed rationale",
       `review surface ${reviewSurface} must require source-backed rationale for None categories`,
     );
+    for (const closureMarker of [
+      "visible product",
+      "producer/source authority",
+      "proof substrate",
+    ]) {
+      assertContains(
+        reviewSurface,
+        closureMarker,
+        `review surface ${reviewSurface} must require ${closureMarker}`,
+      );
+    }
   }
   assertContains(
     "docs/product/README.md",

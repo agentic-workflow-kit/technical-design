@@ -40,7 +40,13 @@ Check:
 - contexts have owns/reads/does-not-own;
 - dependency direction is explicit;
 - public APIs have export/import evidence or tests;
+- planner-facing facts cite visible product, design, source, or decision evidence rather than hidden
+  prior art or methodology-private prose;
+- produced records, public symbols, failure tokens, observability events, and catalog values name
+  one producer/source authority and a closure proof;
 - enforceable boundaries have seeded violations and standing gates;
+- validation, coverage, and enforcement claims name the proof substrate the standing gate actually
+  exercises;
 - manual-only rules are not misrepresented as static enforcement;
 - the `Planner Handoff Summary` names, or explicitly marks `None` with source-backed rationale,
   every required handoff category: `SRC`, `CTX`, `INV`, `SURF`, `FAIL`, `OBS`, `ENF`, `DEL`,
