@@ -148,6 +148,7 @@
         "Messaging and Integration Infrastructure owns customer data",
         "Messaging and Integration Infrastructure owns order state",
         "Messaging and Integration Infrastructure owns credit policy",
+        "Messaging owns credit policy",
         "uses a shared database transaction",
         "uses distributed transactions",
         "uses 2PC",

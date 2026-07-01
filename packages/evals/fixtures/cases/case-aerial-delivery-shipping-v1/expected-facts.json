@@ -96,8 +96,22 @@
       "must_not_include_any": [
         "Accounts owns billing",
         "regulatory compliance workflow is fully defined",
+        "Telemetry owns fleet status",
+        "Telemetry owns drone regulatory workflow",
         "REST API contract is fixed here",
         "production flight safety policy is specified here"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Singular drone regulatory workflow non-goal wording",
+          "must_include_all": [
+            "out of scope",
+            "account internals",
+            "drone regulatory workflow",
+            "exact public APIs",
+            "flight-safety policies"
+          ]
+        }
       ]
     },
     {

@@ -221,6 +221,7 @@
         "shared database transaction is required",
         "distributed transaction is required",
         "2PC is required",
+        "Customer Service and Order Service share one database transaction",
         "uses a shared database transaction",
         "uses distributed transactions",
         "uses 2PC",
