@@ -99,12 +99,16 @@
       "severity": "critical",
       "source_refs": ["SRC-002", "SRC-004"],
       "description": "The saga sends a reserve-credit command to Customer Credit and expects a reply.",
-      "must_include_any": ["reserveCredit command", "asynchronous replies"],
+      "must_include_any": [
+        "reply outcome",
+        "asynchronous replies",
+        "replies with the outcome"
+      ],
       "must_include_all": ["reserveCredit", "Customer Credit"],
       "accepted_alternatives": [
         {
           "label": "Customer Service source-native wording",
-          "must_include_all": ["reserveCredit", "Customer Service"]
+          "must_include_all": ["reserveCredit", "Customer Service", "outcome"]
         }
       ],
       "required_concepts": [
@@ -115,6 +119,16 @@
         {
           "label": "customer-side credit authority",
           "any_of": ["Customer Credit", "Customer Service"]
+        },
+        {
+          "label": "reserve-credit reply or outcome",
+          "any_of": [
+            "reply",
+            "outcome",
+            "asynchronous reply",
+            "APPROVED",
+            "REJECTED"
+          ]
         }
       ]
     },

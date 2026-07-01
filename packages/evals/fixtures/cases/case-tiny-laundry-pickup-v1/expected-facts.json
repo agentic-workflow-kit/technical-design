@@ -125,6 +125,21 @@
       "description": "The service sends lifecycle notifications for booking start, cancellation, and completion.",
       "must_include_any": ["notifications", "lifecycle notifications"],
       "must_include_all": ["starts", "cancelled", "completes"]
+    },
+    {
+      "id": "FACT-011",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-001", "SRC-002", "SRC-003"],
+      "description": "Resident identity or eligibility may prove verification, but it must not own scheduling conflict logic.",
+      "must_include_any": [],
+      "must_not_include_any": [
+        "Identity owns scheduling conflict logic",
+        "Identity owns overlap detection",
+        "Identity owns appliance occupancy decisions",
+        "Resident Verification owns scheduling conflict logic",
+        "Resident Eligibility owns scheduling conflict logic"
+      ]
     }
   ]
 }
