@@ -6,11 +6,11 @@ dist/
 .env
 .codex/
 .claude/
-packages/evals/fixtures/enforce/.dependency-cruiser.js
-packages/evals/fixtures/enforce/.dependency-cruiser.cjs
-packages/evals/results/**
-!packages/evals/results/
-!packages/evals/results/README.md
+evals/fixtures/enforce/.dependency-cruiser.js
+evals/fixtures/enforce/.dependency-cruiser.cjs
+evals/results/**
+!evals/results/
+!evals/results/README.md
 
 # Legacy local eval artifacts from before the package moved to packages/evals.
 internal/evals/fixtures/enforce/.dependency-cruiser.js

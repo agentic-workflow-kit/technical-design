@@ -23,7 +23,7 @@ invariants need them.
   lessons ledger.
 
 Source lives in [`skills/`](skills/), [`methodologies/`](methodologies/),
-[`packages/evals/`](packages/evals/), and [`scripts/`](scripts/).
+[`evals/`](evals/), and [`scripts/`](scripts/).
 
 ---
 

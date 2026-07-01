@@ -33,9 +33,24 @@
     "check:links": "node scripts/check_non_eval.mjs links",
     "check:non-eval": "node scripts/check_non_eval.mjs all",
     "smoke:enforce-generator": "node scripts/smoke_generate_depcruise.mjs",
-    "check": "pnpm lint && pnpm check:non-eval && pnpm smoke:enforce-generator && pnpm --filter @agentic-workflow-kit/eval-kit test && pnpm --filter @agentic-workflow-kit/technical-design-evals check:deterministic"
+    "check": "pnpm lint && pnpm check:non-eval && pnpm smoke:enforce-generator && pnpm --filter @agentic-workflow-kit/eval-kit test && pnpm check:deterministic",
+    "check:deterministic": "pnpm check:eval-static && pnpm eval:unit && pnpm eval:enforce",
+    "check:eval-static": "node scripts/check_eval_static.mjs",
+    "eval:unit": "vitest run evals/tests",
+    "eval:case": "eval-kit run-case --config evals/eval-kit.config.json",
+    "eval:enforce": "node scripts/run_enforce_eval.mjs",
+    "eval:generate": "eval-kit generate --config evals/eval-kit.config.json",
+    "eval:judge": "eval-kit judge-pairwise --config evals/eval-kit.config.json",
+    "eval:judge:coverage": "eval-kit judge-coverage --config evals/eval-kit.config.json",
+    "eval:manual-report": "eval-kit report --config evals/eval-kit.config.json"
   },
   "devDependencies": {
-    "prettier": "^3.6.2"
+    "@agentic-workflow-kit/eval-kit": "workspace:*",
+    "ajv": "^8.17.1",
+    "dependency-cruiser": "^18.0.0",
+    "prettier": "^3.6.2",
+    "promptfoo": "^0.121.17",
+    "typescript": "^6.0.3",
+    "vitest": "^3.2.4"
   }
 }
