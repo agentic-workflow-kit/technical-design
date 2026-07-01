@@ -3,8 +3,7 @@
 A self-contained set of AI skills for technical design: **resolve** required inputs, **agree** the
 high-level system model, **plan** the design document structure, **author** a DDD-first design,
 **review** it in a decision-recording loop, **enforce** its boundaries in CI, and **orchestrate** the
-whole flow. It stands alone today and is shaped so it can slot into the agentic-workflow-kit suite as
-the design stage.
+whole flow. It is fully functional as an independent tool/skills pack and is also shaped to slot seamlessly into the agentic-workflow-kit suite as the design stage.
 
 The framework is **methodology-neutral** at its shell and **DDD-first** in v1. The active methodology
 profile is `methodologies/ddd/`: every design uses strategic DDD vocabulary such as bounded
@@ -16,6 +15,15 @@ invariants need them.
 
 > **Status:** Built and ready for local use. The DDD-first production hardening is encoded in
 > `methodologies/`, `docs/design/lessons-ledger.md`, the skill templates, and the eval fixtures.
+
+## Documentation
+
+- [`docs/product/`](docs/product/) - what this is, where it sits in the suite, and when to use it.
+- [`docs/design/`](docs/design/) - methodology mechanics, profile contract, formats, and the
+  lessons ledger.
+
+Source lives in [`skills/`](skills/), [`methodologies/`](methodologies/),
+[`packages/evals/`](packages/evals/), and [`scripts/`](scripts/).
 
 ---
 
@@ -92,15 +100,6 @@ pnpm check
 skill/profile static checks, Vitest fixture tests, and the seeded `enforce-architecture`
 dependency-cruiser evals. Manual or model-graded evals are run directly through
 `@agentic-workflow-kit/technical-design-evals`, not root scripts.
-
-## Documentation
-
-- [`docs/product/`](docs/product/) - what this is, where it sits in the suite, and when to use it.
-- [`docs/design/`](docs/design/) - methodology mechanics, profile contract, formats, and the
-  lessons ledger.
-
-Source lives in [`skills/`](skills/), [`methodologies/`](methodologies/),
-[`packages/evals/`](packages/evals/), and [`scripts/`](scripts/).
 
 ## Methodology model
 
