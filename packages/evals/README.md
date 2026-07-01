@@ -47,6 +47,9 @@ The Promptfoo/Codex pilot design lives in
 - Public API exposure gap.
 - Vacuous enforcement rule without seeded violation.
 - Prose-only or empty planner handoff.
+- Source-invisible planner handoff fact.
+- Missing producer/source closure.
+- Proof-substrate mismatch.
 
 The current deterministic DDD defect classes are declared in `fixtures/ddd/defect-manifest.json`. Static
 checks verify that each initial defect class points to an existing fixture, a known lesson, and

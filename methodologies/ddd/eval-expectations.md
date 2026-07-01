@@ -10,6 +10,9 @@ The DDD profile is not trusted until eval fixtures prove the skills catch common
 - Public API promised but not exposed.
 - Vacuous enforcement rule without a seeded violation.
 - Prose-only or empty planner handoff.
+- Source-invisible planner handoff fact.
+- Missing producer/source closure.
+- Proof-substrate mismatch.
 
 ## Grading expectations
 

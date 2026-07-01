@@ -13,7 +13,9 @@ never edits. They become design changes only after the user disposes them and th
   bounded context, invariant, boundary, public API, consistency, failure, enforceability, delivery
   inputs, or another schema dimension.
 - `location` - design section, source path, use case, or boundary.
-- `evidence` - the specific design/source evidence supporting the finding.
+- `evidence` - the specific visible design, product, source, or current code evidence supporting the
+  finding. Do not cite hidden prior art, private reviewer memory, or methodology-only vocabulary as
+  the sole evidence for a blocking suggestion.
 - `finding` - what is wrong or missing.
 - `proposed_fix` - concrete fix, not automatically applied.
 - `rationale` - why it matters.

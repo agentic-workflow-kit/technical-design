@@ -35,27 +35,27 @@ round: 2
 
 ### Required Planning Facts
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | CTX-001 | Context and boundary | Payment Authorization owns authorization state, idempotency decisions, and failure tokens. It reads order total and customer payment method reference, and does not own order fulfillment or provider settlement. | SRC-001 |
 | INV-001 | Invariant and lifecycle | Payment attempts authorize only from pending state. Operands: `PaymentAttempt.status` and `AuthorizePayment` command. | SRC-001 |
 | INV-002 | Invariant and lifecycle | Idempotency key is single-writer. Operands: `command.idempotencyKey` and `stored attempt.idempotencyKey`. | SRC-001 |
-| SURF-001 | API and surface | `PaymentGatewayPort` isolates provider authorization behind a domain/application port with contract tests. | SRC-001 |
-| SURF-002 | API and surface | `PaymentAttemptRepository` is the persistence port; domain code must not import infrastructure adapters. | SRC-001 |
-| FAIL-001 | Failure | Gateway timeout, duplicate attempt, and invalid transition map to owned failure tokens including `payment-state-invalid` and `duplicate-payment-attempt`. | SRC-001 |
-| OBS-001 | Observability | Emit `payment_authorization_requested`, `payment_authorization_completed`, and `payment_authorization_failed`. | SRC-001 |
-| ENF-001 | Enforcement | Architecture rule `no-domain-to-infrastructure` includes a seeded violation at `src/domain/__architecture__/domain-imports-infrastructure.seed.ts`. | SRC-001 |
+| SURF-001 | API and surface | `PaymentGatewayPort` is produced by Payment Authorization and isolates provider authorization behind a domain/application port with contract tests. | SRC-001 |
+| SURF-002 | API and surface | `PaymentAttemptRepository` is the persistence port produced by Payment Authorization; domain code must not import infrastructure adapters. | SRC-001 |
+| FAIL-001 | Failure | Payment Authorization owns gateway timeout, duplicate attempt, and invalid transition tokens including `payment-state-invalid` and `duplicate-payment-attempt`. | SRC-001 |
+| OBS-001 | Observability | Payment Authorization emits `payment_authorization_requested`, `payment_authorization_completed`, and `payment_authorization_failed`. | SRC-001 |
+| ENF-001 | Enforcement | Static import rule `no-domain-to-infrastructure` includes a seeded violation at `src/domain/__architecture__/domain-imports-infrastructure.seed.ts`. | SRC-001 |
 | DEL-001 | Delivery planning | Story candidate: implement PaymentAttempt aggregate and owned failure tokens before adapters. Preserves `INV-001`, `INV-002`, and `FAIL-001`. | SRC-001 |
 | DEL-002 | Delivery planning | Story candidate: add gateway and repository ports plus contract tests. Preserves `SURF-001` and `SURF-002`. | SRC-001 |
 | DEL-003 | Delivery planning | Story candidate: add infrastructure adapters and architecture gate seed after domain ports exist. Preserves `ENF-001`. | SRC-001 |
 
 ### Sequencing, Contention, Validation, and Stops
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | SEQ-001 | Sequencing and dependency | `DEL-001` must precede `DEL-002`; `DEL-002` must precede `DEL-003`. Do not parallelize adapter work before ports and aggregate tests land. | DEL-001, DEL-002, DEL-003 |
 | FILE-001 | File contention | Public domain index and architecture config are shared surfaces; serialize changes that touch exports or dependency rules. | ENF-001 |
-| VAL-001 | Validation | Expected evidence: aggregate unit tests, gateway port contract tests, `check:architecture`, and the seeded dependency violation failure. | INV-001, INV-002, SURF-001, ENF-001 |
+| VAL-001 | Validation | Expected evidence: runtime aggregate unit tests, gateway port contract tests, static `check:architecture`, and the seeded dependency violation failure. | INV-001, INV-002, SURF-001, ENF-001 |
 | STOP-001 | Stop condition | Stop if settlement or fulfillment behavior is pulled into this context. | CTX-001 |
 | STOP-002 | Stop condition | Stop if replay or audit requirements make event sourcing necessary, because `D-004` deferred that choice. | SRC-002 |
 
@@ -165,20 +165,29 @@ gateway and audit table provide enough history for v1.
 | PaymentGatewayPort | domain/application port | Payment Authorization | provider adapter | port contract test |
 | PaymentAttemptRepository | repository port | Payment Authorization | infrastructure adapter | no-domain-to-infrastructure |
 
-## 11. Data, Query, and Consistency
+## 11. Source and Producer Closure
+
+| Produced obligation | Producer/source authority | Consumers | Closure proof |
+|---|---|---|---|
+| `PaymentGatewayPort` | Payment Authorization from SRC-001 | provider adapter | port contract test |
+| `PaymentAttemptRepository` | Payment Authorization from SRC-001 | repository adapter | port contract test and import-boundary rule |
+| `payment-state-invalid`, `duplicate-payment-attempt` | Payment Authorization failure-token catalog from SRC-001 | checkout flow, route handler, observability mapper | aggregate unit tests |
+| payment authorization audit events | Payment Authorization observability requirements from SRC-001 | operations dashboards and logs | runtime event tests |
+
+## 12. Data, Query, and Consistency
 
 - **Write model:** PaymentAttempt aggregate is the transaction boundary.
 - **Read model:** status projection reads committed attempts.
 - **Consistency:** strong for attempt state, eventual for analytics.
 
-## 12. Failure, Observability, Migration, and Deploy
+## 13. Failure, Observability, Migration, and Deploy
 
 - **Failure modes:** gateway timeout, duplicate attempt, invalid transition.
 - **Observability:** payment_authorization_requested, payment_authorization_completed,
   payment_authorization_failed.
 - **Migration/deploy:** add payment_attempts table and idempotency key index.
 
-## 13. Diagrams
+## 14. Diagrams
 
 ```mermaid
 stateDiagram-v2
@@ -189,12 +198,12 @@ stateDiagram-v2
 
 The diagram only shows approved lifecycle states from `AgreedSystemModel`.
 
-## 14. Testing and Enforcement
+## 15. Testing and Enforcement
 
-| Claim | Proof | Standing gate |
-|---|---|---|
-| domain never imports infrastructure | seeded dependency violation | check:architecture |
-| invalid transition fails closed | aggregate unit test | test |
+| Claim | Proof substrate | Proof | Standing gate |
+|---|---|---|---|
+| domain never imports infrastructure | static rule plus seeded negative | seeded dependency violation | check:architecture |
+| invalid transition fails closed | runtime test | aggregate unit test | test |
 
 ### Enforcement Map
 
@@ -215,7 +224,7 @@ The diagram only shows approved lifecycle states from `AgreedSystemModel`.
 }
 ```
 
-## 15. Delivery Inputs
+## 16. Delivery Inputs
 
 - **Candidate story areas:** aggregate and tokens, gateway port, repository adapter, architecture gate.
 - **Sequencing constraints:** aggregate and failure token catalog before adapters.
@@ -223,6 +232,6 @@ The diagram only shows approved lifecycle states from `AgreedSystemModel`.
 - **Validation expectations:** unit tests, contract tests, check:architecture.
 - **Stop conditions:** stop if settlement or fulfillment behavior is pulled into this context.
 
-## 16. Risks and Deferred Decisions
+## 17. Risks and Deferred Decisions
 
 - D-004 deferred event sourcing until replay/audit requirements exceed the gateway plus audit table.

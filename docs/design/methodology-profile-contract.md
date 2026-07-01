@@ -41,9 +41,16 @@ authoring vocabulary is not DDD. The profile must produce:
 - stable IDs for source references and planner-facing facts;
 - explicit context, boundary, invariant, API/surface, failure, observability, enforcement, and
   delivery-planning facts;
+- producer/source closure for public surfaces, produced records, failure tokens, observability
+  events, and other shapes a later planner or implementer must preserve;
+- predicate operand closure for relational or compound invariants;
+- proof-substrate labels for validation, coverage, and enforcement claims so a reviewer can tell
+  whether the proof is runtime, type/compile, static, seeded negative, documentation review, or
+  manual-only;
 - sequencing, dependency, file-contention, validation, and stop-condition facts;
 - review guidance that treats missing approvals, unapproved entity/seam additions, blank handoffs,
-  prose-only handoffs, or methodology-private handoffs as blocking.
+  prose-only handoffs, methodology-private handoffs, source-invisible handoff facts, and
+  source/producer closure gaps as blocking.
 
 The profile may add or rename methodology-specific sections, but Planning consumes the handoff
 contract rather than the profile's private concepts.

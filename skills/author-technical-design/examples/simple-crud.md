@@ -34,23 +34,23 @@ round: 1
 
 ### Required Planning Facts
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | CTX-001 | Context and boundary | Profile Settings owns editable profile fields and validation language. It reads authenticated user id and does not own identity provider lifecycle or billing profile. | SRC-001 |
 | INV-001 | Invariant and lifecycle | Requested contact email must be syntactically valid and unique against the existing user email index. | SRC-001 |
-| SURF-001 | API and surface | `updateProfileSettings` application service is the public application surface used by the route handler. | SRC-001 |
-| FAIL-001 | Failure | Duplicate email maps to `email-already-used`; invalid input and missing user fail without changing profile state. | SRC-001 |
+| SURF-001 | API and surface | `updateProfileSettings` application service is the public application surface produced by Profile Settings and used by the route handler; exposure is covered by the route/service test. | SRC-001 |
+| FAIL-001 | Failure | Profile Settings owns `email-already-used`; invalid input and missing user fail without changing profile state. | SRC-001 |
 | OBS-001 | Observability | Existing request and error logs are sufficient; no new audit event is required for this small settings update. | SRC-001 |
-| ENF-001 | Enforcement | Service-level unit tests prove validation and duplicate-email mapping. No static boundary rule is needed because no new layer boundary is introduced. | SRC-001 |
+| ENF-001 | Enforcement | Service-level runtime unit tests prove validation and duplicate-email mapping. No static boundary rule is needed because no new layer boundary is introduced. | SRC-001 |
 | DEL-001 | Delivery planning | Story candidate: update the profile settings service and route together while preserving `CTX-001`, `INV-001`, and `FAIL-001`. | SRC-001 |
 
 ### Sequencing, Contention, Validation, and Stops
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | SEQ-001 | Sequencing and dependency | Single story; no producer-before-consumer dependency. | DEL-001 |
 | FILE-001 | File contention | None expected because this example touches only the profile settings service and route. | SRC-001 |
-| VAL-001 | Validation | Run the package test command with unit coverage for validation and duplicate handling. | ENF-001 |
+| VAL-001 | Validation | Run the package test command; proof substrate is runtime unit tests for validation and duplicate handling. | ENF-001 |
 | STOP-001 | Stop condition | Stop if identity lifecycle or billing ownership is pulled into scope. | CTX-001 |
 
 ### Methodology-Specific Detail
@@ -152,27 +152,34 @@ actor in one transaction. A fake aggregate would add ceremony without protecting
 |---|---|---|---|---|
 | updateProfileSettings | application service | Profile Settings | route handler | service test |
 
-## 11. Data, Query, and Consistency
+## 11. Source and Producer Closure
+
+| Produced obligation | Producer/source authority | Consumers | Closure proof |
+|---|---|---|---|
+| `updateProfileSettings` | Profile Settings service from SRC-001 | route handler | route/service test |
+| `email-already-used` | Profile Settings duplicate-email mapping from SRC-001 | route handler and UI error mapper | unit test |
+
+## 12. Data, Query, and Consistency
 
 - **Write model:** single database transaction.
 - **Read model:** profile read refreshes from primary storage.
 - **Consistency:** strong for the updated row.
 
-## 12. Failure, Observability, Migration, and Deploy
+## 13. Failure, Observability, Migration, and Deploy
 
 - **Failure modes:** invalid input, duplicate email, missing user.
 - **Observability:** existing request/error logs are sufficient.
 - **Migration/deploy:** none.
 
-## 13. Diagrams
+## 14. Diagrams
 
 None. The approved system model is a single service boundary; a diagram would not add clarity.
 
-## 14. Testing and Enforcement
+## 15. Testing and Enforcement
 
-| Claim | Proof | Standing gate |
-|---|---|---|
-| service maps duplicate email to domain error | unit test | package test command |
+| Claim | Proof substrate | Proof | Standing gate |
+|---|---|---|---|
+| service maps duplicate email to domain error | runtime test | unit test | package test command |
 
 ### Enforcement Map
 
@@ -183,7 +190,7 @@ None. The approved system model is a single service boundary; a diagram would no
 }
 ```
 
-## 15. Delivery Inputs
+## 16. Delivery Inputs
 
 - **Candidate story areas:** update profile settings service and route.
 - **Sequencing constraints:** none.
@@ -191,6 +198,6 @@ None. The approved system model is a single service boundary; a diagram would no
 - **Validation expectations:** unit test for validation and duplicate handling.
 - **Stop conditions:** stop if identity lifecycle or billing ownership is pulled into scope.
 
-## 16. Risks and Deferred Decisions
+## 17. Risks and Deferred Decisions
 
 - None.

@@ -351,6 +351,9 @@ const validateDefectManifest = () => {
     "public-api-exposure-gap",
     "unsourced-invariant-operand",
     "vacuous-enforcement",
+    "source-invisible-handoff-fact",
+    "missing-producer-source-closure",
+    "proof-substrate-mismatch",
   ];
 
   const shapeIsValid = validateDefectManifestShape

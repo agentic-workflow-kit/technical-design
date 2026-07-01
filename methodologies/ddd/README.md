@@ -41,8 +41,10 @@ When this profile is active, `author-technical-design` must produce:
 - Commands/use cases and domain behavior.
 - Invariant matrix with source operands.
 - Ports/adapters and public API boundaries.
+- Source and producer closure for public surfaces, produced records, failure tokens, observability
+  events, and catalog values.
 - Failure, consistency, observability, migration/deploy, and testing sections.
-- Enforcement map and delivery inputs.
+- Enforcement map, proof-substrate labels, and delivery inputs.
 
 ## Non-goals
 

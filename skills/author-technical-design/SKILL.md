@@ -116,12 +116,16 @@ must include:
 9. Invariant and state matrix with sourced operands.
 10. Ports, adapters, public APIs, and dependency direction.
 11. Data/query/consistency model.
-12. Failure, observability, migration, and deploy surfaces.
-13. Diagrams when useful, tracing only approved entities, flows, lifecycles, or boundaries.
-14. Testing and enforcement map.
-15. Delivery inputs: story areas, sequencing constraints, file contention, validation expectations,
+12. Source and producer closure for public surfaces, produced records, failure tokens,
+    observability events, catalog values, and other shapes a later planner or implementer must
+    preserve.
+13. Failure, observability, migration, and deploy surfaces.
+14. Diagrams when useful, tracing only approved entities, flows, lifecycles, or boundaries.
+15. Testing and enforcement map with proof-substrate labels for runtime tests, type/compile
+    fixtures, static rules, seeded negatives, documentation review, or manual-only review.
+16. Delivery inputs: story areas, sequencing constraints, file contention, validation expectations,
     and stop conditions.
-16. Risks and deferred decisions.
+17. Risks and deferred decisions.
 
 ## Step 6 - Seed decisions log
 
@@ -141,9 +145,14 @@ Before finalizing, check:
 - Every source-named aggregate, domain service, workflow service, or service candidate has explicit
   ownership treatment, or is recorded as an internal sub-boundary whose owning context is named.
 - Every invariant names concrete operands or states that come from declared sources.
-- Every failure token, state, event, or public field has one owner.
+- Every planner-facing fact has direct or transitive source closure to visible product, design,
+  source, or decision evidence and does not depend on hidden prior art or DDD-only vocabulary.
+- Every failure token, state, event, observability record, catalog value, produced field, or public
+  symbol has one producer/source authority and a closure proof.
 - Every enforceable boundary has an enforcement-map rule and seeded violation.
 - Every non-enforceable rule is called out as manual review or test strategy.
+- Every validation, coverage, and enforcement claim names the proof substrate the standing gate
+  actually exercises.
 - The Planner Handoff Summary distinguishes required handoff facts from DDD-specific detail and is
   concrete enough for later planning without adding scope.
 

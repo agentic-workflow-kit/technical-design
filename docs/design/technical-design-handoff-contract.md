@@ -16,6 +16,28 @@ contain deeper reasoning, but the handoff summary is the contract surface. The h
 until the design records approval of the pre-authoring artifacts: `InputResolution`,
 `AgreedSystemModel`, and `DocStructurePlan`.
 
+## Fact Closure and Proof Posture
+
+Planner-facing facts are useful only when a later reader can reconstruct them from visible sources.
+Every non-`None` handoff fact must have source closure. Core `CTX-*`, `INV-*`, `SURF-*`, `FAIL-*`,
+`OBS-*`, `ENF-*`, and `DEL-*` facts cite `SRC-*` rows directly. Derived `SEQ-*`, `FILE-*`, `VAL-*`,
+and `STOP-*` facts may cite those source-backed fact IDs when the source chain is reconstructable in
+the same handoff; otherwise they cite `SRC-*` rows directly. Hidden prior-art references, private
+methodology vocabulary, or "the implementation will decide" are not valid sources.
+
+Facts that introduce produced obligations need an owner:
+
+- `SURF-*` facts name the public surface, the producing context or adapter, intended consumers, and
+  the exposure proof such as an export/import test, contract test, route test, or manual exposure
+  checklist.
+- `FAIL-*` and `OBS-*` facts name the producer-owned token, event, audit record, metric, log, or
+  trace shape. Consumers cite those shapes; they do not mint stronger or different vocabulary.
+- `INV-*` facts name every predicate operand as a declared field, event, projection, state, or
+  resolver output, not as a broad category.
+- `ENF-*` and `VAL-*` facts state the proof substrate: runtime test, type/compile fixture, static
+  rule, seeded violation, documentation review, or manual-only review. A coverage or enforcement
+  claim that runs over no matching substrate is not evidence.
+
 ## Required Pre-Authoring Artifacts
 
 Every design intended for Planning must preserve these artifacts as sections or referenced files:
@@ -102,22 +124,25 @@ design.
 
 ### Required Planning Facts
 
-The handoff must summarize the facts Planning needs, each with an ID and source. The summary can point
-to methodology sections for details, but it cannot require Planning to infer the fact from prose.
+The handoff must summarize the facts Planning needs, each with an ID and direct source reference. The
+summary can point to methodology sections for details, but it cannot require Planning to infer the
+fact from prose.
 
 | ID | Category | Required content |
 |---|---|---|
 | `CTX-*` | Context and boundary | Ownership, reads, does-not-own boundaries, and dependency direction. |
 | `INV-*` | Invariant and lifecycle | Guarded predicate, state transition, source operands, and owning authority. |
-| `SURF-*` | API and surface | Public exports, commands, ports, adapters, events, data surfaces, and consumers. |
-| `FAIL-*` | Failure | Failure modes, tokens, degraded behavior, retries, and recovery authority. |
-| `OBS-*` | Observability | Event, metric, log, audit, or trace record the implementation must emit or preserve. |
-| `ENF-*` | Enforcement | Static rule, test, seeded violation, manual review gate, or reason a rule is manual-only. |
+| `SURF-*` | API and surface | Public exports, commands, ports, adapters, events, data surfaces, consumers, producer authority, and exposure proof. |
+| `FAIL-*` | Failure | Failure modes, producer-owned tokens, degraded behavior, retries, and recovery authority. |
+| `OBS-*` | Observability | Producer-owned event, metric, log, audit, or trace record the implementation must emit or preserve. |
+| `ENF-*` | Enforcement | Static rule, test, seeded violation, manual review gate, proof substrate, or reason a rule is manual-only. |
 | `DEL-*` | Delivery planning | Candidate story area, implementation boundary, expected outcome, and design facts it must preserve. |
 
 ### Sequencing, Contention, Validation, and Stops
 
-The handoff must state implementation constraints that affect a future execution plan:
+The handoff must state implementation constraints that affect a future execution plan. These derived
+facts may cite source-backed fact IDs such as `DEL-*`, `ENF-*`, `CTX-*`, or `INV-*`, provided the
+source chain remains visible in the handoff.
 
 | ID | Category | Required content |
 |---|---|---|
@@ -161,9 +186,16 @@ A design is not ready for Planning when:
 - a handoff section is blank, says only "see above", or contains broad prose with no stable IDs;
 - authored sections introduce new entities, seams, lifecycle states, diagrams, or planner facts that
   are not in the approved system model or recorded as accepted decisions;
+- planner-facing facts lack direct or transitive source closure, or cite only methodology-private
+  sections that Planning would have to interpret;
+- public surfaces, produced records, failure tokens, or observability events lack a producer/source
+  authority and exposure or emission proof;
+- invariant predicates omit one operand source or cite an input category instead of concrete fields,
+  states, events, projections, or resolver outputs;
 - any `DEL-*` story area lacks source, boundary, validation, or stop-condition references;
 - enforcement claims omit a standing gate, seeded violation, or manual-only rationale;
-- validation expectations are only "run tests" without naming the command or evidence class;
+- validation expectations are only "run tests" without naming the command, evidence class, and proof
+  substrate;
 - sequencing, dependencies, file contention, or stop conditions are omitted without a rationale;
 - methodology-specific sections contain the only copy of a required planner-facing fact.
 
