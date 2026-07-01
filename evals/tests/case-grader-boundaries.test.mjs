@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { gradeBoundaries } from "../hooks.mjs";
+import { gradeBoundaries } from "../adapter.mjs";
 
 const expectedBoundaries = {
   case_id: "case-tiny-laundry-pickup-v1",

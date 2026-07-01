@@ -4,14 +4,17 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { fileURLToPath } from "node:url";
-import { gradeFacts } from "@agentic-workflow-kit/eval-kit";
-import { gradeBoundaries, verdictForFindings } from "../hooks.mjs";
+import { gradeFacts, loadConfig } from "@agentic-workflow-kit/eval-kit";
+import {
+  gradeBoundaries,
+  resolvePointwiseVars,
+  verdictForFindings,
+} from "../adapter.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(__filename), "..");
 
-const casePath = (...parts) =>
-  path.join(packageRoot, "fixtures", "cases", ...parts);
+const casePath = (...parts) => path.join(packageRoot, "cases", ...parts);
 
 const readJson = (...parts) => JSON.parse(fs.readFileSync(casePath(...parts)));
 
@@ -42,6 +45,29 @@ describe("public reference cases", () => {
 
       expect(verdictForFindings(findings), caseId).toBe("green");
     }
+  });
+
+  it("passes the case rubric into pointwise judge variables", async () => {
+    const config = loadConfig(path.join(packageRoot, "eval-kit.config.json"));
+    const caseId = "case-tiny-laundry-pickup-v1";
+    const caseDir = casePath(caseId);
+    const candidatePath = casePath(caseId, "reference-design.md");
+
+    const vars = await resolvePointwiseVars({
+      caseId,
+      caseDir,
+      artifacts: [],
+      candidateContent: readText(caseId, "reference-design.md"),
+      candidatePath,
+      promptVersion: "pointwise-prompt-v1",
+      rubricVersion: "pointwise-coverage-rubric-v1",
+      model: "test-model",
+      provider: "test-provider",
+      resolver: config.pathResolver,
+    });
+
+    expect(vars.case_rubric).toContain("The deterministic grader checks");
+    expect(vars.case_rubric).toContain("allows overlapping active bookings");
   });
 
   it("rejects 2PC as a customer-credit saga contradiction", () => {

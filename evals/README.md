@@ -17,10 +17,10 @@ The implementation plan lives in
 ```
 evals/
   eval-kit.config.json      # Eval suite configuration (entry point)
-  hooks.mjs                 # Domain adapter: grader, reporter, validator, var resolvers
+  adapter.mjs               # Domain adapter: grader, reporter, validator, var resolvers
   rubric.md                 # Judge rubric for pointwise and pairwise semantic evaluation
+  cases/                    # Seven self-contained product-to-design cases
   fixtures/
-    cases/                  # Seven self-contained product-to-design cases
     ddd/                    # DDD defect-class fixtures
     enforce/                # Executable dependency-cruiser enforcement fixtures
     review/                 # Expected review suggestions for defective design
@@ -74,15 +74,15 @@ pnpm eval:enforce          # Deterministic enforce-architecture eval
 Run a single deterministic case:
 
 ```bash
-pnpm eval:case -- --case case-tiny-laundry-pickup-v1 --candidate evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md
+pnpm eval:case -- --case case-tiny-laundry-pickup-v1 --candidate evals/cases/case-tiny-laundry-pickup-v1/reference-design.md
 ```
 
 ## Reading the evals
 
 1. `eval-kit.config.json` — suite config; start here to understand what runs.
-2. `hooks.mjs` — all domain-specific logic in one file.
+2. `adapter.mjs` — all domain-specific logic in one file.
 3. `rubric.md` — judge rubric for semantic evaluation.
-4. `fixtures/cases/README.md` — authoring contract for product-to-design cases.
+4. `cases/README.md` — authoring contract for product-to-design cases.
 5. `results/README.md` — conventions for generated run outputs.
 
 ## Manual Product-to-Design Flow

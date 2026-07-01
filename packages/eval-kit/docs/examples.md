@@ -10,7 +10,7 @@ Run the tiny reference design through deterministic grading:
 ```bash
 pnpm eval:case -- \
   --case case-tiny-laundry-pickup-v1 \
-  --candidate evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md \
+  --candidate evals/cases/case-tiny-laundry-pickup-v1/reference-design.md \
   --run-id verify-tiny-reference
 ```
 
@@ -38,7 +38,7 @@ Blocker findings: 0
 eval-kit run-case \
   --config evals/eval-kit.config.json \
   --case case-tiny-laundry-pickup-v1 \
-  --candidate evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md \
+  --candidate evals/cases/case-tiny-laundry-pickup-v1/reference-design.md \
   --run-id direct-tiny-reference
 ```
 
@@ -95,8 +95,8 @@ export const renderReport = ({ caseId, grades, findings }) => {
 eval-kit validate-fixtures --config evals/eval-kit.config.json
 ```
 
-The kit validates configured case manifests first. If `hooks.validateFixtures` exists, the kit calls
-it with:
+The kit validates discovered case manifests first. If `adapter.validateFixtures` exists, the kit
+calls it with:
 
 ```js
 {
@@ -138,7 +138,7 @@ Requirements:
 
 - `promptfoo` installed in the consumer repo;
 - `codex login status` succeeds;
-- `hooks.resolveGenerationVars` returns variables expected by the prompt.
+- `adapter.resolveGenerationVars` returns variables expected by the prompt.
 
 ## Pointwise Judge
 
@@ -191,8 +191,7 @@ const cases = discoverCaseIds(config);
 await runCase({
   config,
   caseId: cases[0],
-  candidatePath:
-    "evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md",
+  candidatePath: "evals/cases/case-tiny-laundry-pickup-v1/reference-design.md",
   runId: "programmatic-run",
 });
 ```

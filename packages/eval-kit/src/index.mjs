@@ -31,6 +31,7 @@ export {
   gradeFacts,
 } from "./grading.mjs";
 export {
+  configuredCaseManifestPaths,
   resolveCaseManifest,
   discoverCaseIds,
   runCase,

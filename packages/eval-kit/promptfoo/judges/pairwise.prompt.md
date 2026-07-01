@@ -13,6 +13,7 @@ Inputs:
 - Prompt version: `{{prompt_version}}`
 - Rubric version: `{{rubric_version}}`
 - Product/source facts: `{{source_facts}}`
+- Case rubric: `{{case_rubric}}`
 - Expected facts and boundaries: `{{expected_facts}}`
 - Candidate A: `{{candidate_a}}`
 - Candidate B: `{{candidate_b}}`

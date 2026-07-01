@@ -1,7 +1,7 @@
 # Eval Kit Schemas
 
 Bundled schemas live in `packages/eval-kit/schemas/`. They are registered automatically by
-`loadConfig`, then any consumer `schema_roots` are added.
+`loadConfig`, then any optional consumer `schema_roots` are added.
 
 The schema registry is strict:
 
@@ -23,17 +23,25 @@ Required fields:
 - `schema_version`: must be `eval-kit.config.v1`;
 - `suite_id`: stable suite id used in runner ids;
 - `suite_root`: path to suite files, relative to config file;
-- `results_root`: path for run outputs, relative to config file;
-- `schema_roots`: schema directories, relative to config file;
-- `case_manifests`: manifest paths, relative to `suite_root`.
+- `results_root`: path for run outputs, relative to config file.
 
 Optional fields:
 
+- `adapter`: suite adapter module path, relative to `suite_root`;
+- `cases.root`: case directory root, relative to `suite_root`;
+- `cases.include`: immediate case directory patterns to include;
+- `cases.exclude`: immediate case directory patterns to exclude;
+- `methods`: deterministic, generation, judge, and report method settings;
+- `prompt_templates`: generation, pointwise, and pairwise prompt overrides;
+- `schema_roots`: extra schema directories, relative to config file.
+
+Legacy compatibility fields remain accepted:
+
+- `case_manifests`: explicit manifest paths, relative to `suite_root`;
 - `artifact_roles`: suite-defined role names;
 - `runner_defaults`: runner-specific defaults;
 - `graders`: map of grader name to module path;
 - `reporters`: map of reporter name to module path;
-- `prompt_templates`: generation, pointwise, and pairwise prompt overrides;
 - `hooks`: module path for generation, judge, report, and validation hooks.
 
 ### `case-manifest.schema.json`

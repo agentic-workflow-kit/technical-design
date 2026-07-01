@@ -71,7 +71,7 @@ Status: Done.
 
 Implemented:
 
-- Added fixture validation in `evals/hooks.mjs`.
+- Added fixture validation in `evals/adapter.mjs`.
 - Added `fixtures/ddd/defect-manifest.json`.
 - Expanded `fixtures/review/expected-suggestions.json` to complete review suggestion objects.
 - Wired fixture validation into `scripts/check_eval_static.mjs`.
@@ -163,7 +163,7 @@ Recommended OSS tools:
 
 Implemented:
 
-- Added `fixtures/cases/README.md` with case authoring rules and fixture licensing requirements.
+- Added `cases/README.md` with case authoring rules and fixture licensing requirements.
 - Added the initial synthetic, self-contained product-to-design case and later calibrated the
   committed case set to seven cases: `case-aerial-delivery-shipping-v1`,
   `case-cloudevents-core-contract-v1`, `case-customer-credit-order-saga-v1`,

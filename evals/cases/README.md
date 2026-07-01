@@ -47,7 +47,7 @@ and should not grade a favorite decomposition unless the visible sources force i
 ## Case Layout
 
 ```text
-fixtures/cases/<case-id>/
+cases/<case-id>/
   product.md
   source-map.md
   reference-design.md

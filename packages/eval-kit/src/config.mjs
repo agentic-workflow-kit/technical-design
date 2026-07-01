@@ -9,6 +9,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const defaultSchemasRoot = path.resolve(__dirname, "../schemas");
 const defaultPromptsRoot = path.resolve(__dirname, "../promptfoo");
 
+const methodPromptKeyByTemplateKey = {
+  generation: "generate",
+  pointwise_judge: "judge_coverage",
+  pairwise_judge: "judge_pairwise",
+};
+
+const kitPromptAliases = new Set([
+  "@eval-kit/generation",
+  "@eval-kit/pointwise",
+  "@eval-kit/pairwise",
+]);
+
 export const loadConfig = (configFilePath) => {
   const absoluteConfigPath = path.resolve(configFilePath);
   if (!fs.existsSync(absoluteConfigPath)) {
@@ -60,7 +72,7 @@ export const loadConfig = (configFilePath) => {
 
   const schemaRegistry = createSchemaRegistry({ schemaRoots });
 
-  // Expose helper to load dynamic adapters (graders, reporters, hooks)
+  // Expose helper to load dynamic adapters.
   const loadModule = async (relativeOrAbsolutePath, label) => {
     const resolvedPath = path.isAbsolute(relativeOrAbsolutePath)
       ? relativeOrAbsolutePath
@@ -90,12 +102,20 @@ export const loadConfig = (configFilePath) => {
    * @returns {string} absolute path to the prompt template file
    */
   const resolvePromptTemplate = (key, kitFallbackRelative) => {
-    const consumerPath = config.prompt_templates?.[key];
+    const methodKey = methodPromptKeyByTemplateKey[key];
+    const methodPrompt = methodKey ? config.methods?.[methodKey]?.prompt : null;
+    const consumerPath = config.prompt_templates?.[key] ?? methodPrompt;
     if (consumerPath) {
-      return pathResolver.resolveSuitePath(
-        consumerPath,
-        `prompt_templates.${key}`,
-      );
+      if (consumerPath.startsWith("@eval-kit/")) {
+        if (!kitPromptAliases.has(consumerPath)) {
+          throw new Error(`unknown eval-kit prompt alias: ${consumerPath}`);
+        }
+      } else {
+        return pathResolver.resolveSuitePath(
+          consumerPath,
+          `prompt_templates.${key}`,
+        );
+      }
     }
     const fallbackPath = path.resolve(defaultPromptsRoot, kitFallbackRelative);
     if (!fs.existsSync(fallbackPath)) {

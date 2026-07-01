@@ -118,7 +118,7 @@ The implemented boundary separates generic mechanics from the consuming suite:
 
 ```text
 packages/eval-kit/      # generic CLI, schemas, Promptfoo helpers, bundled prompts
-evals/                  # technical-design fixtures, hooks, rubrics, tests, results
+evals/                  # technical-design cases, adapter, rubrics, tests, results
 ```
 
 Generic package name:
@@ -177,7 +177,7 @@ Add `promptfoo` as a development dependency of the eval package and add manual s
 Keep `pnpm check` deterministic-only.
 
 The Promptfoo templates live in `packages/eval-kit/promptfoo/` and suite-specific variables come
-from `evals/hooks.mjs`:
+from `evals/adapter.mjs`:
 
 - Generation suite:
   - Provider: `openai:codex-app-server`.

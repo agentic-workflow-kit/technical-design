@@ -112,6 +112,24 @@ describe("eval-kit schema registry", () => {
     );
   });
 
+  it("resolves method prompt aliases from simplified configs", () => {
+    const config = loadConfig(
+      path.resolve(import.meta.dirname, "../../../evals/eval-kit.config.json"),
+    );
+
+    expect(
+      config.resolvePromptTemplate(
+        "pointwise_judge",
+        "judges/pointwise.prompt.md",
+      ),
+    ).toBe(
+      path.resolve(
+        import.meta.dirname,
+        "../promptfoo/judges/pointwise.prompt.md",
+      ),
+    );
+  });
+
   it("validates pointwise judge results", () => {
     const registry = createSchemaRegistry({
       schemaRoots: [path.resolve(import.meta.dirname, "../schemas")],

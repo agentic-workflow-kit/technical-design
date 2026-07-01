@@ -95,7 +95,7 @@ Implemented first slice:
 - `evals/fixtures/ddd/defect-manifest.json` declares the initial deterministic DDD defect classes, their
   expected catching surface, lesson reference, and exact review-rubric evidence. The manifest may
   grow as future Layer 3 classes move from target strategy to executable fixtures.
-- `evals/hooks.mjs` validates fixtures inside the static check gate so malformed fixture
+- `evals/adapter.mjs` validates fixtures inside the static check gate so malformed fixture
   expectations fail `pnpm check`.
 
 Current status: implemented and gated for the committed review, DDD, planning, enforcement, and case
@@ -144,7 +144,7 @@ flowchart LR
 Case inputs should include:
 
 ```text
-evals/fixtures/cases/<case-id>/
+evals/cases/<case-id>/
   product.md
   source-map.md
   reference-design.md
@@ -169,7 +169,7 @@ evals/results/<run-id>/
 Reference designs are comparison anchors, not exact targets. A generated design can pass when it
 preserves required facts and makes defensible alternative boundary choices.
 
-Current status: seven self-contained cases are committed under `evals/fixtures/cases/`.
+Current status: seven self-contained cases are committed under `evals/cases/`.
 Their reference designs are intentionally compact anchors, not full canonical-template outputs. The
 deterministic grader uses source-visible expected facts and boundaries, accepted alternatives, and
 concept groups. Default boundary coverage requires local ownership evidence instead of scattered
@@ -379,7 +379,7 @@ useful for boundary and ownership comparison, but often need supplementary produ
 Case selection rules:
 
 - Source and reference material used by a case must be committed or snapshotted under
-  `evals/fixtures/cases/<case-id>/`; evals must not depend on live external fetches.
+  `evals/cases/<case-id>/`; evals must not depend on live external fetches.
 - Case IDs and fixture names must stay generic even when source material came from a public project.
 - Each case should include provenance and license notes when source material is derived from a
   public artifact.

@@ -175,6 +175,9 @@ export const resolvePointwiseVars = async ({
       "",
       readText(path.join(resolver.relativeToRepo(caseDir), "source-map.md")),
     ].join("\n"),
+    case_rubric: readText(
+      path.join(resolver.relativeToRepo(caseDir), "rubric.md"),
+    ),
     expected_items: JSON.stringify(expectedItems, null, 2),
     candidate_path: resolver.relativeToRepo(candidatePath),
     candidate: candidateContent,
@@ -246,6 +249,9 @@ export const resolvePairwiseVars = async ({
       "",
       readText(path.join(resolver.relativeToRepo(caseDir), "source-map.md")),
     ].join("\n"),
+    case_rubric: readText(
+      path.join(resolver.relativeToRepo(caseDir), "rubric.md"),
+    ),
     candidate_a_path: resolver.relativeToRepo(candidate_a_path),
     candidate_b_path: resolver.relativeToRepo(candidate_b_path),
     candidate_a,
@@ -719,7 +725,7 @@ export const validateFixtures = async ({ config, manifests }) => {
       )?.groups?.body ?? "";
     assert(
       section.length > 0,
-      `fixtures/cases/${caseId}/grader-notes.md must include a ## Case Purpose section`,
+      `cases/${caseId}/grader-notes.md must include a ## Case Purpose section`,
     );
 
     if (section) {
@@ -732,17 +738,17 @@ export const validateFixtures = async ({ config, manifests }) => {
       for (const field of requiredCasePurposeFields) {
         assert(
           values.has(field),
-          `fixtures/cases/${caseId}/grader-notes.md Case Purpose must include ${field}:`,
+          `cases/${caseId}/grader-notes.md Case Purpose must include ${field}:`,
         );
         assert(
           values.get(field)?.length > 0,
-          `fixtures/cases/${caseId}/grader-notes.md Case Purpose ${field} must not be blank`,
+          `cases/${caseId}/grader-notes.md Case Purpose ${field} must not be blank`,
         );
       }
       const caseType = values.get("case_type");
       assert(
         allowedCaseTypes.has(caseType),
-        `fixtures/cases/${caseId}/grader-notes.md Case Purpose case_type must be one of [${Array.from(allowedCaseTypes).join(", ")}]`,
+        `cases/${caseId}/grader-notes.md Case Purpose case_type must be one of [${Array.from(allowedCaseTypes).join(", ")}]`,
       );
     }
 

@@ -1,7 +1,7 @@
 # Eval Kit Adapter Contract
 
-Eval Kit stays generic by loading consumer modules dynamically. The consumer provides domain
-behavior through graders, reporters, and hooks declared in `eval-kit.config.json`.
+Eval Kit stays generic by loading a consumer adapter dynamically. The consumer provides domain
+behavior through exports from the adapter declared in `eval-kit.config.json`.
 
 ## Loading Rules
 
@@ -10,27 +10,27 @@ Adapter module paths are resolved from `suite_root`.
 ```json
 {
   "suite_root": ".",
-  "graders": {
-    "facts-boundaries": "hooks.mjs"
-  },
-  "reporters": {
-    "markdown": "hooks.mjs"
-  },
-  "hooks": {
-    "module": "hooks.mjs"
+  "adapter": "adapter.mjs",
+  "methods": {
+    "deterministic": {
+      "enabled": true,
+      "grader": "facts-boundaries",
+      "reporter": "markdown"
+    }
   }
 }
 ```
 
-The same module can implement all exports. Larger suites can split graders and reporters into
-separate modules.
+The adapter module can implement all exports. Legacy configs that split graders, reporters, and
+hooks into separate module declarations remain supported.
 
 ## Deterministic Grader
 
 The `run-case` command picks:
 
-- `runner_defaults.grader`, when set; otherwise
-- the first key in `graders`.
+- `methods.deterministic.grader`, when set; otherwise
+- the legacy `runner_defaults.grader`, when set; otherwise
+- the first key in legacy `graders`.
 
 The module must export one of:
 
@@ -97,8 +97,9 @@ The return value is validated with `grades.schema.json`.
 
 The `run-case` command picks:
 
-- `runner_defaults.reporter`, when set; otherwise
-- the first key in `reporters`.
+- `methods.deterministic.reporter`, when set; otherwise
+- the legacy `runner_defaults.reporter`, when set; otherwise
+- the first key in legacy `reporters`.
 
 The module must export one of:
 

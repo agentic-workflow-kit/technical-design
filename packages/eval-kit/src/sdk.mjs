@@ -9,30 +9,87 @@ import {
   runPromptfooRaw,
 } from "./promptfoo.mjs";
 import { aggregateVerdict, criticalBlockerCount } from "./verdict.mjs";
-import { assertSafeId } from "./paths.mjs";
+import { assertSafeId, toPosixPath } from "./paths.mjs";
 
 const DEFAULT_SANDBOX_MODE = "read-only";
 const DEFAULT_APPROVAL_POLICY = "never";
 const RANDOMIZATION_METHOD = "sha256-seed-parity-v1";
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const wildcardPattern = (pattern) =>
+  new RegExp(`^${pattern.split("*").map(escapeRegExp).join(".*")}$`);
+
+const matchesAnyPattern = (value, patterns) =>
+  patterns.some((pattern) => wildcardPattern(pattern).test(value));
+
+export const configuredCaseManifestPaths = (config) => {
+  if (Array.isArray(config.raw.case_manifests)) {
+    return [...config.raw.case_manifests].sort();
+  }
+
+  const casesConfig = config.raw.cases;
+  if (!casesConfig) {
+    return [];
+  }
+
+  const resolver = config.pathResolver;
+  const casesRoot = resolver.resolveSuitePath(casesConfig.root, "cases.root");
+  if (!fs.existsSync(casesRoot)) {
+    throw new Error(`cases root does not exist: ${casesConfig.root}`);
+  }
+  if (!fs.statSync(casesRoot).isDirectory()) {
+    throw new Error(`cases root is not a directory: ${casesConfig.root}`);
+  }
+
+  const include = casesConfig.include ?? ["*"];
+  const exclude = casesConfig.exclude ?? [];
+  const entries = fs
+    .readdirSync(casesRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .filter((name) => matchesAnyPattern(name, include))
+    .filter((name) => !matchesAnyPattern(name, exclude))
+    .sort();
+
+  return entries.map((entryName) =>
+    toPosixPath(
+      path.relative(
+        resolver.suiteRoot,
+        path.join(casesRoot, entryName, "case-manifest.json"),
+      ),
+    ),
+  );
+};
+
+const loadAdapterModule = async (config, label) => {
+  const modulePath = config.raw.adapter ?? config.raw.hooks?.module;
+  if (!modulePath) {
+    throw new Error(`no adapter configured for ${label}`);
+  }
+  return config.loadModule(modulePath, label);
+};
 
 // Resolve case manifest in a generic way
 export const resolveCaseManifest = (config, caseId) => {
   const safeCaseId = assertSafeId(caseId, "case id");
   const resolver = config.pathResolver;
 
-  const manifestPath = config.raw.case_manifests.find((manifestRelPath) => {
-    try {
-      const fullPath = resolver.resolveSuitePath(
-        manifestRelPath,
-        "case manifest",
-      );
-      if (!fs.existsSync(fullPath)) return false;
-      const manifest = JSON.parse(fs.readFileSync(fullPath, "utf8"));
-      return manifest.case_id === safeCaseId;
-    } catch {
-      return false;
-    }
-  });
+  const manifestPath = configuredCaseManifestPaths(config).find(
+    (manifestRelPath) => {
+      try {
+        const fullPath = resolver.resolveSuitePath(
+          manifestRelPath,
+          "case manifest",
+        );
+        if (!fs.existsSync(fullPath)) return false;
+        const manifest = JSON.parse(fs.readFileSync(fullPath, "utf8"));
+        return manifest.case_id === safeCaseId;
+      } catch {
+        return false;
+      }
+    },
+  );
 
   if (!manifestPath) {
     throw new Error(`case manifest not found for case: ${safeCaseId}`);
@@ -76,7 +133,7 @@ export const resolveCaseManifest = (config, caseId) => {
 export const discoverCaseIds = (config) => {
   const resolver = config.pathResolver;
   const caseIds = [];
-  for (const manifestRelPath of config.raw.case_manifests) {
+  for (const manifestRelPath of configuredCaseManifestPaths(config)) {
     try {
       const fullPath = resolver.resolveSuitePath(
         manifestRelPath,
@@ -213,27 +270,40 @@ export const runCase = async ({ config, caseId, candidatePath, runId }) => {
 
   // Load configured grader and reporter
   const graderName =
+    config.raw.methods?.deterministic?.grader ??
     config.raw.runner_defaults?.grader ??
     Object.keys(config.raw.graders ?? {})[0];
   const reporterName =
+    config.raw.methods?.deterministic?.reporter ??
     config.raw.runner_defaults?.reporter ??
     Object.keys(config.raw.reporters ?? {})[0];
 
-  if (!graderName || !config.raw.graders?.[graderName]) {
+  const adapterModule = config.raw.adapter
+    ? await loadAdapterModule(config, "adapter")
+    : null;
+  const graderModule =
+    adapterModule ??
+    (graderName && config.raw.graders?.[graderName]
+      ? await config.loadModule(
+          config.raw.graders[graderName],
+          `grader ${graderName}`,
+        )
+      : null);
+  const reporterModule =
+    adapterModule ??
+    (reporterName && config.raw.reporters?.[reporterName]
+      ? await config.loadModule(
+          config.raw.reporters[reporterName],
+          `reporter ${reporterName}`,
+        )
+      : null);
+
+  if (!graderModule) {
     throw new Error("no grader configured in config");
   }
-  if (!reporterName || !config.raw.reporters?.[reporterName]) {
+  if (!reporterModule) {
     throw new Error("no reporter configured in config");
   }
-
-  const graderModule = await config.loadModule(
-    config.raw.graders[graderName],
-    `grader ${graderName}`,
-  );
-  const reporterModule = await config.loadModule(
-    config.raw.reporters[reporterName],
-    `reporter ${reporterName}`,
-  );
 
   // Resolve inputs for grader
   const graderInputArtifacts = artifacts.filter(
@@ -394,15 +464,12 @@ export const generateCandidate = async ({
   );
   const promptText = fs.readFileSync(promptTemplatePath, "utf8");
 
-  // Load custom hooks
-  let hooks = {};
-  if (config.raw.hooks?.module) {
-    hooks = await config.loadModule(config.raw.hooks.module, "hooks");
-  }
+  // Load custom adapter
+  const hooks = await loadAdapterModule(config, "adapter");
 
   if (typeof hooks.resolveGenerationVars !== "function") {
     throw new Error(
-      "hooks module does not export resolveGenerationVars function",
+      "adapter module does not export resolveGenerationVars function",
     );
   }
 
@@ -603,15 +670,12 @@ export const judgeCoverage = async ({
   );
   const outputSchema = JSON.parse(fs.readFileSync(outputSchemaPath, "utf8"));
 
-  // Load custom hooks
-  let hooks = {};
-  if (config.raw.hooks?.module) {
-    hooks = await config.loadModule(config.raw.hooks.module, "hooks");
-  }
+  // Load custom adapter
+  const hooks = await loadAdapterModule(config, "adapter");
 
   if (typeof hooks.resolvePointwiseVars !== "function") {
     throw new Error(
-      "hooks module does not export resolvePointwiseVars function",
+      "adapter module does not export resolvePointwiseVars function",
     );
   }
 
@@ -694,7 +758,7 @@ export const judgeCoverage = async ({
   if (result.case_id !== caseId) throw new Error("case_id mismatch in result");
   if (result.model !== model) throw new Error("model mismatch in result");
 
-  // Post-process pointwise items if hooks provide custom canonicalization
+  // Post-process pointwise items if the adapter provides custom canonicalization
   let finalResult = result;
   if (typeof hooks.canonicalizeExpectedItemMetadata === "function") {
     finalResult = {
@@ -903,15 +967,12 @@ export const judgePairwise = async ({
     candidate_order: candidateOrder,
   };
 
-  // Load custom hooks
-  let hooks = {};
-  if (config.raw.hooks?.module) {
-    hooks = await config.loadModule(config.raw.hooks.module, "hooks");
-  }
+  // Load custom adapter
+  const hooks = await loadAdapterModule(config, "adapter");
 
   if (typeof hooks.resolvePairwiseVars !== "function") {
     throw new Error(
-      "hooks module does not export resolvePairwiseVars function",
+      "adapter module does not export resolvePairwiseVars function",
     );
   }
 
@@ -1128,14 +1189,11 @@ export const compileReport = async ({ config, runId, runs }) => {
   const resultDir = resolver.resolveRunDir(runId);
   fs.mkdirSync(resultDir, { recursive: true });
 
-  // Load custom hooks
-  let hooks = {};
-  if (config.raw.hooks?.module) {
-    hooks = await config.loadModule(config.raw.hooks.module, "hooks");
-  }
+  // Load custom adapter
+  const hooks = await loadAdapterModule(config, "adapter");
 
   if (typeof hooks.compileReport !== "function") {
-    throw new Error("hooks module does not export compileReport function");
+    throw new Error("adapter module does not export compileReport function");
   }
 
   const {
@@ -1199,7 +1257,7 @@ export const compileReport = async ({ config, runId, runs }) => {
 
 export const validateFixtures = async ({ config }) => {
   const manifests = [];
-  for (const manifestRelPath of config.raw.case_manifests) {
+  for (const manifestRelPath of configuredCaseManifestPaths(config)) {
     const fullPath = config.pathResolver.resolveSuitePath(
       manifestRelPath,
       "case manifest",
@@ -1216,11 +1274,11 @@ export const validateFixtures = async ({ config }) => {
     manifests.push({ manifest, fullPath, relativePath: manifestRelPath });
   }
 
-  // Load custom hooks
-  let hooks = {};
-  if (config.raw.hooks?.module) {
-    hooks = await config.loadModule(config.raw.hooks.module, "hooks");
-  }
+  // Load custom adapter
+  const hooks =
+    (config.raw.adapter ?? config.raw.hooks?.module)
+      ? await loadAdapterModule(config, "adapter")
+      : {};
 
   if (typeof hooks.validateFixtures === "function") {
     await hooks.validateFixtures({ config, manifests });

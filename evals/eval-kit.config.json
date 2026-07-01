@@ -4,33 +4,31 @@
   "suite_id": "technical-design",
   "suite_root": ".",
   "results_root": "results",
-  "schema_roots": ["../packages/eval-kit/schemas", "schemas"],
-  "case_manifests": [
-    "fixtures/cases/case-aerial-delivery-shipping-v1/case-manifest.json",
-    "fixtures/cases/case-cloudevents-core-contract-v1/case-manifest.json",
-    "fixtures/cases/case-customer-credit-order-saga-v1/case-manifest.json",
-    "fixtures/cases/case-fineract-loan-lifecycle-v1/case-manifest.json",
-    "fixtures/cases/case-kubernetes-sidecar-containers-v1/case-manifest.json",
-    "fixtures/cases/case-openfeature-evaluation-api-v1/case-manifest.json",
-    "fixtures/cases/case-tiny-laundry-pickup-v1/case-manifest.json"
-  ],
-  "artifact_roles": [
-    "generation_visible",
-    "grader_input",
-    "semantic_reference",
-    "maintainer_only",
-    "provenance"
-  ],
-  "graders": {
-    "technical-design-facts-boundaries": "hooks.mjs"
+  "adapter": "adapter.mjs",
+  "cases": {
+    "root": "cases",
+    "include": ["case-*-v1"]
   },
-  "reporters": {
-    "technical-design-markdown": "hooks.mjs"
-  },
-  "hooks": {
-    "module": "hooks.mjs"
-  },
-  "runner_defaults": {
-    "case_manifest_schema_version": "technical-design.case-manifest.v1"
+  "methods": {
+    "deterministic": {
+      "enabled": true,
+      "grader": "facts-boundaries",
+      "reporter": "markdown"
+    },
+    "generate": {
+      "enabled": true,
+      "prompt": "@eval-kit/generation"
+    },
+    "judge_coverage": {
+      "enabled": true,
+      "prompt": "@eval-kit/pointwise",
+      "rubric": "case:rubric.md"
+    },
+    "judge_pairwise": {
+      "enabled": false
+    },
+    "report": {
+      "enabled": true
+    }
   }
 }

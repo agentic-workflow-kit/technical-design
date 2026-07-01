@@ -13,6 +13,7 @@ Inputs:
 - Prompt version: `{{prompt_version}}`
 - Rubric version: `{{rubric_version}}`
 - Product/source inputs: `{{source_facts}}`
+- Case rubric: `{{case_rubric}}`
 - Expected items: `{{expected_items}}`
 - Candidate path: `{{candidate_path}}`
 - Candidate: `{{candidate}}`
@@ -33,7 +34,7 @@ For each expected item:
 ## Bias Controls
 
 - Judge only against `product.md`, `source-map.md`, expected facts, expected boundaries, and the
-  candidate.
+  candidate. Use `rubric.md` only for semantic guidance, not hidden deterministic requirements.
 - Do not use or infer from `reference-design.md`, grader notes, review rubrics, or hidden answer
   keys.
 - Do not reward length, familiar architecture vocabulary, or rhetorical confidence without source

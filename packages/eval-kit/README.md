@@ -18,7 +18,7 @@ The consuming repository owns domain semantics:
 
 - eval cases and fixture files;
 - graders and reporters;
-- Promptfoo variable resolution hooks;
+- Promptfoo variable resolution adapter exports;
 - domain schemas and fixture validation;
 - rubrics and human interpretation.
 
@@ -91,7 +91,7 @@ flowchart LR
     CLI["eval-kit CLI"]
     Config["eval-kit.config.json"]
     Kit["Eval Kit runtime"]
-    Suite["Consumer hooks, graders, reporters"]
+    Suite["Consumer adapter"]
     Cases["Case manifests and fixtures"]
     Results["Result bundle"]
 
@@ -132,29 +132,28 @@ For model-assisted commands, the consuming repository also needs:
 
 - `promptfoo` available at `node_modules/.bin/promptfoo`;
 - local Codex auth available through `codex login status`;
-- the suite hook functions required by the chosen command.
+- the suite adapter exports required by the chosen command.
 
 ## Minimal Consumer Layout
 
 ```text
 evals/
   eval-kit.config.json
-  hooks.mjs
-  fixtures/
-    cases/
-      case-example-v1/
-        case-manifest.json
-        product.md
-        expected-facts.json
-        expected-boundaries.json
-        reference-design.md
-  schemas/
+  adapter.mjs
+  cases/
+    case-example-v1/
+      case-manifest.json
+      product.md
+      expected-facts.json
+      expected-boundaries.json
+      rubric.md
+      reference-design.md
   results/
     README.md
 ```
 
 The paths above are conventions, not requirements. The config decides the suite root, result root,
-schema roots, case manifests, and adapter modules.
+case discovery, method settings, and adapter module.
 
 ## Configuration
 
@@ -167,28 +166,32 @@ A typical consumer config:
   "suite_id": "technical-design",
   "suite_root": ".",
   "results_root": "results",
-  "schema_roots": ["../packages/eval-kit/schemas", "schemas"],
-  "case_manifests": [
-    "fixtures/cases/case-tiny-laundry-pickup-v1/case-manifest.json"
-  ],
-  "artifact_roles": [
-    "generation_visible",
-    "grader_input",
-    "semantic_reference",
-    "maintainer_only",
-    "provenance"
-  ],
-  "graders": {
-    "technical-design-facts-boundaries": "hooks.mjs"
+  "adapter": "adapter.mjs",
+  "cases": {
+    "root": "cases",
+    "include": ["case-*-v1"]
   },
-  "reporters": {
-    "technical-design-markdown": "hooks.mjs"
-  },
-  "hooks": {
-    "module": "hooks.mjs"
-  },
-  "runner_defaults": {
-    "case_manifest_schema_version": "technical-design.case-manifest.v1"
+  "methods": {
+    "deterministic": {
+      "enabled": true,
+      "grader": "facts-boundaries",
+      "reporter": "markdown"
+    },
+    "generate": {
+      "enabled": true,
+      "prompt": "@eval-kit/generation"
+    },
+    "judge_coverage": {
+      "enabled": true,
+      "prompt": "@eval-kit/pointwise",
+      "rubric": "case:rubric.md"
+    },
+    "judge_pairwise": {
+      "enabled": false
+    },
+    "report": {
+      "enabled": true
+    }
   }
 }
 ```
@@ -197,6 +200,8 @@ Path behavior:
 
 - the config file path is resolved from the current working directory;
 - `suite_root`, `results_root`, and relative adapter paths resolve from the config directory;
+- `cases.root` resolves from `suite_root`;
+- `cases.include` and `cases.exclude` match immediate case directory names with `*` wildcards;
 - suite and result paths must stay contained by the detected repository root;
 - run ids and case ids are treated as ids, not paths.
 
@@ -207,6 +212,10 @@ Prompt behavior:
 - `prompt_templates.pairwise_judge` overrides the bundled pairwise prompt.
 
 If a prompt template is omitted, the kit uses its bundled prompt.
+
+Legacy configs that declare `case_manifests`, `graders`, `reporters`, `hooks`, and `schema_roots`
+are still accepted for compatibility, but new suites should prefer `adapter`, `cases`, and
+`methods`.
 
 ## Case Manifests
 
@@ -231,7 +240,7 @@ consumer-specific fields are allowed.
 ```
 
 Artifact paths are relative to the manifest directory and must exist. The kit adds
-`absolutePath` when returning resolved artifacts to hooks and SDK functions.
+`absolutePath` when returning resolved artifacts to adapter and SDK functions.
 
 ## CLI
 
@@ -240,7 +249,7 @@ The binary is `eval-kit`.
 In the current `technical-design` consumer, root scripts wrap the binary:
 
 ```bash
-pnpm eval:case -- --case case-tiny-laundry-pickup-v1 --candidate evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md
+pnpm eval:case -- --case case-tiny-laundry-pickup-v1 --candidate evals/cases/case-tiny-laundry-pickup-v1/reference-design.md
 pnpm eval:generate -- --case case-tiny-laundry-pickup-v1 --model gpt-5.4 --provider openai --effort medium --run-id tiny-generate
 pnpm eval:judge:coverage -- --case case-tiny-laundry-pickup-v1 --candidate evals/results/tiny-generate/cases/case-tiny-laundry-pickup-v1/candidate.md --model gpt-5.4 --provider openai --effort medium
 pnpm eval:manual-report -- --run-id tiny-report --deterministic tiny-deterministic --judge-coverage tiny-pointwise
@@ -252,7 +261,7 @@ Direct binary usage:
 eval-kit run-case \
   --config evals/eval-kit.config.json \
   --case case-tiny-laundry-pickup-v1 \
-  --candidate evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md \
+  --candidate evals/cases/case-tiny-laundry-pickup-v1/reference-design.md \
   --run-id verify-tiny-reference
 ```
 
@@ -330,12 +339,12 @@ Optional parent runs:
 
 `validate-fixtures`
 
-Validates configured case manifests and then calls `hooks.validateFixtures`, if present.
+Validates discovered case manifests and then calls `adapter.validateFixtures`, if present.
 
 ## Adapter Contract
 
-The kit loads suite modules from config. A single `hooks.mjs` can implement all roles, or a suite can
-split graders and reporters into separate modules.
+The kit loads the suite adapter from config. A single `adapter.mjs` can implement all roles. Legacy
+configs may still split graders and reporters into separate modules.
 
 Deterministic grading expects a grader export named one of:
 
@@ -449,7 +458,7 @@ pnpm check
 Manual deterministic smoke:
 
 ```bash
-pnpm eval:case -- --case case-tiny-laundry-pickup-v1 --candidate evals/fixtures/cases/case-tiny-laundry-pickup-v1/reference-design.md --run-id verify-tiny-reference
+pnpm eval:case -- --case case-tiny-laundry-pickup-v1 --candidate evals/cases/case-tiny-laundry-pickup-v1/reference-design.md --run-id verify-tiny-reference
 ```
 
 Expected report headline:

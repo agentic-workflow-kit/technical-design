@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { gradeFacts, normalize } from "@agentic-workflow-kit/eval-kit";
-import { criticalBlockerCount } from "../hooks.mjs";
+import { criticalBlockerCount } from "../adapter.mjs";
 
 const expectedFacts = {
   case_id: "case-test",

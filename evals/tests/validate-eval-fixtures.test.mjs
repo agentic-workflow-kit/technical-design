@@ -38,11 +38,11 @@ const createFixtureRepo = () => {
 
   for (const relativePath of [
     "fixtures/ddd",
-    "fixtures/cases",
+    "cases",
     "schemas",
     "fixtures/review/expected-suggestions.json",
     "eval-kit.config.json",
-    "hooks.mjs",
+    "adapter.mjs",
   ]) {
     fs.cpSync(
       path.join(packageRoot, relativePath),
@@ -253,7 +253,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedFactsPath = path.join(
       fixtureRepo,
-      "evals/fixtures/cases/case-aerial-delivery-shipping-v1/expected-facts.json",
+      "evals/cases/case-aerial-delivery-shipping-v1/expected-facts.json",
     );
     const expectedFacts = readJson(expectedFactsPath);
 
@@ -271,7 +271,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const expectedFactsPath = path.join(
       fixtureRepo,
-      "evals/fixtures/cases/case-aerial-delivery-shipping-v1/expected-facts.json",
+      "evals/cases/case-aerial-delivery-shipping-v1/expected-facts.json",
     );
     const expectedFacts = readJson(expectedFactsPath);
 
@@ -294,7 +294,7 @@ describe("validate_eval_fixtures", () => {
     const fixtureRepo = createFixtureRepo();
     const graderNotesPath = path.join(
       fixtureRepo,
-      "evals/fixtures/cases/case-tiny-laundry-pickup-v1/grader-notes.md",
+      "evals/cases/case-tiny-laundry-pickup-v1/grader-notes.md",
     );
     fs.writeFileSync(
       graderNotesPath,

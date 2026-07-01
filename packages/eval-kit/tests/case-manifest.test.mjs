@@ -35,6 +35,31 @@ const expectedArtifacts = [
 ];
 
 describe("technical-design case manifest resolver", () => {
+  it("uses the simplified consumer config surface", () => {
+    const config = loadConfig(configPath);
+
+    expect(config.raw.adapter).toBe("adapter.mjs");
+    expect(config.raw.schema_roots).toBeUndefined();
+    expect(config.raw.case_manifests).toBeUndefined();
+    expect(config.raw.cases).toEqual({
+      root: "cases",
+      include: ["case-*-v1"],
+    });
+    expect(config.raw.methods.deterministic).toEqual({
+      enabled: true,
+      grader: "facts-boundaries",
+      reporter: "markdown",
+    });
+    expect(config.raw.methods.judge_coverage).toEqual({
+      enabled: true,
+      prompt: "@eval-kit/pointwise",
+      rubric: "case:rubric.md",
+    });
+    expect(config.raw.methods.judge_pairwise).toEqual({
+      enabled: false,
+    });
+  });
+
   it("discovers all expected case ids from manifests", () => {
     const config = loadConfig(configPath);
     const manifestCaseIds = discoverCaseIds(config);
@@ -60,7 +85,7 @@ describe("technical-design case manifest resolver", () => {
         source_ref_allowlist: ["product.md", "source-map.md"],
       });
       expect(resolved.caseDir).toBe(
-        path.join(repoRoot, "evals", "fixtures", "cases", caseId),
+        path.join(repoRoot, "evals", "cases", caseId),
       );
       expect(resolved.artifacts.map((artifact) => artifact.path)).toEqual(
         expectedArtifacts.map((artifact) => artifact.path),
