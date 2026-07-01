@@ -85,6 +85,13 @@ const main = () => {
   writeJson(path.join(resultDir, "manifest.json"), manifest);
 
   const blockerCount = criticalBlockerCount(findings);
+  const findingCounts = findings.reduce(
+    (counts, finding) => ({
+      ...counts,
+      [finding.verdict]: (counts[finding.verdict] ?? 0) + 1,
+    }),
+    {},
+  );
   fs.writeFileSync(
     path.join(resultDir, "report.md"),
     [
@@ -92,6 +99,7 @@ const main = () => {
       "",
       `Verdict: ${grades.verdict}`,
       `Blocker findings: ${blockerCount}`,
+      `Finding counts: covered=${findingCounts.covered ?? 0}, missing=${findingCounts.missing ?? 0}, contradicted=${findingCounts.contradicted ?? 0}, invented=${findingCounts.invented ?? 0}, unknown=${findingCounts.unknown ?? 0}`,
       "",
       "## Findings",
       "",

@@ -18,6 +18,25 @@ const normalizedIncludes = (normalizedText, snippet) => {
   return ` ${normalizedText} `.includes(` ${normalizedSnippet} `);
 };
 
+const orderedTokenIncludes = (normalizedText, snippet) => {
+  const snippetTokens = normalize(snippet).split(" ").filter(Boolean);
+  if (snippetTokens.length === 0) {
+    return false;
+  }
+
+  const textTokens = normalizedText.split(" ").filter(Boolean);
+  let nextSnippetIndex = 0;
+  for (const token of textTokens) {
+    if (token === snippetTokens[nextSnippetIndex]) {
+      nextSnippetIndex += 1;
+    }
+    if (nextSnippetIndex === snippetTokens.length) {
+      return true;
+    }
+  }
+  return false;
+};
+
 const findIncludedSnippet = (text, snippets = []) => {
   const normalizedText = normalize(text);
   return snippets.find((snippet) =>
@@ -31,6 +50,107 @@ const findMissingSnippets = (text, snippets = []) => {
     (snippet) => !normalizedIncludes(normalizedText, snippet),
   );
 };
+
+const listMarkerPattern = /^(\s*)(?:[-*]|\d+\.)\s+/;
+const tableRowPattern = /^\s*\|/;
+const ownershipPhrasePattern = /\b(?:owns?|reads?|does\s+not\s+own)\b/i;
+const terminalSentencePattern = /[.!?)]$/;
+
+const isListItem = (line) => listMarkerPattern.test(line);
+
+const listIndent = (line) => {
+  const match = line.match(listMarkerPattern);
+  return match ? match[1].length : null;
+};
+
+const isNestedListItem = (line) => {
+  const indent = listIndent(line);
+  return indent !== null && indent > 0;
+};
+
+const isPlainListChild = (line) =>
+  isListItem(line) && !ownershipPhrasePattern.test(line);
+
+const currentEndsWithColon = (currentLines) =>
+  currentLines.at(-1)?.trim().endsWith(":") ?? false;
+
+const currentEndsSentence = (currentLines) =>
+  terminalSentencePattern.test(currentLines.at(-1)?.trim() ?? "");
+
+const candidateSegments = (text) => {
+  const segments = [];
+  let currentLines = [];
+  let acceptsPlainListChildren = false;
+
+  const flush = () => {
+    if (currentLines.length > 0) {
+      segments.push(currentLines.join("\n").trim());
+      currentLines = [];
+    }
+    acceptsPlainListChildren = false;
+  };
+
+  const pushCurrentLine = (line) => {
+    currentLines.push(line);
+    if (line.trim().endsWith(":")) {
+      acceptsPlainListChildren = true;
+    }
+  };
+
+  for (const rawLine of String(text ?? "").split("\n")) {
+    const line = rawLine.trimEnd();
+    if (line.trim().length === 0) {
+      flush();
+      continue;
+    }
+
+    if (tableRowPattern.test(line)) {
+      flush();
+      segments.push(line.trim());
+      continue;
+    }
+
+    if (isNestedListItem(line)) {
+      pushCurrentLine(line);
+      continue;
+    }
+
+    if (isListItem(line)) {
+      if (
+        currentLines.length > 0 &&
+        (currentEndsWithColon(currentLines) || acceptsPlainListChildren) &&
+        isPlainListChild(line)
+      ) {
+        pushCurrentLine(line);
+        continue;
+      }
+      flush();
+      pushCurrentLine(line);
+      continue;
+    }
+
+    if (currentLines.length > 0 && !currentEndsSentence(currentLines)) {
+      pushCurrentLine(line);
+      continue;
+    }
+
+    flush();
+    pushCurrentLine(line);
+  }
+
+  flush();
+  return segments;
+};
+
+const findCoLocatedSnippetSegment = (text, snippets = []) =>
+  candidateSegments(text).find((segment) => {
+    const normalizedSegment = normalize(segment);
+    return snippets.every(
+      (snippet) =>
+        normalizedIncludes(normalizedSegment, snippet) ||
+        orderedTokenIncludes(normalizedSegment, snippet),
+    );
+  });
 
 export const includesAny = (text, snippets = []) =>
   Boolean(findIncludedSnippet(text, snippets));
@@ -88,8 +208,20 @@ const assessCoverage = (candidateText, expectation, options = {}) => {
       ? null
       : findIncludedSnippet(candidateText, anyRequired);
   const missingAll = findMissingSnippets(candidateText, allRequired);
+  const coLocatedSegment =
+    options.requireCoLocatedAll && allRequired.length > 0
+      ? findCoLocatedSnippetSegment(candidateText, allRequired)
+      : null;
+  const requiredEvidenceHit =
+    options.requireCoLocatedAll && allRequired.length > 0
+      ? Boolean(coLocatedSegment)
+      : missingAll.length === 0;
   const exactRequiredHit =
-    (anyRequired.length === 0 || anyHit) && missingAll.length === 0;
+    (anyRequired.length === 0 || anyHit) &&
+    requiredEvidenceHit &&
+    (!options.requireCoLocatedAll ||
+      allRequired.length === 0 ||
+      Boolean(coLocatedSegment));
 
   if (exactRequiredHit) {
     const evidenceParts = [];
@@ -98,6 +230,9 @@ const assessCoverage = (candidateText, expectation, options = {}) => {
     }
     if (allRequired.length > 0) {
       evidenceParts.push(`all=${formatSnippets(allRequired)}`);
+    }
+    if (coLocatedSegment) {
+      evidenceParts.push(`segment=${formatSnippets([coLocatedSegment])}`);
     }
     return {
       verdict: "covered",
@@ -129,7 +264,20 @@ const assessCoverage = (candidateText, expectation, options = {}) => {
 
   return {
     verdict: "missing",
-    evidence: "missing required evidence",
+    evidence: [
+      "missing required evidence",
+      anyRequired.length > 0 && !anyHit
+        ? `missing_any=${formatSnippets(anyRequired)}`
+        : "",
+      missingAll.length > 0 ? `missing_all=${formatSnippets(missingAll)}` : "",
+      options.requireCoLocatedAll &&
+      allRequired.length > 0 &&
+      missingAll.length === 0
+        ? `not_co_located=${formatSnippets(allRequired)}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("; "),
   };
 };
 
@@ -149,6 +297,7 @@ export const gradeBoundaries = (candidateText, expectedBoundaries) =>
   expectedBoundaries.contexts.map((context) => {
     const assessment = assessCoverage(candidateText, context, {
       defaultMustIncludeAll: [context.name, ...context.owns],
+      requireCoLocatedAll: true,
     });
     return {
       id: context.id,
