@@ -23,7 +23,7 @@ the high-level system model for approval before durable design docs exist.
 Before drafting, show the assumed flow:
 
 ```text
-I will do: read inputs and source surfaces -> build source map -> produce InputResolution -> propose AgreedSystemModel -> select architecture_mode and initial ddd_depth -> stop for approval before author-technical-design.
+I will do: read inputs and source surfaces -> build source map -> produce InputResolution -> select architecture_mode and initial ddd_depth -> propose AgreedSystemModel -> stop for approval before author-technical-design.
 ```
 
 ## Step 1 - Ingest source before asking
@@ -57,41 +57,7 @@ Classify each required input as:
 Ask only blocking questions. For reasonable defaults, record safe assumptions instead of
 interrupting the user.
 
-## Step 3 - Propose the system model
-
-Create `AgreedSystemModel` before context maps or durable docs. It must include:
-
-- source inputs used;
-- unresolved required inputs;
-- high-level system entities;
-- responsibilities per entity;
-- relations between entities;
-- ownership / reads / does-not-own;
-- seams and external boundaries;
-- lifecycle/state terms;
-- `architecture_mode`;
-- initial `ddd_depth`;
-- open questions;
-- approval status.
-
-Do not invent ownership to make the model complete. If a choice changes architecture, mark it
-`requires approval` or `blocked`.
-
-## Step 4 - Identify context candidates
-
-List candidate bounded contexts or context areas. For each, state:
-
-- owns;
-- reads;
-- does not own;
-- likely public surface;
-- unclear ownership, if any.
-
-Use context candidates as a DDD projection of the system model, not as the first architecture shape.
-If a candidate context introduces an entity, seam, or lifecycle term that is not in the system model,
-mark it as an open question.
-
-## Step 5 - Analyze complexity and mode/depth
+## Step 3 - Analyze complexity and mode/depth
 
 Identify complexity drivers:
 
@@ -121,6 +87,40 @@ Then select an initial `ddd_depth`:
 
 DDD is the default methodology. `architecture_mode` decides the first useful lens; tactical DDD depth
 still needs evidence.
+
+## Step 4 - Propose the system model
+
+Create `AgreedSystemModel` before context maps or durable docs. It must include:
+
+- source inputs used;
+- unresolved required inputs;
+- high-level system entities;
+- responsibilities per entity;
+- relations between entities;
+- ownership / reads / does-not-own;
+- seams and external boundaries;
+- lifecycle/state terms;
+- `architecture_mode`;
+- initial `ddd_depth`;
+- open questions;
+- approval status.
+
+Do not invent ownership to make the model complete. If a choice changes architecture, mark it
+`requires approval` or `blocked`.
+
+## Step 5 - Identify context candidates
+
+List candidate bounded contexts or context areas. For each, state:
+
+- owns;
+- reads;
+- does not own;
+- likely public surface;
+- unclear ownership, if any.
+
+Use context candidates as a DDD projection of the system model, not as the first architecture shape.
+If a candidate context introduces an entity, seam, or lifecycle term that is not in the system model,
+mark it as an open question.
 
 ## Step 6 - Output artifacts
 

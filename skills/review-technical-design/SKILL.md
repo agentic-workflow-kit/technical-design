@@ -42,8 +42,10 @@ Check:
 - public APIs have export/import evidence or tests;
 - enforceable boundaries have seeded violations and standing gates;
 - manual-only rules are not misrepresented as static enforcement;
-- the `Planner Handoff Summary` names stable source, boundary, delivery, validation, and
-  stop-condition IDs;
+- the `Planner Handoff Summary` names, or explicitly marks `None` with source-backed rationale,
+  every required handoff category: `SRC`, `CTX`, `INV`, `SURF`, `FAIL`, `OBS`, `ENF`, `DEL`,
+  `SEQ`, `FILE`, `VAL`, and `STOP`;
+- required handoff categories are not blank, prose-only, unchecked, or `TBD`;
 - delivery inputs do not hand scope decisions to implementers.
 
 ## Step 3 - Domain-correctness lens

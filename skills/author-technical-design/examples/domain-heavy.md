@@ -69,6 +69,8 @@ round: 2
 
 ### InputResolution
 
+**InputResolution approval status:** approved
+
 | Required input | Source evidence | Resolution | Owner / impact | Approval status |
 |---|---|---|---|---|
 | authorization lifecycle owner | SRC-001 | provided | Payment Authorization owns attempt state transitions | approved |
@@ -76,6 +78,8 @@ round: 2
 | event sourcing need | SRC-002 | safe assumption | deferred until replay or audit needs justify it | approved |
 
 ### AgreedSystemModel
+
+**AgreedSystemModel approval status:** approved
 
 | Entity | Responsibilities | Owns | Reads | Does Not Own |
 |---|---|---|---|---|
@@ -89,6 +93,8 @@ round: 2
 | Payment Authorization | calls | PaymentAttemptRepository | repository port preserves domain-owned lifecycle decisions |
 
 ### DocStructurePlan
+
+**DocStructurePlan approval status:** approved
 
 | File | Responsibility | Status |
 |---|---|---|

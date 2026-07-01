@@ -300,6 +300,17 @@ function checkContractReferences() {
       "DocStructurePlan",
       "authoring artifact must preserve DocStructurePlan",
     );
+    for (const approvalLine of [
+      "InputResolution approval status",
+      "AgreedSystemModel approval status",
+      "DocStructurePlan approval status",
+    ]) {
+      assertContains(
+        artifact,
+        approvalLine,
+        `authoring artifact ${artifact} must expose ${approvalLine}`,
+      );
+    }
   }
 
   for (const reference of [
@@ -327,6 +338,36 @@ function checkContractReferences() {
     "agreement-integrity",
     "review suggestion schema must include the agreement-integrity lens",
   );
+  for (const reviewSurface of [
+    "skills/review-technical-design/SKILL.md",
+    "methodologies/ddd/review-rubric.md",
+  ]) {
+    for (const category of [
+      "SRC",
+      "CTX",
+      "INV",
+      "SURF",
+      "FAIL",
+      "OBS",
+      "ENF",
+      "DEL",
+      "SEQ",
+      "FILE",
+      "VAL",
+      "STOP",
+    ]) {
+      assertContains(
+        reviewSurface,
+        category,
+        `review surface ${reviewSurface} must require handoff category ${category}`,
+      );
+    }
+    assertContains(
+      reviewSurface,
+      "source-backed rationale",
+      `review surface ${reviewSurface} must require source-backed rationale for None categories`,
+    );
+  }
   assertContains(
     "docs/product/README.md",
     "design-to-plan",

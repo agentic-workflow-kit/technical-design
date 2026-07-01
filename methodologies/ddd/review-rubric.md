@@ -12,7 +12,8 @@ Blocking findings:
 - A public API is promised in prose but no public export/import surface or import test is named.
 - An enforcement rule has no seeded violation or standing gate.
 - A proof claim relies only on a manual spot check when the design claims durable enforcement.
-- A design marks ready for planning without a `Planner Handoff Summary` that names stable source, boundary, delivery, validation, and stop-condition IDs.
+- A design marks ready for planning without a `Planner Handoff Summary` that names, or explicitly marks `None` with source-backed rationale, every required handoff category: `SRC`, `CTX`, `INV`, `SURF`, `FAIL`, `OBS`, `ENF`, `DEL`, `SEQ`, `FILE`, `VAL`, and `STOP`.
+- A required handoff category is blank, prose-only, unchecked, or `TBD`.
 
 Recommended findings:
 

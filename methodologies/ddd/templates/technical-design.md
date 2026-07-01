@@ -67,11 +67,15 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 
 ### InputResolution
 
+**InputResolution approval status:** <approved / pending / blocked>
+
 | Required input | Source evidence | Resolution | Owner / impact | Approval status |
 |---|---|---|---|---|
 | <ownership, invariant, lifecycle, API, data, failure, observability, enforcement, or delivery input> | <SRC-* or missing> | <provided / safe assumption / requires approval / blocked> | <context, fact ID, or blocking question> | <approved / pending / blocked / not required> |
 
 ### AgreedSystemModel
+
+**AgreedSystemModel approval status:** <approved / pending / blocked>
 
 | Entity | Responsibilities | Owns | Reads | Does Not Own |
 |---|---|---|---|---|
@@ -82,6 +86,8 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 | <entity> | <reads/calls/emits/configures/runs> | <entity> | <direction and constraints> |
 
 ### DocStructurePlan
+
+**DocStructurePlan approval status:** <approved / pending / blocked>
 
 | File | Responsibility | Status |
 |---|---|---|

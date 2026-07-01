@@ -63,12 +63,16 @@ round: 1
 
 ### InputResolution
 
+**InputResolution approval status:** approved
+
 | Required input | Source evidence | Resolution | Owner / impact | Approval status |
 |---|---|---|---|---|
 | profile field ownership | SRC-001 | provided | Profile Settings owns editable profile fields | approved |
 | identity lifecycle | SRC-001 | provided | Identity provider lifecycle stays out of scope | approved |
 
 ### AgreedSystemModel
+
+**AgreedSystemModel approval status:** approved
 
 | Entity | Responsibilities | Owns | Reads | Does Not Own |
 |---|---|---|---|---|
@@ -79,6 +83,8 @@ round: 1
 | Route handler | calls | Profile Settings | application service owns validation and error mapping |
 
 ### DocStructurePlan
+
+**DocStructurePlan approval status:** approved
 
 | File | Responsibility | Status |
 |---|---|---|
