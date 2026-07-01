@@ -62,10 +62,46 @@ function readText(relativePath) {
   }
 }
 
+function readJson(relativePath) {
+  const text = readText(relativePath);
+  if (!text) {
+    return null;
+  }
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    fail(`could not parse JSON ${relativePath}: ${err.message}`);
+    return null;
+  }
+}
+
 function assertContains(relativePath, needle, label) {
   const text = readText(relativePath);
   if (!text.includes(needle)) {
     fail(`${label}: ${relativePath} must contain ${JSON.stringify(needle)}`);
+  }
+}
+
+function assertNotContains(relativePath, needle, label) {
+  const text = readText(relativePath);
+  if (text.includes(needle)) {
+    fail(
+      `${label}: ${relativePath} must not contain ${JSON.stringify(needle)}`,
+    );
+  }
+}
+
+function assertMaxLineCount(relativePath, maxLines, label) {
+  const text = readText(relativePath);
+  const lineCount = text.split("\n").length;
+  if (lineCount > maxLines) {
+    fail(`${label}: ${relativePath} must stay at or below ${maxLines} lines`);
+  }
+}
+
+function assertArrayIncludes(values, expected, label) {
+  if (!Array.isArray(values) || !values.includes(expected)) {
+    fail(`${label} must include ${JSON.stringify(expected)}`);
   }
 }
 
@@ -207,6 +243,22 @@ function checkMethodology() {
     "Planner Handoff Summary",
     "DDD design template must include planner handoff summary",
   );
+  for (const requiredMarker of [
+    "architecture_mode",
+    "InputResolution",
+    "AgreedSystemModel",
+    "DocStructurePlan",
+    "InputResolution approval status",
+    "AgreedSystemModel approval status",
+    "DocStructurePlan approval status",
+    "Source-Named Internal Boundaries",
+  ]) {
+    assertContains(
+      "methodologies/ddd/templates/technical-design.md",
+      requiredMarker,
+      "DDD design template must preserve staged approval and handoff markers",
+    );
+  }
   assertContains(
     "methodologies/ddd/templates/enforcement-map.md",
     '"seededViolation"',
@@ -266,7 +318,6 @@ function checkMarkdownLinks() {
 function checkContractReferences() {
   for (const artifact of [
     "methodologies/ddd/templates/technical-design.md",
-    "skills/author-technical-design/templates/design-doc.md",
     "skills/author-technical-design/examples/simple-crud.md",
     "skills/author-technical-design/examples/domain-heavy.md",
   ]) {
@@ -313,7 +364,38 @@ function checkContractReferences() {
     }
   }
 
+  const localDesignTemplate =
+    "skills/author-technical-design/templates/design-doc.md";
+  const canonicalTemplatePath =
+    "../../../methodologies/ddd/templates/technical-design.md";
+  assertContains(
+    localDesignTemplate,
+    canonicalTemplatePath,
+    "skill-local design-doc template must point to the canonical DDD template",
+  );
+  assertMaxLineCount(
+    localDesignTemplate,
+    24,
+    "skill-local design-doc alias must stay small instead of duplicating the full template",
+  );
+  for (const bodyOnlyMarker of [
+    "# Technical Design - <design name>",
+    "| CTX-001 | Context and boundary |",
+    "### Source-Named Internal Boundaries",
+  ]) {
+    assertNotContains(
+      localDesignTemplate,
+      bodyOnlyMarker,
+      "skill-local design-doc alias must not duplicate full authoring body sections",
+    );
+  }
+
   for (const reference of [
+    [
+      "skills/author-technical-design/SKILL.md",
+      "../../methodologies/ddd/templates/technical-design.md",
+      "author skill must reference the canonical DDD template",
+    ],
     [
       "skills/author-technical-design/SKILL.md",
       "../../docs/design/technical-design-handoff-contract.md",
@@ -338,6 +420,68 @@ function checkContractReferences() {
     "agreement-integrity",
     "review suggestion schema must include the agreement-integrity lens",
   );
+  const suggestionSchema = readJson(
+    "skills/review-technical-design/templates/suggestion.schema.json",
+  );
+  if (suggestionSchema) {
+    for (const requiredField of ["title", "status", "decision_ref"]) {
+      assertArrayIncludes(
+        suggestionSchema.required,
+        requiredField,
+        "review suggestion schema required fields",
+      );
+    }
+    for (const lens of [
+      "architecture-enforceability",
+      "domain-correctness",
+      "agreement-integrity",
+    ]) {
+      assertArrayIncludes(
+        suggestionSchema.properties?.lens?.enum,
+        lens,
+        "review suggestion schema lens enum",
+      );
+    }
+    if (suggestionSchema.properties?.status?.default !== "open") {
+      fail('review suggestion schema status default must be "open"');
+    }
+    if (suggestionSchema.properties?.decision_ref?.default !== "") {
+      fail('review suggestion schema decision_ref default must be ""');
+    }
+  }
+  for (const suggestionSurface of [
+    "docs/design/suggestion-format.md",
+    "skills/review-technical-design/SKILL.md",
+    "methodologies/ddd/review-rubric.md",
+  ]) {
+    for (const requiredField of ["`title`", "`status`", "`decision_ref`"]) {
+      assertContains(
+        suggestionSurface,
+        requiredField,
+        `suggestion surface ${suggestionSurface} must document ${requiredField}`,
+      );
+    }
+  }
+  assertContains(
+    "docs/design/suggestion-format.md",
+    'decision_ref: ""',
+    "suggestion spec must state that decision_ref starts empty",
+  );
+  assertContains(
+    "docs/design/suggestion-format.md",
+    "status: open",
+    "suggestion spec must state that status starts open",
+  );
+  for (const reportField of [
+    "| id | title | sev | lens | dimension | status | decision_ref |",
+    '| S-001 | <short title> | blocking | agreement-integrity | system-model | open | "" |',
+  ]) {
+    assertContains(
+      "skills/review-technical-design/templates/review-report.md",
+      reportField,
+      "review report template must render required suggestion fields",
+    );
+  }
   for (const reviewSurface of [
     "skills/review-technical-design/SKILL.md",
     "methodologies/ddd/review-rubric.md",

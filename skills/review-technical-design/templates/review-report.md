@@ -12,9 +12,9 @@
 
 **Under-engineering flags:** <none | list>
 
-| id | sev | lens | dimension | evidence | finding | proposed fix | gate | lesson |
-|---|---|---|---|---|---|---|---|---|
-| S-001 | blocking | agreement-integrity | system-model | <section/source> | <finding> | <fix> | <gate_ref> | <lesson_ref> |
+| id | title | sev | lens | dimension | status | decision_ref | evidence | finding | proposed fix | gate | lesson |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| S-001 | <short title> | blocking | agreement-integrity | system-model | open | "" | <section/source> | <finding> | <fix> | <gate_ref> | <lesson_ref> |
 
 _Disposition_: reply per id with **fix / reject / defer (+reason)**. Dispositions are recorded in
 `decisions.md`; accepted fixes are applied through `author-technical-design` update mode.
