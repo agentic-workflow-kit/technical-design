@@ -33,7 +33,7 @@
     "check:links": "node scripts/check_non_eval.mjs links",
     "check:non-eval": "node scripts/check_non_eval.mjs all",
     "smoke:enforce-generator": "node scripts/smoke_generate_depcruise.mjs",
-    "check": "pnpm lint && pnpm check:non-eval && pnpm smoke:enforce-generator && pnpm --filter @agentic-workflow-kit/technical-design-evals check:deterministic"
+    "check": "pnpm lint && pnpm check:non-eval && pnpm smoke:enforce-generator && pnpm --filter @agentic-workflow-kit/eval-kit test && pnpm --filter @agentic-workflow-kit/technical-design-evals check:deterministic"
   },
   "devDependencies": {
     "prettier": "^3.6.2"

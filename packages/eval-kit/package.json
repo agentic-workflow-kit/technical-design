@@ -1,0 +1,20 @@
+{
+  "name": "@agentic-workflow-kit/eval-kit",
+  "version": "0.0.0",
+  "description": "Portable eval runner primitives for local eval suites.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "scripts": {
+    "test": "vitest run tests"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "ajv": "^8.17.1"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

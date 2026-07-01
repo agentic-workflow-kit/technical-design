@@ -1,0 +1,47 @@
+{
+  "schema_version": "technical-design.case-manifest.v1",
+  "case_id": "case-cloudevents-core-contract-v1",
+  "case_type": "tiny_contract",
+  "artifacts": [
+    {
+      "role": "generation_visible",
+      "path": "product.md"
+    },
+    {
+      "role": "generation_visible",
+      "path": "source-map.md"
+    },
+    {
+      "role": "grader_input",
+      "path": "expected-facts.json"
+    },
+    {
+      "role": "grader_input",
+      "path": "expected-boundaries.json"
+    },
+    {
+      "role": "semantic_reference",
+      "path": "reference-design.md"
+    },
+    {
+      "role": "semantic_reference",
+      "path": "rubric.md"
+    },
+    {
+      "role": "maintainer_only",
+      "path": "grader-notes.md"
+    },
+    {
+      "role": "provenance",
+      "path": "provenance.md"
+    }
+  ],
+  "grading": {
+    "grader": "technical-design-facts-boundaries",
+    "co_located_boundaries": true,
+    "allow_reference_design_as_ground_truth": false
+  },
+  "grounding": {
+    "source_ref_allowlist": ["product.md", "source-map.md"]
+  }
+}

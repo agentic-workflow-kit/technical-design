@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-workflow-kit.local/eval-kit/artifact.schema.json",
+  "title": "EvalKitArtifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "role",
+    "path",
+    "sha256",
+    "size_bytes",
+    "media_type",
+    "redaction_status"
+  ],
+  "properties": {
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "size_bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "media_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "encoding": {
+      "type": "string",
+      "minLength": 1
+    },
+    "redaction_status": {
+      "enum": ["raw-local", "redacted", "public-safe", "legacy-unknown"]
+    }
+  }
+}

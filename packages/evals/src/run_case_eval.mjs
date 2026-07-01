@@ -3,23 +3,20 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { defaultRunId, parseArgs, requireArg } from "./lib/args.mjs";
-import {
-  criticalBlockerCount,
-  gradeBoundaries,
-  gradeFacts,
-  verdictForFindings,
-} from "./lib/case_grader.mjs";
 import { validateJsonWithSchema, writeJson } from "./lib/json.mjs";
 import { commandString, gitCommit, toolVersions } from "./lib/metadata.mjs";
+import { artifactFor, writeEvalKitManifest } from "./lib/result_manifest.mjs";
 import {
   relativeToPackage,
-  relativeToRepo,
   resolveCaseDir,
   resolveRepoInputPath,
   resolveRunDir,
 } from "./lib/paths.mjs";
+import { gradeTechnicalDesignCandidate } from "./adapters/technical-design/grader-adapter.mjs";
+import { renderDeterministicReport } from "./adapters/technical-design/reporter.mjs";
 
 const main = () => {
+  const startedAt = new Date();
   const args = parseArgs(process.argv.slice(2));
   const caseId = requireArg(args, "case");
   const candidatePath = resolveRepoInputPath(
@@ -43,15 +40,16 @@ const main = () => {
   );
 
   const candidateText = fs.readFileSync(candidatePath, "utf8");
-  const findings = [
-    ...gradeFacts(candidateText, expectedFacts),
-    ...gradeBoundaries(candidateText, expectedBoundaries),
-  ];
+  const { findings, verdict } = gradeTechnicalDesignCandidate({
+    candidateText,
+    expectedFacts,
+    expectedBoundaries,
+  });
   const grades = validateJsonWithSchema(
     "grades.schema.json",
     {
       case_id: caseId,
-      verdict: verdictForFindings(findings),
+      verdict,
       findings,
     },
     "grades",
@@ -69,49 +67,58 @@ const main = () => {
     `cases/${caseId}/candidate.md`,
     `cases/${caseId}/grader-output.json`,
   ];
-  const manifest = validateJsonWithSchema(
-    "results-manifest.schema.json",
-    {
-      run_id: runId,
-      git_commit: gitCommit(),
-      command: commandString(),
-      case_ids: [caseId],
-      tool_versions: toolVersions(),
-      run_type: "deterministic",
-      output_files: outputFiles,
-    },
-    "manifest",
-  );
-  writeJson(path.join(resultDir, "manifest.json"), manifest);
-
-  const blockerCount = criticalBlockerCount(findings);
-  const findingCounts = findings.reduce(
-    (counts, finding) => ({
-      ...counts,
-      [finding.verdict]: (counts[finding.verdict] ?? 0) + 1,
-    }),
-    {},
-  );
   fs.writeFileSync(
     path.join(resultDir, "report.md"),
-    [
-      `# Eval Report: ${caseId}`,
-      "",
-      `Verdict: ${grades.verdict}`,
-      `Blocker findings: ${blockerCount}`,
-      `Finding counts: covered=${findingCounts.covered ?? 0}, missing=${findingCounts.missing ?? 0}, contradicted=${findingCounts.contradicted ?? 0}, invented=${findingCounts.invented ?? 0}, unknown=${findingCounts.unknown ?? 0}`,
-      "",
-      "## Findings",
-      "",
-      ...findings.map(
-        (finding) =>
-          `- ${finding.id} (${finding.kind}, ${finding.severity}): ${finding.verdict} - ${finding.evidence}`,
-      ),
-      "",
-      `Case directory: ${relativeToRepo(caseDir)}`,
-      `Candidate: ${relativeToRepo(candidatePath)}`,
-    ].join("\n"),
+    renderDeterministicReport({
+      caseId,
+      grades,
+      findings,
+      caseDir,
+      candidatePath,
+    }),
   );
+  fs.appendFileSync(path.join(resultDir, "report.md"), "\n");
+
+  const artifact = (role, fileName, mediaType) =>
+    artifactFor(resultDir, role, fileName, mediaType);
+  const endedAt = new Date();
+  writeEvalKitManifest({
+    runDir: resultDir,
+    manifest: {
+      schema_version: "eval-kit.result-manifest.v2",
+      run_id: runId,
+      run_type: "deterministic",
+      runner: {
+        id: "technical-design-eval-case",
+        version: "0.0.0",
+      },
+      case_ids: [caseId],
+      started_at: startedAt.toISOString(),
+      ended_at: endedAt.toISOString(),
+      duration_ms: endedAt.getTime() - startedAt.getTime(),
+      status: "completed",
+      git: {
+        commit: gitCommit(),
+      },
+      command: commandString(),
+      tool_versions: toolVersions(),
+      artifacts: [
+        artifact("grades", "grades.json", "application/json"),
+        artifact("report", "report.md", "text/markdown"),
+        artifact(
+          "candidate_markdown",
+          `cases/${caseId}/candidate.md`,
+          "text/markdown",
+        ),
+        artifact(
+          "grader_output",
+          `cases/${caseId}/grader-output.json`,
+          "application/json",
+        ),
+      ],
+      output_files: outputFiles,
+    },
+  });
 
   console.log(`Wrote eval results to ${relativeToPackage(resultDir)}`);
   if (grades.verdict === "red") {

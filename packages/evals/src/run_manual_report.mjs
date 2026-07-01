@@ -2,6 +2,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import {
+  createSchemaRegistry,
+  normalizeLegacyManifest,
+} from "@agentic-workflow-kit/eval-kit";
+
 import { parseArgs, requireArg } from "./lib/args.mjs";
 import { criticalBlockerCount } from "./lib/case_grader.mjs";
 import {
@@ -15,6 +20,7 @@ import { commandString, gitCommit, toolVersions } from "./lib/metadata.mjs";
 import {
   relativeToPackage,
   relativeToRepo,
+  resolveRepoPath,
   resolveRunDir,
 } from "./lib/paths.mjs";
 
@@ -72,6 +78,56 @@ const loadValidatedJson = (filePath, schemaFileName, label) => {
     };
   } catch (error) {
     return { status: "invalid", value: null, error: error.message };
+  }
+};
+
+const evalKitSchemaRegistry = () =>
+  createSchemaRegistry({
+    schemaRoots: [resolveRepoPath("packages/eval-kit/schemas")],
+  });
+
+const loadManifest = (runDir, label) => {
+  const manifestPath = path.join(runDir, "manifest.json");
+  const loaded = safeReadJson(manifestPath);
+  if (!loaded.exists) {
+    return { status: "missing", value: null, error: null };
+  }
+  if (loaded.error) {
+    return { status: "invalid", value: null, error: loaded.error };
+  }
+  try {
+    return {
+      status: "valid",
+      value: validateJsonWithSchema(
+        "results-manifest.schema.json",
+        loaded.value,
+        `${label} manifest`,
+      ),
+      error: null,
+    };
+  } catch (legacyError) {
+    try {
+      const registry = evalKitSchemaRegistry();
+      const manifest =
+        loaded.value?.schema_version === "eval-kit.result-manifest.v2"
+          ? loaded.value
+          : normalizeLegacyManifest(loaded.value, runDir);
+      return {
+        status: "valid",
+        value: registry.validateWithSchema(
+          "result-manifest.v2.schema.json",
+          manifest,
+          `${label} manifest`,
+        ),
+        error: null,
+      };
+    } catch (v2Error) {
+      return {
+        status: "invalid",
+        value: null,
+        error: `${legacyError.message}; ${v2Error.message}`,
+      };
+    }
   }
 };
 
@@ -242,12 +298,7 @@ const loadRunBundle = (label, runId) => {
     throw new Error(`referenced ${label} run does not exist: ${runId}`);
   }
 
-  const manifestPath = path.join(runDir, "manifest.json");
-  const manifest = loadValidatedJson(
-    manifestPath,
-    "results-manifest.schema.json",
-    `${label} manifest`,
-  );
+  const manifest = loadManifest(runDir, label);
 
   const reportFile = findFirstExistingFile(runDir, reportFileCandidates);
   const reportText = reportFile ? safeReadText(reportFile.absolutePath) : null;
