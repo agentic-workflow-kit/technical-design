@@ -14,7 +14,7 @@ lower layers are explicit, reproducible, and reviewable.
 | 0. Strategy and scope                  | Done    | Evaluation strategy added and linked from eval docs.                                    |
 | 1. Deterministic fixture contracts     | Done    | Review expectations and DDD defect fixtures are validated in `pnpm check`.              |
 | 2. Schema-backed deterministic harness | Done    | Ajv schemas and Vitest validator tests are wired into `pnpm check`.                     |
-| 3. Product-to-design case runner       | Done    | Three self-contained deterministic cases and local result runner are available.         |
+| 3. Product-to-design case runner       | Done    | Seven self-contained deterministic cases and local result runner are available.         |
 | 3.5. Case grader calibration           | Done    | Source-visible expectations, calibrated text matching, local ownership evidence, and pointwise judging are covered. |
 | 4. LLM judge and pairwise regression   | Scaffolded | Manual judge rubrics, output schemas, and Promptfoo template exist outside the gate. |
 | 5. Outcome studies                     | Scaffolded | Redacted outcome-study template and schema exist for future manual studies.          |
@@ -165,8 +165,10 @@ Implemented:
 
 - Added `fixtures/cases/README.md` with case authoring rules and fixture licensing requirements.
 - Added the initial synthetic, self-contained product-to-design case and later calibrated the
-  committed case set to three cases: `case-aerial-delivery-shipping-v1`,
-  `case-customer-credit-order-saga-v1`, and `case-tiny-laundry-pickup-v1`.
+  committed case set to seven cases: `case-aerial-delivery-shipping-v1`,
+  `case-cloudevents-core-contract-v1`, `case-customer-credit-order-saga-v1`,
+  `case-fineract-loan-lifecycle-v1`, `case-kubernetes-sidecar-containers-v1`,
+  `case-openfeature-evaluation-api-v1`, and `case-tiny-laundry-pickup-v1`.
 - Added schemas for expected facts, expected boundaries, grades, and result manifests.
 - Added `packages/evals/src/run_case_eval.mjs`, which reads a candidate design and writes `manifest.json`,
   `grades.json`, `report.md`, and per-case grader evidence under ignored `packages/evals/results/<run-id>/`.
@@ -208,8 +210,8 @@ Implemented:
 - Added fact-level accepted alternatives and concept groups to match boundary-grader behavior.
 - Added fixture validation that expected facts and boundaries cite `SRC-*` IDs visible in
   `product.md` or `source-map.md`.
-- Calibrated the three current product-to-design cases against known false blockers from the
-  three-case pilot.
+- Calibrated the current product-to-design cases against known false blockers from the initial
+  three-case pilot and the public case expansion.
 - Accounted for the staged approval flow by validating that the author contract requires
   `InputResolution`, `AgreedSystemModel`, and `DocStructurePlan`, while keeping current compact
   reference designs as comparison anchors rather than requiring them to reproduce every canonical

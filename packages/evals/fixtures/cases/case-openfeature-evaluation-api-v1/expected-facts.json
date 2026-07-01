@@ -1,0 +1,92 @@
+{
+  "case_id": "case-openfeature-evaluation-api-v1",
+  "facts": [
+    {
+      "id": "FACT-001",
+      "category": "goal",
+      "severity": "critical",
+      "source_refs": ["SRC-001"],
+      "description": "The evaluation API is vendor/control-plane independent.",
+      "must_include_any": [
+        "vendor-agnostic",
+        "vendor independent",
+        "independently of any flag control plane"
+      ],
+      "must_include_all": ["evaluation API"]
+    },
+    {
+      "id": "FACT-002",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-002"],
+      "description": "No provider configured means no-op/default-value behavior.",
+      "must_include_any": ["no-op provider", "default value"],
+      "must_include_all": ["no-op", "default"]
+    },
+    {
+      "id": "FACT-003",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-003", "SRC-004"],
+      "description": "Providers perform flag evaluation as backend adapters.",
+      "must_include_any": [
+        "Provider Adapter",
+        "provider as backend adapter",
+        "providers perform flag evaluations"
+      ],
+      "must_include_all": ["vendor SDK", "REST API", "local flag data"],
+      "must_not_include_any": [
+        "Provider owns application business logic",
+        "Provider owns app business logic",
+        "provider owns product decisions"
+      ]
+    },
+    {
+      "id": "FACT-004",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-006", "SRC-007"],
+      "description": "Hooks run at before, after, error, and finally evaluation stages.",
+      "must_include_any": ["hooks", "Hook Pipeline"],
+      "must_include_all": ["before", "after", "error", "finally"]
+    },
+    {
+      "id": "FACT-005",
+      "category": "event",
+      "severity": "critical",
+      "source_refs": ["SRC-008"],
+      "description": "Provider events communicate readiness, error, configuration-changed, and stale state.",
+      "must_include_any": ["provider events", "Provider Events"],
+      "must_include_all": [
+        "PROVIDER_READY",
+        "PROVIDER_ERROR",
+        "PROVIDER_CONFIGURATION_CHANGED",
+        "PROVIDER_STALE"
+      ]
+    },
+    {
+      "id": "FACT-006",
+      "category": "non-goal",
+      "severity": "critical",
+      "source_refs": ["SRC-009"],
+      "description": "Flag-management UI, rule authoring, audit workflows, and application business decisions stay out of scope.",
+      "must_include_any": ["out of scope", "non-goal", "remain out of scope"],
+      "must_include_all": [
+        "flag-management UI",
+        "rule",
+        "audit",
+        "application business"
+      ],
+      "must_not_include_any": [
+        "OpenFeature owns flag management UI",
+        "OpenFeature owns flag rules",
+        "requires a FeatureFlag aggregate",
+        "Use a FeatureFlag aggregate",
+        "FeatureFlag aggregate is the core model",
+        "FeatureFlag aggregate owns flag evaluation",
+        "FeatureFlagRepository",
+        "OpenFeature owns audit workflow"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "case_id": "case-kubernetes-sidecar-containers-v1",
+  "contexts": [
+    {
+      "id": "CTX-001",
+      "name": "Pod Lifecycle",
+      "source_refs": ["SRC-001", "SRC-005", "SRC-006", "SRC-007", "SRC-008"],
+      "owns": [
+        "Pod startup",
+        "termination sequencing",
+        "Job completion interpretation"
+      ],
+      "reads": ["sidecar container status", "app container status"],
+      "does_not_own": ["new workload API"],
+      "must_include_all": [
+        "Pod Lifecycle owns Pod startup",
+        "termination sequencing",
+        "Job completion interpretation"
+      ],
+      "must_not_include_any": [
+        "Pod Lifecycle owns new workload API",
+        "Pod Lifecycle requires sidecars to finish before termination"
+      ]
+    },
+    {
+      "id": "CTX-002",
+      "name": "Sidecar Runtime",
+      "source_refs": ["SRC-002", "SRC-003", "SRC-004"],
+      "owns": [
+        "restartable init-container behavior",
+        "restartPolicy Always semantics"
+      ],
+      "reads": ["init container order"],
+      "does_not_own": ["ordinary app container lifecycle"],
+      "must_include_all": [
+        "Sidecar Runtime owns restartable init-container behavior",
+        "restartPolicy Always semantics"
+      ],
+      "must_not_include_any": [
+        "Sidecar Runtime owns ordinary app container lifecycle"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Restartable Init Container Runtime naming",
+          "must_include_all": [
+            "Restartable Init Container Runtime",
+            "owns restartable init-container behavior",
+            "restartPolicy Always"
+          ]
+        },
+        {
+          "label": "Sidecar Runtime colonized restart policy wording",
+          "must_include_all": [
+            "Sidecar Runtime",
+            "owns restartable init-container behavior",
+            "restartPolicy: Always"
+          ]
+        }
+      ]
+    }
+  ]
+}

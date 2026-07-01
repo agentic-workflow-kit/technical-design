@@ -1,0 +1,68 @@
+{
+  "case_id": "case-cloudevents-core-contract-v1",
+  "facts": [
+    {
+      "id": "FACT-001",
+      "category": "goal",
+      "severity": "critical",
+      "source_refs": ["SRC-001"],
+      "description": "CloudEvents is an interoperability contract across services, platforms, and systems.",
+      "must_include_any": ["interoperability", "interoperable"],
+      "must_include_all": ["services", "platforms", "systems"]
+    },
+    {
+      "id": "FACT-002",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-002", "SRC-003"],
+      "description": "Context attributes and domain event data are separate concerns.",
+      "must_include_any": ["context attributes", "event context"],
+      "must_include_all": ["domain-specific payload", "event data"],
+      "must_not_include_any": [
+        "context attributes and domain payload are one object",
+        "EventContract owns domain payload lifecycle",
+        "CloudEventEnvelope owns domain behavior"
+      ],
+      "accepted_alternatives": [
+        {
+          "label": "Metadata and payload separation",
+          "must_include_all": ["metadata", "payload", "separate"]
+        }
+      ]
+    },
+    {
+      "id": "FACT-003",
+      "category": "api",
+      "severity": "critical",
+      "source_refs": ["SRC-004", "SRC-007"],
+      "description": "The design preserves event-format and JSON format support.",
+      "must_include_any": ["JSON event-format", "JSON format", "event formats"],
+      "must_include_all": ["serialize", "bytes"]
+    },
+    {
+      "id": "FACT-004",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-005", "SRC-006"],
+      "description": "Structured and binary message modes remain part of the contract.",
+      "must_include_any": ["structured mode", "structured-mode"],
+      "must_include_all": ["binary mode"]
+    },
+    {
+      "id": "FACT-005",
+      "category": "non-goal",
+      "severity": "critical",
+      "source_refs": ["SRC-008"],
+      "description": "The fixture must not invent broker ownership, event-store scope, or event-sourcing lifecycle.",
+      "must_include_any": ["out of scope", "non-goal", "remain out of scope"],
+      "must_include_all": ["Kafka", "event-sourcing"],
+      "must_not_include_any": [
+        "Kafka owns CloudEvents delivery",
+        "Broker owns CloudEvents semantics",
+        "Event Store owns CloudEvents lifecycle",
+        "CloudEvents defines event-sourcing lifecycle",
+        "CloudEvents aggregate repository"
+      ]
+    }
+  ]
+}

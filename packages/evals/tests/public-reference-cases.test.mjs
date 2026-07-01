@@ -25,7 +25,25 @@ const findingsForCaseCandidate = (caseId, candidate) => [
   ...gradeBoundaries(candidate, readJson(caseId, "expected-boundaries.json")),
 ];
 
+const newPublicCaseIds = [
+  "case-cloudevents-core-contract-v1",
+  "case-openfeature-evaluation-api-v1",
+  "case-kubernetes-sidecar-containers-v1",
+  "case-fineract-loan-lifecycle-v1",
+];
+
 describe("public reference cases", () => {
+  it("accepts the new public reference designs", () => {
+    for (const caseId of newPublicCaseIds) {
+      const findings = findingsForCaseCandidate(
+        caseId,
+        readText(caseId, "reference-design.md"),
+      );
+
+      expect(verdictForFindings(findings), caseId).toBe("green");
+    }
+  });
+
   it("rejects 2PC as a customer-credit saga contradiction", () => {
     const expectedFacts = readJson(
       "case-customer-credit-order-saga-v1",
@@ -398,6 +416,141 @@ describe("public reference cases", () => {
         "contradicted",
       );
       expect(verdictForFindings(findings), snippet).toBe("red");
+    }
+  });
+
+  it("rejects documented CloudEvents deterministic blocker snippets", () => {
+    const caseId = "case-cloudevents-core-contract-v1";
+    const referenceDesign = readText(caseId, "reference-design.md");
+
+    const snippets = [
+      ["Kafka owns CloudEvents delivery", "FACT-005"],
+      ["CloudEvents defines event-sourcing lifecycle", "FACT-005"],
+      ["context attributes and domain payload are one object", "FACT-002"],
+      ["Event Contract owns domain payload lifecycle", "CTX-001"],
+    ];
+
+    for (const [snippet, expectedFindingId] of snippets) {
+      const findings = findingsForCaseCandidate(
+        caseId,
+        [referenceDesign, snippet].join("\n\n"),
+      );
+
+      expect(verdictFor(findings, expectedFindingId), snippet).toBe(
+        "contradicted",
+      );
+      expect(verdictForFindings(findings), snippet).toBe("red");
+    }
+  });
+
+  it("rejects documented OpenFeature deterministic blocker snippets", () => {
+    const caseId = "case-openfeature-evaluation-api-v1";
+    const referenceDesign = readText(caseId, "reference-design.md");
+
+    const snippets = [
+      ["OpenFeature owns flag management UI", "FACT-006"],
+      ["requires a FeatureFlag aggregate", "FACT-006"],
+      ["Use a FeatureFlag aggregate for this design", "FACT-006"],
+      ["FeatureFlag aggregate is the core model", "FACT-006"],
+      ["Provider owns application business logic", "FACT-003"],
+      ["OpenFeature owns audit workflow", "FACT-006"],
+    ];
+
+    for (const [snippet, expectedFindingId] of snippets) {
+      const findings = findingsForCaseCandidate(
+        caseId,
+        [referenceDesign, snippet].join("\n\n"),
+      );
+
+      expect(verdictFor(findings, expectedFindingId), snippet).toBe(
+        "contradicted",
+      );
+      expect(verdictForFindings(findings), snippet).toBe("red");
+    }
+  });
+
+  it("rejects documented Kubernetes sidecar deterministic blocker snippets", () => {
+    const caseId = "case-kubernetes-sidecar-containers-v1";
+    const referenceDesign = readText(caseId, "reference-design.md");
+
+    const snippets = [
+      ["sidecars are ordinary app containers", "FACT-001"],
+      ["sidecars must finish before pod termination", "FACT-004"],
+      ["sidecars terminate before main containers", "FACT-004"],
+      ["SidecarWorkload API", "FACT-007"],
+      ["Use a new workload API for sidecars", "FACT-007"],
+    ];
+
+    for (const [snippet, expectedFindingId] of snippets) {
+      const findings = findingsForCaseCandidate(
+        caseId,
+        [referenceDesign, snippet].join("\n\n"),
+      );
+
+      expect(verdictFor(findings, expectedFindingId), snippet).toBe(
+        "contradicted",
+      );
+      expect(verdictForFindings(findings), snippet).toBe("red");
+    }
+  });
+
+  it("rejects documented Fineract deterministic blocker snippets", () => {
+    const caseId = "case-fineract-loan-lifecycle-v1";
+    const referenceDesign = readText(caseId, "reference-design.md");
+
+    const snippets = [
+      ["charge mutation after approval is unrestricted", "FACT-005"],
+      ["Loan Account Lifecycle owns product configuration", "CTX-001"],
+      ["loan product and loan account are the same aggregate", "FACT-001"],
+      ["Underwriting owns approval decision", "FACT-007"],
+      ["business events are UI-only state", "FACT-006"],
+    ];
+
+    for (const [snippet, expectedFindingId] of snippets) {
+      const findings = findingsForCaseCandidate(
+        caseId,
+        [referenceDesign, snippet].join("\n\n"),
+      );
+
+      expect(verdictFor(findings, expectedFindingId), snippet).toBe(
+        "contradicted",
+      );
+      expect(verdictForFindings(findings), snippet).toBe("red");
+    }
+  });
+
+  it("accepts valid negated and non-goal wording for new cases", () => {
+    const validCandidates = [
+      [
+        "case-cloudevents-core-contract-v1",
+        "Kafka and event-sourcing remain out of scope; context attributes stay separate from domain-specific payload event data, and JSON format support serializes events as bytes in structured mode and binary mode for interoperability across services, platforms, and systems.",
+        "FACT-005",
+      ],
+      [
+        "case-openfeature-evaluation-api-v1",
+        "No FeatureFlag aggregate is required. Flag-management UI, rule authoring, audit workflow, and application business decisions remain out of scope while the evaluation API stays vendor-agnostic with no-op default behavior.",
+        "FACT-006",
+      ],
+      [
+        "case-kubernetes-sidecar-containers-v1",
+        "No new workload API is selected; sidecars are not ordinary app containers. They are special init containers in initContainers with restartPolicy: Always and keep app containers distinct.",
+        "FACT-007",
+      ],
+      [
+        "case-fineract-loan-lifecycle-v1",
+        "Underwriting, credit scoring, and client onboarding remain out of scope; Loan Account Lifecycle reads the loan product template but does not own loan product configuration.",
+        "FACT-007",
+      ],
+    ];
+
+    for (const [caseId, candidate, expectedFindingId] of validCandidates) {
+      const findings = findingsForCaseCandidate(
+        caseId,
+        [readText(caseId, "reference-design.md"), candidate].join("\n\n"),
+      );
+
+      expect(verdictFor(findings, expectedFindingId), caseId).toBe("covered");
+      expect(verdictForFindings(findings), caseId).toBe("green");
     }
   });
 });

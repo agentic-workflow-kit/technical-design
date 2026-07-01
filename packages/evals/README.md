@@ -18,7 +18,7 @@ The Promptfoo/Codex pilot design lives in
 - `fixtures/enforce/` - executable dependency-cruiser fixture proving seeded boundary failures.
 - `schemas/` - JSON Schemas for deterministic fixtures and generated result contracts.
 - `tests/` - Vitest coverage for validator failure modes.
-- `fixtures/cases/` - three self-contained product-to-design case fixtures.
+- `fixtures/cases/` - seven self-contained product-to-design case fixtures.
 - `promptfoo/judges/` - manual model-graded judge rubrics and Promptfoo template.
 - `fixtures/outcomes/` - redacted outcome-study templates for downstream delivery friction.
 - `results/` - ignored local run outputs; only `results/README.md` is committed.
@@ -50,7 +50,11 @@ shape as `skills/review-technical-design/templates/suggestion.schema.json`.
 The product-to-design deterministic runner currently grades these committed cases:
 
 - `case-aerial-delivery-shipping-v1`
+- `case-cloudevents-core-contract-v1`
 - `case-customer-credit-order-saga-v1`
+- `case-fineract-loan-lifecycle-v1`
+- `case-kubernetes-sidecar-containers-v1`
+- `case-openfeature-evaluation-api-v1`
 - `case-tiny-laundry-pickup-v1`
 
 It writes red/yellow/green deterministic verdicts only. The `great` verdict is reserved for

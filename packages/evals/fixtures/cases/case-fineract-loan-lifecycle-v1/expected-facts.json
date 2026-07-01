@@ -1,0 +1,108 @@
+{
+  "case_id": "case-fineract-loan-lifecycle-v1",
+  "facts": [
+    {
+      "id": "FACT-001",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-001"],
+      "description": "Loan product template ownership is distinct from loan account lifecycle ownership.",
+      "must_include_any": ["loan product", "Loan Product Configuration"],
+      "must_include_all": ["template", "loan account"],
+      "must_not_include_any": [
+        "Loan Account Lifecycle owns product configuration",
+        "Loan Product Configuration owns account state transitions",
+        "loan product and loan account are the same aggregate"
+      ]
+    },
+    {
+      "id": "FACT-002",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-002"],
+      "description": "Loan account lifecycle commands include application approval and disbursement flow.",
+      "must_include_any": ["loan lifecycle", "application"],
+      "must_include_all": [
+        "approve",
+        "reject",
+        "withdraw",
+        "undo approval",
+        "disburse"
+      ]
+    },
+    {
+      "id": "FACT-003",
+      "category": "workflow",
+      "severity": "critical",
+      "source_refs": ["SRC-003", "SRC-004"],
+      "description": "Repayment, write-off, and foreclosure are transaction commands with transaction dates.",
+      "must_include_any": ["transaction commands", "loan transaction"],
+      "must_include_all": [
+        "repayment",
+        "write-off",
+        "foreclosure",
+        "transactionDate"
+      ]
+    },
+    {
+      "id": "FACT-004",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-005", "SRC-006"],
+      "description": "Loan charge product management is separate from loan-account charge management.",
+      "must_include_any": ["Loan Charges", "loan charge"],
+      "must_include_all": ["/v1/charges", "/v1/loans/{loanId}/charges"]
+    },
+    {
+      "id": "FACT-005",
+      "category": "invariant",
+      "severity": "critical",
+      "source_refs": ["SRC-007", "SRC-008"],
+      "description": "Loan charge operations have validation and lifecycle timing restrictions.",
+      "must_include_any": ["charge validation", "validated"],
+      "must_include_all": [
+        "currency",
+        "due dates",
+        "percentage",
+        "disbursement charges"
+      ],
+      "must_not_include_any": [
+        "charge mutation after approval is unrestricted",
+        "charges can be freely changed after approval",
+        "loan charges are free-form edits"
+      ]
+    },
+    {
+      "id": "FACT-006",
+      "category": "event",
+      "severity": "critical",
+      "source_refs": ["SRC-009"],
+      "description": "Accounting and business events are lifecycle outputs, not UI-only state.",
+      "must_include_any": ["business events", "Business Events"],
+      "must_include_all": ["accounting", "journal entries", "balance-changed"],
+      "must_not_include_any": [
+        "accounting events are UI-only state",
+        "business events are UI-only state",
+        "journal entries are just UI state"
+      ]
+    },
+    {
+      "id": "FACT-007",
+      "category": "non-goal",
+      "severity": "critical",
+      "source_refs": ["SRC-010"],
+      "description": "Underwriting, credit scoring, client onboarding, and broad module scope stay out of scope.",
+      "must_include_any": ["out of scope", "non-goal", "remain out of scope"],
+      "must_include_all": [
+        "underwriting",
+        "credit scoring",
+        "client onboarding"
+      ],
+      "must_not_include_any": [
+        "Underwriting owns approval decision",
+        "Credit Scoring owns loan lifecycle",
+        "client onboarding is in scope"
+      ]
+    }
+  ]
+}
