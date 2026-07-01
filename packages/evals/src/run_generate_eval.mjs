@@ -166,10 +166,7 @@ const main = () => {
   runPromptfoo(outputFiles.config);
 
   const promptfooResults = readJson(outputFiles.json);
-  const candidateText = extractPromptfooOutput(
-    promptfooResults,
-    "legacy-longest-string",
-  ).trim();
+  const candidateText = extractPromptfooOutput(promptfooResults).trim();
   if (!candidateText) {
     throw new Error("Promptfoo generation output was empty");
   }

@@ -11,6 +11,22 @@ describe("eval-kit promptfoo helpers", () => {
     ).toBe("candidate");
   });
 
+  it("prefers response output over longer prompt or source strings", () => {
+    expect(
+      extractPromptfooOutput({
+        results: [
+          {
+            vars: {
+              prompt:
+                "# Long prompt\n\nThis source text is much longer than the model output.",
+            },
+            response: { output: "candidate" },
+          },
+        ],
+      }),
+    ).toBe("candidate");
+  });
+
   it("extracts alternate response fields and nested promptfoo rows", () => {
     expect(
       extractPromptfooOutput({

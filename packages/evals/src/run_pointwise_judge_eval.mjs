@@ -274,9 +274,7 @@ const main = () => {
   runPromptfoo(outputFiles.config);
 
   const promptfooResults = readJson(outputFiles.json);
-  const rawResult = parseJsonOutput(
-    extractPromptfooOutput(promptfooResults, "legacy-longest-string"),
-  );
+  const rawResult = parseJsonOutput(extractPromptfooOutput(promptfooResults));
   const result = validateJsonWithSchema(
     "pointwise-judge-result.schema.json",
     rawResult,
