@@ -71,6 +71,9 @@ Layer 1 protects contracts that are cheap to verify:
 This layer is the natural extension of the current `packages/evals/src/run_static_checks.sh` and
 `packages/evals/src/run_enforce_eval.sh` gates.
 
+Current status: implemented and gated by `pnpm check` through static schema/fixture checks, skill and
+profile checks, deterministic unit tests, and seeded enforcement evals.
+
 ### Layer 2 - Skill Fixtures
 
 Layer 2 evaluates each skill in isolation with small fixtures:
@@ -94,6 +97,10 @@ Implemented first slice:
   grow as future Layer 3 classes move from target strategy to executable fixtures.
 - `packages/evals/src/validate_eval_fixtures.mjs` runs inside the static check gate so malformed fixture
   expectations fail `pnpm check`.
+
+Current status: implemented and gated for the committed review, DDD, planning, enforcement, and case
+fixture contracts. Review suggestion fixtures use the current required `title`, `status`, and
+`decision_ref` fields.
 
 ### Layer 3 - Defect Injection
 
@@ -162,6 +169,12 @@ packages/evals/results/<run-id>/
 Reference designs are comparison anchors, not exact targets. A generated design can pass when it
 preserves required facts and makes defensible alternative boundary choices.
 
+Current status: three self-contained cases are committed under `packages/evals/fixtures/cases/`.
+Their reference designs are intentionally compact anchors, not full canonical-template outputs. The
+deterministic grader uses source-visible expected facts and boundaries, accepted alternatives, and
+concept groups. Default boundary coverage requires local ownership evidence instead of scattered
+context and noun mentions.
+
 ### Layer 5 - Downstream Outcome Studies
 
 Layer 5 measures whether better design artifacts reduce downstream delivery cost:
@@ -186,7 +199,7 @@ flowchart TD
     Facts["Reference and fact graders"]
     Judge["LLM semantic judge"]
     Human["Human calibration set"]
-    Verdict["Verdict<br/>red-yellow-green-great"]
+    Verdict["Verdict<br/>red-yellow-green<br/>great only in manual reports"]
 
     Candidate --> Static
     Candidate --> Facts
@@ -313,7 +326,7 @@ Use gate-oriented verdicts instead of average scores:
 | `red` | Any hard blocker exists. |
 | `yellow` | No blocker, but the run does not meet the green bar: less than 90 percent of critical criteria pass or less than 70 percent of recommended criteria pass. |
 | `green` | No blocker, at least 90 percent of critical criteria pass, and at least 70 percent of recommended criteria pass. |
-| `great` | Green and wins pairwise against the raw-model baseline or prior pack output. |
+| `great` | Manual/report-level only: green and wins calibrated pairwise comparison against the raw-model baseline or prior pack output. Deterministic `eval:case` does not currently emit this verdict. |
 
 Hard blockers:
 

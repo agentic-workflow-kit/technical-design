@@ -18,7 +18,7 @@ The Promptfoo/Codex pilot design lives in
 - `fixtures/enforce/` - executable dependency-cruiser fixture proving seeded boundary failures.
 - `schemas/` - JSON Schemas for deterministic fixtures and generated result contracts.
 - `tests/` - Vitest coverage for validator failure modes.
-- `fixtures/cases/` - self-contained product-to-design case fixtures.
+- `fixtures/cases/` - three self-contained product-to-design case fixtures.
 - `promptfoo/judges/` - manual model-graded judge rubrics and Promptfoo template.
 - `fixtures/outcomes/` - redacted outcome-study templates for downstream delivery friction.
 - `results/` - ignored local run outputs; only `results/README.md` is committed.
@@ -33,7 +33,7 @@ The Promptfoo/Codex pilot design lives in
 - `src/run_static_checks.sh` - local validation for skills, schema, profile files, and private
   source-name leaks.
 
-## Initial deterministic eval classes
+## Current deterministic eval classes
 
 - Missing bounded context ownership.
 - Invented failure token.
@@ -46,6 +46,16 @@ The current deterministic DDD defect classes are declared in `fixtures/ddd/defec
 checks verify that each initial defect class points to an existing fixture, a known lesson, and
 exact DDD review-rubric text. `fixtures/review/expected-suggestions.json` uses the same suggestion
 shape as `skills/review-technical-design/templates/suggestion.schema.json`.
+
+The product-to-design deterministic runner currently grades these committed cases:
+
+- `case-aerial-delivery-shipping-v1`
+- `case-customer-credit-order-saga-v1`
+- `case-tiny-laundry-pickup-v1`
+
+It writes red/yellow/green deterministic verdicts only. The `great` verdict is reserved for
+manual/report-level comparison after green deterministic coverage and calibrated pairwise evidence;
+deterministic `eval:case` does not emit `great`.
 
 ## Verifiable enforcement requirement
 
@@ -137,6 +147,12 @@ Output:
 - `results/<run-id>-deterministic/report.md`
 - `results/<run-id>-deterministic/manifest.json`
 - `results/<run-id>-deterministic/cases/<case-id>/candidate.md`
+- `results/<run-id>-deterministic/cases/<case-id>/grader-output.json`
+
+The report lists the overall verdict, blocker count, verdict counts, and per-finding evidence. Fact
+findings show exact, alternative, concept-group, or missing/contradicted evidence. Boundary findings
+also show the local candidate segment that proved default ownership coverage, so scattered context
+and owned nouns do not pass without nearby ownership evidence.
 
 Run pointwise coverage judging:
 

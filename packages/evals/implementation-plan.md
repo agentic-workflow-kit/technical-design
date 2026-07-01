@@ -14,8 +14,8 @@ lower layers are explicit, reproducible, and reviewable.
 | 0. Strategy and scope                  | Done    | Evaluation strategy added and linked from eval docs.                                    |
 | 1. Deterministic fixture contracts     | Done    | Review expectations and DDD defect fixtures are validated in `pnpm check`.              |
 | 2. Schema-backed deterministic harness | Done    | Ajv schemas and Vitest validator tests are wired into `pnpm check`.                     |
-| 3. Product-to-design case runner       | Done    | One self-contained deterministic case and local result runner are available.            |
-| 3.5. Case grader calibration           | Done    | Source-visible expectations, calibrated text matching, and pointwise judging are covered. |
+| 3. Product-to-design case runner       | Done    | Three self-contained deterministic cases and local result runner are available.         |
+| 3.5. Case grader calibration           | Done    | Source-visible expectations, calibrated text matching, local ownership evidence, and pointwise judging are covered. |
 | 4. LLM judge and pairwise regression   | Scaffolded | Manual judge rubrics, output schemas, and Promptfoo template exist outside the gate. |
 | 5. Outcome studies                     | Scaffolded | Redacted outcome-study template and schema exist for future manual studies.          |
 
@@ -164,7 +164,9 @@ Recommended OSS tools:
 Implemented:
 
 - Added `fixtures/cases/README.md` with case authoring rules and fixture licensing requirements.
-- Added `case-tiny-laundry-pickup-v1` as a synthetic, self-contained product-to-design case.
+- Added the initial synthetic, self-contained product-to-design case and later calibrated the
+  committed case set to three cases: `case-aerial-delivery-shipping-v1`,
+  `case-customer-credit-order-saga-v1`, and `case-tiny-laundry-pickup-v1`.
 - Added schemas for expected facts, expected boundaries, grades, and result manifests.
 - Added `packages/evals/src/run_case_eval.mjs`, which reads a candidate design and writes `manifest.json`,
   `grades.json`, `report.md`, and per-case grader evidence under ignored `packages/evals/results/<run-id>/`.
@@ -173,7 +175,8 @@ Agents and review:
 
 - Researcher: identify candidate public artifacts and licensing/provenance constraints.
 - Architect: approve the case format before adding multiple cases.
-- Implementer: add runner and one tiny case.
+- Implementer: add runner and current public case fixtures without introducing private product
+  names.
 - Reviewer: inspect whether expected facts are source-grounded and not inferred from reference prose.
 
 Integration point:
@@ -200,11 +203,21 @@ wording into hidden product requirements.
 Implemented:
 
 - Calibrated deterministic text matching for Markdown punctuation and source-equivalent wording.
+- Tightened default boundary matching so context names and owned nouns must appear in the same local
+  candidate segment unless the fixture declares explicit accepted alternatives or concept groups.
 - Added fact-level accepted alternatives and concept groups to match boundary-grader behavior.
 - Added fixture validation that expected facts and boundaries cite `SRC-*` IDs visible in
   `product.md` or `source-map.md`.
 - Calibrated the three current product-to-design cases against known false blockers from the
   three-case pilot.
+- Accounted for the staged approval flow by validating that the author contract requires
+  `InputResolution`, `AgreedSystemModel`, and `DocStructurePlan`, while keeping current compact
+  reference designs as comparison anchors rather than requiring them to reproduce every canonical
+  template section.
+- Accounted for the canonical DDD template change by treating
+  `skills/author-technical-design/templates/design-doc.md` as an alias and checking only
+  compatibility markers there; the canonical body stays in
+  `methodologies/ddd/templates/technical-design.md`.
 - Added a manual pointwise judge to grade expected `FACT-*` and `CTX-*` items before pairwise
   comparison.
 - Updated the authoring contract so source-named aggregates and service candidates receive explicit
@@ -361,6 +374,9 @@ packages/evals/results/<run-id>/
 
 `manifest.json` should record command, git commit, case ids, tool versions, model/provider metadata
 when applicable, and whether the run is deterministic or model-graded.
+
+Deterministic case reports emit red/yellow/green only. `great` is a manual/report-level verdict for
+green runs that also win calibrated pairwise comparison; it is not emitted by `eval:case`.
 
 ## OSS Tooling Decision Log
 

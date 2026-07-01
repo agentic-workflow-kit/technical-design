@@ -167,4 +167,56 @@ describe("gradeBoundaries", () => {
       verdict: "contradicted",
     });
   });
+
+  it("does not accept scattered context and owns nouns without local ownership evidence", () => {
+    const findings = gradeBoundaries(
+      [
+        "Identity participates in resident access flows.",
+        "The glossary mentions verified resident records and access checks.",
+        "Scheduling owns booking lifecycle and conflict checks.",
+      ].join("\n"),
+      expectedBoundaries,
+    );
+
+    expect(findings[0]).toMatchObject({
+      id: "CTX-001",
+      verdict: "missing",
+      evidence: expect.stringContaining("missing required evidence"),
+    });
+  });
+
+  it("accepts ownership evidence in a parent bullet with child bullets", () => {
+    const findings = gradeBoundaries(
+      [
+        "- Identity owns:",
+        "  - verified resident record",
+        "  - access checks",
+        "",
+        "- Scheduling owns booking lifecycle and conflict checks.",
+      ].join("\n"),
+      expectedBoundaries,
+    );
+
+    expect(findings[0]).toMatchObject({
+      id: "CTX-001",
+      verdict: "covered",
+    });
+  });
+
+  it("accepts ownership evidence in a sentence followed by plain child bullets", () => {
+    const findings = gradeBoundaries(
+      [
+        "Identity owns resident eligibility:",
+        "- verified resident record",
+        "- access checks",
+        "- Scheduling owns booking lifecycle and conflict checks.",
+      ].join("\n"),
+      expectedBoundaries,
+    );
+
+    expect(findings[0]).toMatchObject({
+      id: "CTX-001",
+      verdict: "covered",
+    });
+  });
 });
