@@ -57,6 +57,10 @@ It writes red/yellow/green deterministic verdicts only. The `great` verdict is r
 manual/report-level comparison after green deterministic coverage and calibrated pairwise evidence;
 deterministic `eval:case` does not emit `great`.
 
+Case authors should use [`fixtures/cases/README.md`](./fixtures/cases/README.md) as the local
+authoring contract for case purpose, required files, source-visible expectations, reference anchors,
+rubrics, grader notes, and provenance.
+
 ## Verifiable enforcement requirement
 
 The `enforce` eval proves that generated dependency-cruiser rules fail for seeded violations:

@@ -14,3 +14,6 @@ A candidate should be treated as blocked when it:
 - invents fixed account internals, regulatory workflows, exact APIs, or production safety policy as if the sources required them.
 
 Equivalent wording is acceptable when it preserves the same source-backed facts and boundaries.
+`Package`, `Scheduler`, and `Supervisor` can be standalone services or explicit internal
+sub-boundaries. `Ingestion` is a valid optional buffering pattern, but it must not own scheduling
+decisions.

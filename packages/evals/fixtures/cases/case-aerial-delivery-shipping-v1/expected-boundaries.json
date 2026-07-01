@@ -103,6 +103,15 @@
             "separate aggregate",
             "direct microservice candidate"
           ]
+        },
+        {
+          "label": "Package as an internal Shipping sub-boundary",
+          "must_include_all": [
+            "Shipping",
+            "Package",
+            "internal sub-boundary",
+            "package tagging"
+          ]
         }
       ],
       "required_concepts": [
@@ -174,6 +183,15 @@
             "Drone Scheduler",
             "owns the scheduling workflow"
           ]
+        },
+        {
+          "label": "Scheduling workflow service inside Shipping",
+          "must_include_all": [
+            "Shipping",
+            "workflow service",
+            "owns scheduling coordination",
+            "drone assignment"
+          ]
         }
       ],
       "required_concepts": [
@@ -198,37 +216,16 @@
         {
           "label": "Workflow supervisor wording",
           "must_include_all": ["Supervisor", "detect", "timeouts"]
+        },
+        {
+          "label": "Supervisor as internal workflow monitor",
+          "must_include_all": ["Shipping", "Supervisor", "internal", "timeouts"]
         }
       ],
       "required_concepts": [
         {
           "label": "supervisor context name",
           "any_of": ["Supervisor"]
-        }
-      ]
-    },
-    {
-      "id": "CTX-008",
-      "name": "Ingestion",
-      "source_refs": ["SRC-009"],
-      "owns": ["client request buffering", "load leveling"],
-      "reads": ["incoming delivery requests"],
-      "does_not_own": ["scheduling decisions"],
-      "must_include_all": ["Ingestion owns request buffering", "load leveling"],
-      "accepted_alternatives": [
-        {
-          "label": "Request intake wording",
-          "must_include_all": ["Ingestion", "buffer"]
-        }
-      ],
-      "required_concepts": [
-        {
-          "label": "ingestion feeds scheduler",
-          "any_of": [
-            "Scheduler then reads requests from the buffer",
-            "Scheduler consumes from that buffer",
-            "ahead of scheduling"
-          ]
         }
       ]
     },

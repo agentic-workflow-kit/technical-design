@@ -283,4 +283,22 @@ describe("validate_eval_fixtures", () => {
       "expected-facts.json facts[0].accepted_alternatives[0].label must not cite reference-anchor wording",
     );
   });
+
+  it("fails when a case grader note omits the case purpose contract", () => {
+    const fixtureRepo = createFixtureRepo();
+    const graderNotesPath = path.join(
+      fixtureRepo,
+      "packages/evals/fixtures/cases/case-tiny-laundry-pickup-v1/grader-notes.md",
+    );
+    fs.writeFileSync(
+      graderNotesPath,
+      "# Grader Notes\n\nThis case has no structured purpose section.\n",
+    );
+
+    const result = runValidator(fixtureRepo);
+    expect(result.ok).toBe(false);
+    expect(result.stderr).toContain(
+      "grader-notes.md must include a ## Case Purpose section",
+    );
+  });
 });
