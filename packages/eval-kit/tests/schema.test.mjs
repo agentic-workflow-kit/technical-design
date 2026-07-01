@@ -160,4 +160,35 @@ describe("eval-kit schema registry", () => {
       ),
     ).not.toThrow();
   });
+
+  it("validates pairwise judge results with randomized candidate order", () => {
+    const registry = createSchemaRegistry({
+      schemaRoots: [path.resolve(import.meta.dirname, "../schemas")],
+    });
+    expect(() =>
+      registry.validateWithSchema(
+        "pairwise-result.schema.json",
+        {
+          case_id: "case-a",
+          model: "gpt-5.4",
+          provider: "openai:codex-app-server",
+          rubric_version: "judge-rubric-v1",
+          prompt_version: "pairwise-prompt-v1",
+          candidate_order: ["candidate_b", "candidate_a"],
+          randomization: {
+            method: "sha256-seed-parity-v1",
+            seed: 1234,
+            original_order: ["candidate_a", "candidate_b"],
+            candidate_order: ["candidate_b", "candidate_a"],
+          },
+          winner: "candidate_a",
+          criteria: ["Source preservation"],
+          evidence: ["candidate_a cites SRC-001"],
+          explanation: "candidate_a preserves the required source fact.",
+          confidence: "high",
+        },
+        "pairwise result",
+      ),
+    ).not.toThrow();
+  });
 });

@@ -116,6 +116,7 @@ describe("manual report runner", () => {
     expect(manifest.schema_version).toBe("eval-kit.result-manifest.v2");
     expect(manifest.run_type).toBe("manual-report");
     expect(manifest.git.commit).toMatch(/\S/);
+    expect(manifest.git.commit).not.toBe("unknown");
     expect(manifest.output_files).toEqual([
       "manifest.json",
       "report.md",

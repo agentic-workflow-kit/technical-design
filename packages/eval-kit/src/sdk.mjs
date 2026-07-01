@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { execFileSync, spawnSync } from "node:child_process";
 
 import { artifactRecord, writeManifest } from "./artifacts.mjs";
 import {
@@ -158,9 +159,6 @@ const getToolVersions = (config) => {
 
   const execVersion = (cmd, args, cwd = resolver.repoRoot) => {
     try {
-      const { execFileSync } = import.meta.require
-        ? import.meta.require("node:child_process")
-        : require("node:child_process");
       return execFileSync(cmd, args, {
         cwd,
         encoding: "utf8",
@@ -197,9 +195,6 @@ const getToolVersions = (config) => {
 
 const getGitCommit = (config) => {
   try {
-    const { execFileSync } = import.meta.require
-      ? import.meta.require("node:child_process")
-      : require("node:child_process");
     return execFileSync("git", ["rev-parse", "HEAD"], {
       cwd: config.pathResolver.repoRoot,
       encoding: "utf8",
@@ -211,9 +206,6 @@ const getGitCommit = (config) => {
 
 const codexAuthMode = (config) => {
   try {
-    const { spawnSync } = import.meta.require
-      ? import.meta.require("node:child_process")
-      : require("node:child_process");
     const result = spawnSync("codex", ["login", "status"], {
       cwd: config.pathResolver.repoRoot,
       encoding: "utf8",
@@ -939,7 +931,7 @@ export const judgePairwise = async ({
   const rubricVersion = extractVersion(promptText, "Rubric version");
 
   const outputSchemaPath = config.resolveKitSchemaPath(
-    "judge-output.schema.json",
+    "pairwise-result.schema.json",
   );
   const outputSchema = JSON.parse(fs.readFileSync(outputSchemaPath, "utf8"));
 
@@ -1047,34 +1039,77 @@ export const judgePairwise = async ({
   );
   const rawResult = parseJsonOutput(extractPromptfooOutput(promptfooResults));
 
-  const judgeOutput = config.schemaRegistry.validateWithSchema(
-    "judge-output.schema.json",
+  const pairwiseOutput = config.schemaRegistry.validateWithSchema(
+    "pairwise-result.schema.json",
     rawResult,
-    "judge output",
+    "pairwise judge output",
   );
 
-  // Validate results match case
-  if (judgeOutput.case_id !== caseId)
-    throw new Error("case_id mismatch in judge output");
+  const assertMatchingValue = (label, actual, expected) => {
+    if (actual !== expected) {
+      throw new Error(
+        `${label} mismatch in pairwise judge output: expected ${expected}, received ${actual}`,
+      );
+    }
+  };
 
-  // Determine unrandomized preference
-  let preference = judgeOutput.preference;
-  if (
-    shouldSwap &&
-    (preference === "candidate_a" || preference === "candidate_b")
-  ) {
-    preference = preference === "candidate_a" ? "candidate_b" : "candidate_a";
+  const assertMatchingArray = (label, actual, expected) => {
+    if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+      throw new Error(
+        `${label} mismatch in pairwise judge output: expected ${JSON.stringify(expected)}, received ${JSON.stringify(actual)}`,
+      );
+    }
+  };
+
+  assertMatchingValue("case_id", pairwiseOutput.case_id, caseId);
+  assertMatchingValue("model", pairwiseOutput.model, model);
+  assertMatchingValue("provider", pairwiseOutput.provider, provider);
+  assertMatchingValue(
+    "prompt_version",
+    pairwiseOutput.prompt_version,
+    promptVersion,
+  );
+  assertMatchingValue(
+    "rubric_version",
+    pairwiseOutput.rubric_version,
+    rubricVersion,
+  );
+  assertMatchingArray(
+    "candidate_order",
+    pairwiseOutput.candidate_order,
+    randomizedOrder.candidate_order,
+  );
+  assertMatchingValue(
+    "randomization.method",
+    pairwiseOutput.randomization.method,
+    randomizedOrder.method,
+  );
+  assertMatchingValue(
+    "randomization.seed",
+    String(pairwiseOutput.randomization.seed),
+    String(randomizedOrder.seed),
+  );
+  assertMatchingArray(
+    "randomization.original_order",
+    pairwiseOutput.randomization.original_order,
+    randomizedOrder.original_order,
+  );
+  assertMatchingArray(
+    "randomization.candidate_order",
+    pairwiseOutput.randomization.candidate_order,
+    randomizedOrder.candidate_order,
+  );
+
+  let winner = pairwiseOutput.winner;
+  if (shouldSwap && (winner === "candidate_a" || winner === "candidate_b")) {
+    winner = winner === "candidate_a" ? "candidate_b" : "candidate_a";
   }
 
   const pairwiseResult = {
-    case_id: caseId,
-    model,
-    provider,
-    prompt_version: promptVersion,
-    rubric_version: rubricVersion,
+    ...pairwiseOutput,
+    candidate_order: originalOrder,
     randomization: randomizedOrder,
-    judge_output: judgeOutput,
-    preference,
+    winner,
   };
 
   config.schemaRegistry.validateWithSchema(
@@ -1102,9 +1137,9 @@ export const judgePairwise = async ({
       `Seed: ${seed}`,
       `Randomization swapped: ${shouldSwap}`,
       "",
-      `Preference: ${preference}`,
-      `Confidence: ${judgeOutput.confidence}`,
-      `Rationale: ${judgeOutput.rationale}`,
+      `Winner: ${winner}`,
+      `Confidence: ${pairwiseResult.confidence}`,
+      `Explanation: ${pairwiseResult.explanation}`,
     ].join("\n") + "\n",
   );
 

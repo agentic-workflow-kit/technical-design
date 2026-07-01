@@ -223,6 +223,14 @@ export const resolvePairwiseVars = async ({
 }) => {
   const readText = (relPath) =>
     fs.readFileSync(path.resolve(resolver.repoRoot, relPath), "utf8");
+  const readJson = (relPath) => JSON.parse(readText(relPath));
+
+  const expectedFacts = readJson(
+    path.join(resolver.relativeToRepo(caseDir), "expected-facts.json"),
+  );
+  const expectedBoundaries = readJson(
+    path.join(resolver.relativeToRepo(caseDir), "expected-boundaries.json"),
+  );
 
   const [firstKey, secondKey] = randomizedOrder.candidate_order;
   const candidate_a =
@@ -256,7 +264,18 @@ export const resolvePairwiseVars = async ({
     candidate_b_path: resolver.relativeToRepo(candidate_b_path),
     candidate_a,
     candidate_b,
+    expected_facts: JSON.stringify(
+      {
+        facts: expectedFacts.facts,
+        boundaries: expectedBoundaries.contexts,
+      },
+      null,
+      2,
+    ),
+    randomization_method: randomizedOrder.method,
     randomization_seed: randomizedOrder.seed,
+    original_order: randomizedOrder.original_order.join(", "),
+    candidate_order: randomizedOrder.candidate_order.join(", "),
     randomization_order: randomizedOrder.candidate_order.join(", "),
   };
 };

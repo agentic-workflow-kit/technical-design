@@ -50,7 +50,7 @@
     },
     "randomization": {
       "type": "object",
-      "required": ["method", "seed", "original_order"],
+      "required": ["method", "seed", "original_order", "candidate_order"],
       "additionalProperties": false,
       "properties": {
         "method": {
@@ -58,10 +58,26 @@
           "minLength": 1
         },
         "seed": {
-          "type": "string",
-          "minLength": 1
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
         },
         "original_order": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "candidate_order": {
           "type": "array",
           "minItems": 2,
           "maxItems": 2,
