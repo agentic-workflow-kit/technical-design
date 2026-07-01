@@ -20,13 +20,13 @@ describe("eval-kit path helpers", () => {
     const resolver = createPathResolver({
       repoRoot,
       configDir: repoRoot,
-      suiteRoot: "packages/evals",
-      resultsRoot: "packages/evals/results",
+      suiteRoot: "suites/example",
+      resultsRoot: "suites/example/results",
     });
     const runDir = resolver.resolveRunDir("run-001");
 
     expect(resolver.relativeToRepo(runDir)).toBe(
-      "packages/evals/results/run-001",
+      "suites/example/results/run-001",
     );
     expect(() => resolver.resolveRunDir("../run-001")).toThrow("must be an id");
     expect(() =>

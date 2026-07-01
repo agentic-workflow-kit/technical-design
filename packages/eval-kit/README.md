@@ -11,8 +11,8 @@ Portable eval runner primitives for local eval suites.
 - Promptfoo raw execution/output parsing helpers;
 - generic verdict aggregation.
 
-It must not import `packages/evals`, `skills`, `methodologies`, `docs/design`, or suite fixtures.
-Suite-specific semantics belong in the consuming package.
+It must not import the consuming eval suite, skill-pack content, methodology profiles, design
+corpus content, or suite fixtures. Suite-specific semantics belong in the consuming package.
 
 ## Contracts
 

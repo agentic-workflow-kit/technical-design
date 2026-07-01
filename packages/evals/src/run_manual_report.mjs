@@ -13,10 +13,10 @@ import {
   readJson,
   readText,
   validateJsonWithSchema,
-  writeJson,
   writeText,
 } from "./lib/json.mjs";
 import { commandString, gitCommit, toolVersions } from "./lib/metadata.mjs";
+import { artifactFor, writeEvalKitManifest } from "./lib/result_manifest.mjs";
 import {
   relativeToPackage,
   relativeToRepo,
@@ -544,6 +544,9 @@ const aggregateCaseIds = (bundles) => {
   return caseIds.size > 0 ? [...caseIds] : ["manual-report"];
 };
 
+const manifestCommit = (manifest) =>
+  manifest.git_commit ?? manifest.git?.commit ?? "unknown";
+
 const gitCommitLines = (bundles) => {
   const lines = [];
   for (const bundle of bundles) {
@@ -552,7 +555,7 @@ const gitCommitLines = (bundles) => {
     }
     if (bundle.manifest.status === "valid") {
       lines.push(
-        `- ${bundle.label} (${bundle.runId}): ${bundle.manifest.value.git_commit}`,
+        `- ${bundle.label} (${bundle.runId}): ${manifestCommit(bundle.manifest.value)}`,
       );
       continue;
     }
@@ -588,6 +591,7 @@ const renderMetricSection = (title, lines) => [
 ];
 
 const main = () => {
+  const startedAt = new Date();
   const args = parseArgs(process.argv.slice(2));
   const runId = requireArg(args, "run-id");
 
@@ -616,19 +620,10 @@ const main = () => {
   const totalApproximateCost = approximateCost(combinedMetrics);
 
   const outputFiles = ["manifest.json", "final-report.md"];
-  const manifest = validateJsonWithSchema(
-    "results-manifest.schema.json",
-    {
-      run_id: runId,
-      git_commit: gitCommit(),
-      command: commandString(),
-      case_ids: aggregateCaseIds(bundles),
-      tool_versions: toolVersions(),
-      run_type: "manual-report",
-      output_files: outputFiles,
-    },
-    "manifest",
-  );
+  const currentGitCommit = gitCommit();
+  const caseIds = aggregateCaseIds(bundles);
+  const command = commandString();
+  const versions = toolVersions();
 
   const report = [
     `# Final Eval Report: ${runId}`,
@@ -640,7 +635,7 @@ const main = () => {
     `Pointwise judge schema-valid: ${pointwise.schemaStatus}`,
     `Pointwise coverage: ${summarizePointwiseCounts(pointwise.counts)}`,
     `Outcome validation: ${outcomeStatus(outcomeBundle)}`,
-    `Git commit: ${manifest.git_commit}`,
+    `Git commit: ${currentGitCommit}`,
     `Approximate cost: ${totalApproximateCost === null ? "unavailable" : totalApproximateCost}`,
     "",
     "Judge result is advisory until human calibration exists.",
@@ -688,8 +683,42 @@ const main = () => {
       ),
   ].join("\n");
 
-  writeJson(path.join(resultDir, "manifest.json"), manifest);
   writeText(path.join(resultDir, "final-report.md"), `${report}\n`);
+  const endedAt = new Date();
+  writeEvalKitManifest({
+    runDir: resultDir,
+    manifest: {
+      schema_version: "eval-kit.result-manifest.v2",
+      run_id: runId,
+      run_type: "manual-report",
+      runner: {
+        id: "technical-design-manual-report",
+        version: "0.0.0",
+      },
+      case_ids: caseIds,
+      started_at: startedAt.toISOString(),
+      ended_at: endedAt.toISOString(),
+      duration_ms: endedAt.getTime() - startedAt.getTime(),
+      status: "completed",
+      git: {
+        commit: currentGitCommit,
+      },
+      command,
+      tool_versions: versions,
+      artifacts: [
+        artifactFor(
+          resultDir,
+          "final_report",
+          "final-report.md",
+          "text/markdown",
+        ),
+      ],
+      output_files: outputFiles,
+      provenance: {
+        parent_run_ids: bundles.filter(Boolean).map((bundle) => bundle.runId),
+      },
+    },
+  });
 
   console.log(`Wrote manual report to ${relativeToPackage(resultDir)}`);
 };
