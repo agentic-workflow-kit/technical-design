@@ -91,4 +91,32 @@ describe("eval-kit schema registry", () => {
       ),
     ).not.toThrow();
   });
+  it("validates pointwise judge results", () => {
+    const registry = createSchemaRegistry({
+      schemaRoots: [path.resolve(import.meta.dirname, "../schemas")],
+    });
+    expect(() =>
+      registry.validateWithSchema(
+        "pointwise-judge-result.schema.json",
+        {
+          case_id: "case-a",
+          model: "gpt-5.4",
+          provider: "openai:codex-app-server",
+          rubric_version: "v1",
+          prompt_version: "v1",
+          items: [{
+            item_id: "FACT-001",
+            kind: "fact",
+            verdict: "covered",
+            severity: "critical",
+            confidence: "high",
+            candidate_evidence: ["evidence"],
+            source_refs: ["SRC-001"],
+            explanation: "explain"
+          }]
+        },
+        "result",
+      )
+    ).not.toThrow();
+  });
 });

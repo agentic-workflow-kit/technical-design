@@ -9,8 +9,8 @@ import { loadConfig } from "@agentic-workflow-kit/eval-kit";
 
 const __filename = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(__filename), "..");
-const repoRoot = path.resolve(packageRoot, "..");
-const configPath = path.join(packageRoot, "eval-kit.config.json");
+const repoRoot = path.resolve(packageRoot, "../..");
+const configPath = path.join(repoRoot, "evals", "eval-kit.config.json");
 
 const config = loadConfig(configPath);
 const resolver = config.pathResolver;

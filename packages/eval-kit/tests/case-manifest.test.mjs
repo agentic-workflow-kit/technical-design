@@ -10,7 +10,8 @@ import {
 
 const __filename = fileURLToPath(import.meta.url);
 const packageRoot = path.resolve(path.dirname(__filename), "..");
-const configPath = path.join(packageRoot, "eval-kit.config.json");
+const repoRoot = path.resolve(packageRoot, "../..");
+const configPath = path.join(repoRoot, "evals", "eval-kit.config.json");
 
 const expectedCaseIds = [
   "case-aerial-delivery-shipping-v1",
@@ -59,7 +60,7 @@ describe("technical-design case manifest resolver", () => {
         source_ref_allowlist: ["product.md", "source-map.md"],
       });
       expect(resolved.caseDir).toBe(
-        path.join(packageRoot, "fixtures", "cases", caseId),
+        path.join(repoRoot, "evals", "fixtures", "cases", caseId),
       );
       expect(resolved.artifacts.map((artifact) => artifact.path)).toEqual(
         expectedArtifacts.map((artifact) => artifact.path),
