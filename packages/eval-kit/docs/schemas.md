@@ -196,7 +196,7 @@ When the verdict is `covered`, `partial`, or `contradicted`, candidate evidence 
 
 ### `judge-output.schema.json`
 
-Current pairwise model output shape, not yet stable. It requires:
+Legacy single-criterion judge output shape retained for compatibility. It requires:
 
 - `case_id`
 - `criterion`
@@ -210,8 +210,20 @@ Current pairwise model output shape, not yet stable. It requires:
 
 ### `pairwise-result.schema.json`
 
-Current pairwise result schema, not yet aligned with the SDK output. Treat this as transitional
-until the pairwise command is hardened.
+Pairwise judge output and stored result schema. It requires:
+
+- `case_id`
+- `model`
+- `provider`
+- `rubric_version`
+- `prompt_version`
+- `candidate_order`
+- `randomization`
+- `winner`
+- `criteria`
+- `evidence`
+- `explanation`
+- `confidence`
 
 ### `results-manifest.schema.json`
 

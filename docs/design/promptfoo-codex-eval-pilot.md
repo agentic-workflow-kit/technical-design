@@ -252,7 +252,7 @@ The final report command combines all run bundles and states:
 - Promptfoo, not shell wrappers, owns provider execution, assertions, and JSON/HTML result exports.
 - Candidate generation produces a non-empty Markdown design for `case-tiny-laundry-pickup-v1`.
 - The existing deterministic grader runs against the generated candidate.
-- The judge output validates against `evals/schemas/pairwise-result.schema.json`.
+- The judge output validates against `packages/eval-kit/schemas/pairwise-result.schema.json`.
 - The final report is written under ignored `evals/results/**`.
 - Generated result files are not committed unless a human reviewer explicitly promotes a redacted
   summary.

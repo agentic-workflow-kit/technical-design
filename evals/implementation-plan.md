@@ -275,9 +275,11 @@ Recommended OSS tools:
 
 Implemented:
 
-- Added judge rubrics under `evals/promptfoo/judges/`.
+- Added the suite judge rubric at `evals/rubric.md`; bundled generic judge prompts live under
+  `packages/eval-kit/promptfoo/judges/`.
 - Added a pairwise comparison prompt that requires randomized candidate order to be recorded.
-- Added schemas for structured judge output and pairwise results.
+- Added bundled schemas for structured judge output and pairwise results under
+  `packages/eval-kit/schemas/`.
 - Added a manual Promptfoo template outside the required PR gate.
 
 Remaining:

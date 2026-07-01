@@ -10,7 +10,7 @@ import {
   runPromptfooRaw,
 } from "./promptfoo.mjs";
 import { aggregateVerdict, criticalBlockerCount } from "./verdict.mjs";
-import { assertSafeId, toPosixPath } from "./paths.mjs";
+import { assertContainedPath, assertSafeId, toPosixPath } from "./paths.mjs";
 
 const DEFAULT_SANDBOX_MODE = "read-only";
 const DEFAULT_APPROVAL_POLICY = "never";
@@ -110,7 +110,14 @@ export const resolveCaseManifest = (config, caseId) => {
   );
 
   const artifacts = manifest.artifacts.map((art) => {
-    const artAbsPath = path.resolve(caseDir, art.path);
+    if (path.isAbsolute(art.path)) {
+      throw new Error(`case artifact ${art.path} must be relative`);
+    }
+    const artAbsPath = assertContainedPath(
+      caseDir,
+      path.resolve(caseDir, art.path),
+      `case artifact ${art.path}`,
+    );
     if (!fs.existsSync(artAbsPath)) {
       throw new Error(
         `case artifact does not exist: ${art.path} at ${artAbsPath}`,

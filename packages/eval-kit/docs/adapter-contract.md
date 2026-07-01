@@ -223,16 +223,21 @@ export const resolvePairwiseVars = async ({
     prompt_version: promptVersion,
     rubric_version: rubricVersion,
     source_facts: "...",
+    case_rubric: "...",
+    expected_facts: "...",
     candidate_a: candidateAContent,
     candidate_b: candidateBContent,
+    randomization_method: randomizedOrder.method,
     randomization_seed: randomizedOrder.seed,
-    randomization_order: randomizedOrder.candidate_order.join(", "),
+    original_order: randomizedOrder.original_order.join(", "),
+    candidate_order: randomizedOrder.candidate_order.join(", "),
   };
 };
 ```
 
-Current limitation: pairwise command wiring exists, but the bundled prompt, `judge-output` schema,
-and `pairwise-result` schema need alignment before this path is stable.
+Pairwise execution is controlled by the consumer config. If
+`methods.judge_pairwise.enabled` is explicitly `false`, the CLI fails closed before running
+Promptfoo.
 
 ## Manual Report Hook
 

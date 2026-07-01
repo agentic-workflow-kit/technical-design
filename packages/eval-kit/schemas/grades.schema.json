@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentic-workflow-kit.local/technical-design/evals/grades.schema.json",
+  "$id": "https://agentic-workflow-kit.local/eval-kit/grades.schema.json",
   "title": "CaseGrades",
   "type": "object",
   "required": ["case_id", "verdict", "findings"],

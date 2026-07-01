@@ -8,7 +8,7 @@ only the `technical-design` domain: DDD fixtures, expected facts and boundaries,
 lessons-ledger checks, and deterministic grading policy.
 
 The layered design-quality strategy lives in
-[`docs/design/evaluation-strategy.md`](../../docs/design/evaluation-strategy.md).
+[`docs/design/evaluation-strategy.md`](../docs/design/evaluation-strategy.md).
 The implementation plan lives in
 [`implementation-plan.md`](./implementation-plan.md).
 
@@ -36,12 +36,17 @@ the `eval-kit` package and do not need to be present here.
 
 ## Deterministic eval classes
 
+Examples include:
+
 - Missing bounded context ownership
 - Invented failure token
 - Unsourced invariant operand
 - Public API exposure gap
 - Vacuous enforcement rule without seeded violation
 - Prose-only or empty planner handoff
+- Source-invisible handoff fact
+- Missing producer source closure
+- Proof-substrate mismatch
 
 The current DDD defect classes are declared in `fixtures/ddd/defect-manifest.json`.
 
@@ -114,7 +119,8 @@ Run pointwise coverage judging:
 pnpm eval:judge:coverage -- --case <case-id> --candidate evals/results/<run-id>-generate/cases/<case-id>/candidate.md --model gpt-5.4 --provider openai --effort medium --run-id <run-id>-pointwise
 ```
 
-Run pairwise judging (after deterministic blockers are understood):
+Run pairwise judging only after deterministic blockers are understood and
+`methods.judge_pairwise.enabled` is set to `true` in `eval-kit.config.json`:
 
 ```bash
 pnpm eval:judge -- --case <case-id> --candidate-a <a.md> --candidate-b <b.md> --model gpt-5.4 --provider openai --effort medium --seed <seed> --run-id <run-id>-pairwise

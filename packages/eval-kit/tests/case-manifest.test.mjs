@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -33,6 +35,41 @@ const expectedArtifacts = [
   { role: "maintainer_only", path: "grader-notes.md" },
   { role: "provenance", path: "provenance.md" },
 ];
+
+const writeJson = (filePath, value) => {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
+};
+
+const writeText = (filePath, value) => {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, value);
+};
+
+const createTempSuite = ({ caseId, artifactPath }) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "eval-kit-case-"));
+  const configFile = path.join(root, "evals", "eval-kit.config.json");
+  const caseDir = path.join(root, "evals", "cases", caseId);
+
+  writeJson(configFile, {
+    schema_version: "eval-kit.config.v1",
+    suite_id: "test-suite",
+    suite_root: ".",
+    results_root: "results",
+    adapter: "adapter.mjs",
+    cases: {
+      root: "cases",
+      include: ["case-*"],
+    },
+    methods: {},
+  });
+  writeJson(path.join(caseDir, "case-manifest.json"), {
+    schema_version: "test.case-manifest.v1",
+    case_id: caseId,
+    artifacts: [{ role: "input", path: artifactPath }],
+  });
+  return { configFile, caseDir };
+};
 
 describe("technical-design case manifest resolver", () => {
   it("uses the simplified consumer config surface", () => {
@@ -91,5 +128,41 @@ describe("technical-design case manifest resolver", () => {
         expectedArtifacts.map((artifact) => artifact.path),
       );
     }
+  });
+
+  it("rejects manifest artifact paths that escape the case directory", () => {
+    const { configFile } = createTempSuite({
+      caseId: "case-escape",
+      artifactPath: "../outside.json",
+    });
+    writeText(
+      path.join(path.dirname(configFile), "cases", "outside.json"),
+      "{}\n",
+    );
+    const config = loadConfig(configFile);
+
+    expect(() => resolveCaseManifest(config, "case-escape")).toThrow(
+      /case artifact \.\.\/outside\.json escapes/,
+    );
+  });
+
+  it("rejects absolute manifest artifact paths", () => {
+    const caseId = "case-absolute";
+    const temp = createTempSuite({
+      caseId,
+      artifactPath: "placeholder.md",
+    });
+    const absoluteArtifactPath = path.join(temp.caseDir, "product.md");
+    writeText(absoluteArtifactPath, "product\n");
+    writeJson(path.join(temp.caseDir, "case-manifest.json"), {
+      schema_version: "test.case-manifest.v1",
+      case_id: caseId,
+      artifacts: [{ role: "input", path: absoluteArtifactPath }],
+    });
+    const config = loadConfig(temp.configFile);
+
+    expect(() => resolveCaseManifest(config, caseId)).toThrow(
+      /case artifact .* must be relative/,
+    );
   });
 });

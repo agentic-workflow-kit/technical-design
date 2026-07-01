@@ -12,6 +12,24 @@ const writeJson = (filePath, value) => {
 };
 
 describe("eval-kit schema registry", () => {
+  it("keeps bundled schema ids under the eval-kit namespace", () => {
+    const registry = createSchemaRegistry({
+      schemaRoots: [path.resolve(import.meta.dirname, "../schemas")],
+    });
+
+    expect(registry.schemaIds).toEqual(
+      expect.arrayContaining([
+        "https://agentic-workflow-kit.local/eval-kit/eval-kit.config.schema.json",
+        "https://agentic-workflow-kit.local/eval-kit/pairwise-result.schema.json",
+      ]),
+    );
+    expect(
+      registry.schemaIds.filter((schemaId) =>
+        schemaId.includes("/technical-design/evals/"),
+      ),
+    ).toEqual([]);
+  });
+
   it("fails on duplicate schema ids", () => {
     const rootA = fs.mkdtempSync(path.join(os.tmpdir(), "eval-kit-schema-a-"));
     const rootB = fs.mkdtempSync(path.join(os.tmpdir(), "eval-kit-schema-b-"));

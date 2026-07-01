@@ -36,8 +36,8 @@ Current supported surfaces:
 
 Known implementation follow-ups before publishing this as a fully generic shared package:
 
-- several portable schemas still reflect the first `technical-design` consumer shape;
-- pairwise judging needs prompt/schema/result alignment before it should be treated as stable;
+- consumer-shaped schemas should be reviewed and either generalized or moved to consumers;
+- pairwise judging is gated by `methods.judge_pairwise.enabled`;
 - provider support is intentionally narrow: `openai` and `openai:codex-app-server`;
 - model-assisted commands require local Codex auth and Promptfoo installed in the consumer repo.
 
@@ -62,7 +62,7 @@ packages/eval-kit/
     generation.prompt.md            # default generation prompt
     judges/
       pointwise.prompt.md           # default pointwise judge prompt
-      pairwise.prompt.md            # default pairwise prompt, not yet stable
+      pairwise.prompt.md            # default pairwise judge prompt
   tests/                            # package unit tests
 ```
 
@@ -317,8 +317,8 @@ Optional:
 
 `judge-pairwise`
 
-Compares two candidates with randomized order. This command exists, but it should be treated as
-unstable until pairwise prompt and result schemas are reconciled.
+Compares two candidates with randomized order. The command fails closed when
+`methods.judge_pairwise.enabled` is explicitly `false`.
 
 `report`
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentic-workflow-kit.local/technical-design/evals/expected-facts.schema.json",
+  "$id": "https://agentic-workflow-kit.local/eval-kit/expected-facts.schema.json",
   "title": "ExpectedFacts",
   "type": "object",
   "required": ["case_id", "facts"],

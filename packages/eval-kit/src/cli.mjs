@@ -10,6 +10,14 @@ import {
   validateFixtures,
 } from "./sdk.mjs";
 
+const requireEnabledMethod = (config, methodKey, commandName) => {
+  if (config.raw.methods?.[methodKey]?.enabled === false) {
+    throw new Error(
+      `${commandName} is disabled by methods.${methodKey}.enabled=false`,
+    );
+  }
+};
+
 const printHelp = () => {
   console.log(`
 Usage: eval-kit <command> [options]
@@ -147,6 +155,7 @@ export const main = async () => {
       }
 
       case "judge-pairwise": {
+        requireEnabledMethod(config, "judge_pairwise", "judge-pairwise");
         const caseId = requireArg(parsed, "case");
         const candidateA = requireArg(parsed, "candidate-a");
         const candidateB = requireArg(parsed, "candidate-b");

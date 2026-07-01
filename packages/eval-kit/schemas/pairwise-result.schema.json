@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentic-workflow-kit.local/technical-design/evals/pairwise-result.schema.json",
+  "$id": "https://agentic-workflow-kit.local/eval-kit/pairwise-result.schema.json",
   "title": "PairwiseJudgeResult",
   "type": "object",
   "required": [

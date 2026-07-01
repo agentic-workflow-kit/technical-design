@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentic-workflow-kit.local/technical-design/evals/expected-boundaries.schema.json",
+  "$id": "https://agentic-workflow-kit.local/eval-kit/expected-boundaries.schema.json",
   "title": "ExpectedBoundaries",
   "type": "object",
   "required": ["case_id", "contexts"],
