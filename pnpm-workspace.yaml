@@ -2,6 +2,7 @@
 # `.npmrc` is auth-only.
 
 packages:
+  - packages/eval-kit
   - packages/evals
 
 # --- Supply-chain / toolchain baseline (every archetype) ---

@@ -2,6 +2,12 @@
 
 This directory contains fixtures and checks for the DDD-first `technical-design` pack.
 
+`technical-design` now consumes the local private
+`@agentic-workflow-kit/eval-kit` package for portable mechanics such as schema validation, path
+containment, Promptfoo raw-output helpers, artifact records, and v2 result manifests. The suite still
+owns all `technical-design` semantics: DDD fixtures, expected facts and boundaries, review rubrics,
+lessons-ledger checks, prompt templates, and deterministic grading policy.
+
 The layered design-quality strategy lives in
 [`docs/design/evaluation-strategy.md`](../../docs/design/evaluation-strategy.md).
 The implementation and execution plan lives in

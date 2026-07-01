@@ -31,6 +31,7 @@ import {
   resolveRepoPath,
   resolveRunDir,
 } from "./lib/paths.mjs";
+import { artifactFor, writeEvalKitManifest } from "./lib/result_manifest.mjs";
 
 const promptfooOutputFiles = (runDir) => ({
   config: path.join(runDir, "promptfooconfig.json"),
@@ -215,6 +216,7 @@ const summarizeVerdicts = (items) => {
 };
 
 const main = () => {
+  const startedAt = new Date();
   const args = parseArgs(process.argv.slice(2));
   const caseId = requireArg(args, "case");
   const candidatePath = resolveRepoInputPath(
@@ -312,37 +314,6 @@ const main = () => {
   writeJson(path.join(runDir, "pointwise-result.json"), canonicalResult);
 
   const counts = summarizeVerdicts(canonicalResult.items);
-  const manifest = validateJsonWithSchema(
-    "results-manifest.schema.json",
-    {
-      run_id: runId,
-      git_commit: gitCommit(),
-      command: commandString(),
-      case_ids: [caseId],
-      tool_versions: toolVersions(),
-      run_type: "judge-coverage",
-      model_provider: codexProviderId({ provider, model }),
-      model,
-      provider,
-      reasoning_effort: effort,
-      sandbox_mode: "read-only",
-      approval_policy: "never",
-      codex_auth_mode: authMode,
-      prompt_version: promptVersion,
-      rubric_version: rubricVersion,
-      output_files: [
-        "manifest.json",
-        "report.md",
-        "pointwise-result.json",
-        "promptfooconfig.json",
-        "promptfoo-results.json",
-        "promptfoo-report.html",
-      ],
-    },
-    "manifest",
-  );
-  writeJson(path.join(runDir, "manifest.json"), manifest);
-
   writeText(
     path.join(runDir, "report.md"),
     [
@@ -371,6 +342,68 @@ const main = () => {
       ),
     ].join("\n"),
   );
+
+  const endedAt = new Date();
+  const artifact = (role, fileName, mediaType) =>
+    artifactFor(runDir, role, fileName, mediaType);
+  writeEvalKitManifest({
+    runDir,
+    manifest: {
+      schema_version: "eval-kit.result-manifest.v2",
+      run_id: runId,
+      run_type: "judge-coverage",
+      runner: {
+        id: "technical-design-pointwise-judge",
+        version: "0.0.0",
+      },
+      case_ids: [caseId],
+      started_at: startedAt.toISOString(),
+      ended_at: endedAt.toISOString(),
+      duration_ms: endedAt.getTime() - startedAt.getTime(),
+      status: "completed",
+      git: {
+        commit: gitCommit(),
+      },
+      command: commandString(),
+      tool_versions: toolVersions(),
+      model_provider: codexProviderId({ provider, model }),
+      model,
+      provider,
+      reasoning_effort: effort,
+      sandbox_mode: "read-only",
+      approval_policy: "never",
+      codex_auth_mode: authMode,
+      prompt_version: promptVersion,
+      rubric_version: rubricVersion,
+      artifacts: [
+        artifact("report", "report.md", "text/markdown"),
+        artifact(
+          "pointwise_result",
+          "pointwise-result.json",
+          "application/json",
+        ),
+        artifact(
+          "promptfoo_config",
+          "promptfooconfig.json",
+          "application/json",
+        ),
+        artifact(
+          "raw_promptfoo_results",
+          "promptfoo-results.json",
+          "application/json",
+        ),
+        artifact("promptfoo_html_report", "promptfoo-report.html", "text/html"),
+      ],
+      output_files: [
+        "manifest.json",
+        "report.md",
+        "pointwise-result.json",
+        "promptfooconfig.json",
+        "promptfoo-results.json",
+        "promptfoo-report.html",
+      ],
+    },
+  });
 
   console.log(
     `Wrote pointwise judge eval results to ${relativeToPackage(runDir)}`,

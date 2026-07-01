@@ -32,6 +32,7 @@ import {
   resolveRepoPath,
   resolveRunDir,
 } from "./lib/paths.mjs";
+import { artifactFor, writeEvalKitManifest } from "./lib/result_manifest.mjs";
 
 const RANDOMIZATION_METHOD = "sha256-seed-parity-v1";
 
@@ -176,6 +177,7 @@ const assertDeepEqual = (label, actual, expected) => {
 };
 
 const main = () => {
+  const startedAt = new Date();
   const args = parseArgs(process.argv.slice(2));
   const caseId = requireArg(args, "case");
   const candidateAPath = resolveRepoInputPath(
@@ -289,38 +291,6 @@ const main = () => {
 
   writeJson(path.join(runDir, "pairwise-result.json"), result);
 
-  const manifest = validateJsonWithSchema(
-    "results-manifest.schema.json",
-    {
-      run_id: runId,
-      git_commit: gitCommit(),
-      command: commandString(),
-      case_ids: [caseId],
-      tool_versions: toolVersions(),
-      run_type: "judge",
-      model_provider: codexProviderId({ provider, model }),
-      model,
-      provider,
-      reasoning_effort: effort,
-      sandbox_mode: "read-only",
-      approval_policy: "never",
-      codex_auth_mode: authMode,
-      prompt_version: promptVersion,
-      rubric_version: rubricVersion,
-      randomization: randomizedOrder,
-      output_files: [
-        "manifest.json",
-        "report.md",
-        "pairwise-result.json",
-        "promptfooconfig.json",
-        "promptfoo-results.json",
-        "promptfoo-report.html",
-      ],
-    },
-    "manifest",
-  );
-  writeJson(path.join(runDir, "manifest.json"), manifest);
-
   writeText(
     path.join(runDir, "report.md"),
     [
@@ -354,6 +324,65 @@ const main = () => {
       result.explanation,
     ].join("\n"),
   );
+
+  const endedAt = new Date();
+  const artifact = (role, fileName, mediaType) =>
+    artifactFor(runDir, role, fileName, mediaType);
+  writeEvalKitManifest({
+    runDir,
+    manifest: {
+      schema_version: "eval-kit.result-manifest.v2",
+      run_id: runId,
+      run_type: "judge",
+      runner: {
+        id: "technical-design-pairwise-judge",
+        version: "0.0.0",
+      },
+      case_ids: [caseId],
+      started_at: startedAt.toISOString(),
+      ended_at: endedAt.toISOString(),
+      duration_ms: endedAt.getTime() - startedAt.getTime(),
+      status: "completed",
+      git: {
+        commit: gitCommit(),
+      },
+      command: commandString(),
+      tool_versions: toolVersions(),
+      model_provider: codexProviderId({ provider, model }),
+      model,
+      provider,
+      reasoning_effort: effort,
+      sandbox_mode: "read-only",
+      approval_policy: "never",
+      codex_auth_mode: authMode,
+      prompt_version: promptVersion,
+      rubric_version: rubricVersion,
+      randomization: randomizedOrder,
+      artifacts: [
+        artifact("report", "report.md", "text/markdown"),
+        artifact("pairwise_result", "pairwise-result.json", "application/json"),
+        artifact(
+          "promptfoo_config",
+          "promptfooconfig.json",
+          "application/json",
+        ),
+        artifact(
+          "raw_promptfoo_results",
+          "promptfoo-results.json",
+          "application/json",
+        ),
+        artifact("promptfoo_html_report", "promptfoo-report.html", "text/html"),
+      ],
+      output_files: [
+        "manifest.json",
+        "report.md",
+        "pairwise-result.json",
+        "promptfooconfig.json",
+        "promptfoo-results.json",
+        "promptfoo-report.html",
+      ],
+    },
+  });
 
   console.log(`Wrote judge eval results to ${relativeToPackage(runDir)}`);
 };

@@ -18,6 +18,9 @@
     "eval:manual-report": "node src/run_manual_report.mjs"
   },
   "license": "MIT",
+  "dependencies": {
+    "@agentic-workflow-kit/eval-kit": "workspace:*"
+  },
   "devDependencies": {
     "ajv": "^8.17.1",
     "dependency-cruiser": "^18.0.0",

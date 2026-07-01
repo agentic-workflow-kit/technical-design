@@ -29,6 +29,7 @@ import {
   resolveRunDir,
   resolveRepoPath,
 } from "./lib/paths.mjs";
+import { artifactFor, writeEvalKitManifest } from "./lib/result_manifest.mjs";
 
 const PROMPT_VERSION = "generation-prompt-v1";
 
@@ -135,6 +136,7 @@ const buildPromptfooConfig = ({
 };
 
 const main = () => {
+  const startedAt = new Date();
   const args = parseArgs(process.argv.slice(2));
   const caseId = requireArg(args, "case");
   const model = requireArg(args, "model");
@@ -172,36 +174,6 @@ const main = () => {
   const candidatePath = path.join(caseResultDir, "candidate.md");
   writeText(candidatePath, `${candidateText}\n`);
 
-  const manifest = validateJsonWithSchema(
-    "results-manifest.schema.json",
-    {
-      run_id: runId,
-      git_commit: gitCommit(),
-      command: commandString(),
-      case_ids: [caseId],
-      tool_versions: toolVersions(),
-      run_type: "generation",
-      model_provider: codexProviderId({ provider, model }),
-      model,
-      provider,
-      reasoning_effort: effort,
-      sandbox_mode: "read-only",
-      approval_policy: "never",
-      codex_auth_mode: authMode,
-      prompt_version: PROMPT_VERSION,
-      output_files: [
-        "manifest.json",
-        "report.md",
-        "promptfooconfig.json",
-        "promptfoo-results.json",
-        "promptfoo-report.html",
-        `cases/${caseId}/candidate.md`,
-      ],
-    },
-    "manifest",
-  );
-  writeJson(path.join(runDir, "manifest.json"), manifest);
-
   writeText(
     path.join(runDir, "report.md"),
     [
@@ -224,6 +196,67 @@ const main = () => {
       "- Reference design, expected facts, expected boundaries, grader notes, rubric, and judge rubric were excluded from the generation inputs.",
     ].join("\n"),
   );
+
+  const endedAt = new Date();
+  const artifact = (role, fileName, mediaType) =>
+    artifactFor(runDir, role, fileName, mediaType);
+  writeEvalKitManifest({
+    runDir,
+    manifest: {
+      schema_version: "eval-kit.result-manifest.v2",
+      run_id: runId,
+      run_type: "generation",
+      runner: {
+        id: "technical-design-generate",
+        version: "0.0.0",
+      },
+      case_ids: [caseId],
+      started_at: startedAt.toISOString(),
+      ended_at: endedAt.toISOString(),
+      duration_ms: endedAt.getTime() - startedAt.getTime(),
+      status: "completed",
+      git: {
+        commit: gitCommit(),
+      },
+      command: commandString(),
+      tool_versions: toolVersions(),
+      model_provider: codexProviderId({ provider, model }),
+      model,
+      provider,
+      reasoning_effort: effort,
+      sandbox_mode: "read-only",
+      approval_policy: "never",
+      codex_auth_mode: authMode,
+      prompt_version: PROMPT_VERSION,
+      artifacts: [
+        artifact("report", "report.md", "text/markdown"),
+        artifact(
+          "promptfoo_config",
+          "promptfooconfig.json",
+          "application/json",
+        ),
+        artifact(
+          "raw_promptfoo_results",
+          "promptfoo-results.json",
+          "application/json",
+        ),
+        artifact("promptfoo_html_report", "promptfoo-report.html", "text/html"),
+        artifact(
+          "candidate_markdown",
+          `cases/${caseId}/candidate.md`,
+          "text/markdown",
+        ),
+      ],
+      output_files: [
+        "manifest.json",
+        "report.md",
+        "promptfooconfig.json",
+        "promptfoo-results.json",
+        "promptfoo-report.html",
+        `cases/${caseId}/candidate.md`,
+      ],
+    },
+  });
 
   console.log(`Wrote generation eval results to ${relativeToPackage(runDir)}`);
 };

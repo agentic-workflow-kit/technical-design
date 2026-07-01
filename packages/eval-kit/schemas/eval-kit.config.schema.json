@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-workflow-kit.local/eval-kit/eval-kit.config.schema.json",
+  "title": "EvalKitConfig",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "suite_id",
+    "suite_root",
+    "results_root",
+    "schema_roots",
+    "case_manifests"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "eval-kit.config.v1"
+    },
+    "suite_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "suite_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "results_root": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_roots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "case_manifests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "artifact_roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "runner_defaults": {
+      "type": "object"
+    },
+    "graders": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "reporters": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}
