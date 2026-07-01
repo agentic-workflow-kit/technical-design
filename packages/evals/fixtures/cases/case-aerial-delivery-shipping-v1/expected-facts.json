@@ -23,7 +23,17 @@
       "source_refs": ["SRC-001", "SRC-006"],
       "description": "Scheduling assigns a drone as part of the shipping workflow.",
       "must_include_any": ["assigns a drone", "drone assignment"],
-      "must_include_all": ["Scheduler"]
+      "must_include_all": ["Scheduler"],
+      "accepted_alternatives": [
+        {
+          "label": "Source-equivalent scheduling responsibility",
+          "must_include_all": ["scheduling", "assigns a drone"]
+        },
+        {
+          "label": "Workflow-service scheduling responsibility",
+          "must_include_all": ["workflow service", "drone assignment"]
+        }
+      ]
     },
     {
       "id": "FACT-003",
@@ -88,6 +98,20 @@
         "regulatory compliance workflow is fully defined",
         "REST API contract is fixed here",
         "production flight safety policy is specified here"
+      ]
+    },
+    {
+      "id": "FACT-008",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-009"],
+      "description": "Ingestion may buffer client requests, but it must not own scheduling decisions.",
+      "must_include_any": [],
+      "must_not_include_any": [
+        "Ingestion owns scheduling decisions",
+        "Ingestion decides which drone gets assigned",
+        "Ingestion assigns a drone",
+        "Ingestion owns drone assignment"
       ]
     }
   ]

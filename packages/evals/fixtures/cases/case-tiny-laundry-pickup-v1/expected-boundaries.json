@@ -3,114 +3,6 @@
   "contexts": [
     {
       "id": "CTX-001",
-      "name": "Identity",
-      "source_refs": ["SRC-001"],
-      "owns": ["verified resident record", "access checks"],
-      "reads": [],
-      "does_not_own": ["scheduling conflict logic"],
-      "must_include_all": ["Identity owns verified resident", "access checks"],
-      "must_not_include_any": ["Identity owns scheduling conflict"],
-      "accepted_alternatives": [
-        {
-          "label": "Resident Eligibility owns verified-resident eligibility",
-          "must_include_all": [
-            "Resident Eligibility",
-            "owns the verified-resident fact"
-          ]
-        },
-        {
-          "label": "Resident Verification owns verification status",
-          "must_include_all": [
-            "Resident Verification",
-            "owns",
-            "Resident verification status and policy"
-          ]
-        }
-      ],
-      "required_concepts": [
-        {
-          "label": "resident verification owner",
-          "any_of": [
-            "Identity",
-            "Resident Eligibility",
-            "Resident Verification"
-          ]
-        },
-        {
-          "label": "verified resident fact",
-          "any_of": [
-            "verified-resident fact",
-            "verified/not-verified resident status",
-            "verified/not-verified fact",
-            "whether a resident is verified",
-            "verified resident"
-          ]
-        },
-        {
-          "label": "scheduling does not own resident proofing",
-          "any_of": [
-            "does not own resident verification policy",
-            "does not own resident identity proofing",
-            "does not own verification lifecycle",
-            "resident proofing rules"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "CTX-002",
-      "name": "Catalog",
-      "source_refs": ["SRC-006", "SRC-008", "SRC-011"],
-      "owns": [
-        "appliance metadata",
-        "appliance type",
-        "maintenance hold inputs"
-      ],
-      "reads": [],
-      "does_not_own": ["booking lifecycle"],
-      "must_include_all": ["Catalog owns appliance", "maintenance hold"],
-      "must_not_include_any": ["Catalog owns booking lifecycle"],
-      "accepted_alternatives": [
-        {
-          "label": "Appliance Availability owns appliance and hold facts",
-          "must_include_all": [
-            "Appliance Availability",
-            "owns appliance identity",
-            "maintenance-hold facts"
-          ]
-        },
-        {
-          "label": "Scheduling read surface with separate hold producer",
-          "must_include_all": [
-            "Booking Scheduling",
-            "owns appliance read surface",
-            "Maintenance Administration or Hold Producer",
-            "Creation and lifecycle of maintenance holds"
-          ]
-        }
-      ],
-      "required_concepts": [
-        {
-          "label": "appliance authority",
-          "any_of": [
-            "Catalog",
-            "Appliance Availability",
-            "Booking Scheduling",
-            "Laundry Scheduling"
-          ]
-        },
-        {
-          "label": "appliance type vocabulary",
-          "any_of": ["appliance type", "appliance types", "washer", "dryer"]
-        },
-        {
-          "label": "maintenance hold authority",
-          "any_of": ["maintenance holds", "maintenance-hold", "hold producer"]
-        }
-      ]
-    },
-    {
-      "id": "CTX-003",
       "name": "Scheduling",
       "source_refs": ["SRC-002", "SRC-003", "SRC-004", "SRC-005", "SRC-006"],
       "owns": ["booking lifecycle", "overlap detection", "cancellation rules"],
@@ -145,6 +37,15 @@
             "appliance occupancy decisions",
             "cancellation cutoff enforcement"
           ]
+        },
+        {
+          "label": "Laundry Scheduling owns source-visible booking rules",
+          "must_include_all": [
+            "Laundry Scheduling",
+            "owns booking lifecycle",
+            "overlap",
+            "cancellation"
+          ]
         }
       ],
       "required_concepts": [
@@ -163,73 +64,6 @@
         {
           "label": "cancellation rule",
           "any_of": ["cancellation", "cancelled"]
-        }
-      ]
-    },
-    {
-      "id": "CTX-004",
-      "name": "Notifications",
-      "source_refs": ["SRC-007", "SRC-009"],
-      "owns": ["outbound lifecycle messages"],
-      "reads": ["booking lifecycle events"],
-      "does_not_own": ["booking state transitions"],
-      "must_include_all": ["Notifications owns outbound", "lifecycle messages"],
-      "must_not_include_any": ["Notifications owns booking state transitions"],
-      "accepted_alternatives": [
-        {
-          "label": "Notification Delivery owns lifecycle notification delivery",
-          "must_include_all": [
-            "Notification Delivery",
-            "owns delivery of lifecycle notifications",
-            "does not own booking state transitions"
-          ]
-        },
-        {
-          "label": "Notification Delivery leaves booking state decisions to scheduling",
-          "must_include_all": [
-            "Notification Delivery",
-            "Delivery of lifecycle notifications",
-            "Booking state decisions"
-          ]
-        },
-        {
-          "label": "Notification Delivery owns delivery mechanics outside booking authority",
-          "must_include_all": [
-            "Notification Delivery",
-            "Delivery of lifecycle notifications",
-            "Booking state authority"
-          ]
-        }
-      ],
-      "required_concepts": [
-        {
-          "label": "notification owner",
-          "any_of": [
-            "Notifications",
-            "Notification Delivery",
-            "Notification delivery"
-          ]
-        },
-        {
-          "label": "notification delivery mechanics",
-          "any_of": [
-            "outbound lifecycle messages",
-            "delivery of lifecycle notifications",
-            "delivery-channel mechanics",
-            "Message transport mechanics",
-            "notification channel",
-            "notification delivery"
-          ]
-        },
-        {
-          "label": "notification does not own booking authority",
-          "any_of": [
-            "does not own booking state transitions",
-            "does not own booking state decisions",
-            "does not own booking state authority",
-            "booking lifecycle authority",
-            "Booking state authority"
-          ]
         }
       ]
     }

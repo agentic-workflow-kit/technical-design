@@ -14,6 +14,10 @@ This reference is a comparison anchor, not an exact-output target or a certified
 - Ingestion owns request buffering and load leveling ahead of scheduling.
 - Delivery History owns long-term completed-delivery history and analytics-oriented storage.
 
+This is one acceptable decomposition. `Package`, `Scheduler`, and `Supervisor` may also be shown as
+internal Shipping sub-boundaries when their source-backed ownership remains explicit. `Ingestion` is
+an optional buffering pattern in this fixture, not a mandatory standalone context.
+
 ## Required Behavior
 
 Businesses register with the service before shipping can accept pickup work for them. Users request

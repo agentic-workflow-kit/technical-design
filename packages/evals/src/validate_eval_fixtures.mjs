@@ -96,6 +96,26 @@ const extractSourceRefs = (text) =>
     ),
   );
 
+const allowedCaseTypes = new Set([
+  "tiny_contract",
+  "ddd_heavy",
+  "negative_fit_low_ceremony",
+  "integration_api_seam",
+  "state_machine_lifecycle",
+  "control_plane_runtime",
+]);
+
+const requiredCasePurposeFields = [
+  "case_type",
+  "primary_capability",
+  "secondary_capability",
+  "what_this_case_must_not_test",
+  "required_deterministic_blockers",
+  "acceptable_design_alternatives",
+  "bad_candidate_snippets",
+  "future_adjustment_notes",
+];
+
 const extractLessonIds = (ledgerText) =>
   new Set(
     [...ledgerText.matchAll(/\|\s+(LSN-\d{3})\s+\|/g)].map((match) => match[1]),
@@ -459,6 +479,49 @@ const validateJsonSchemaFiles = () => {
   }
 };
 
+const casePurposeSection = (graderNotes) => {
+  const match = String(graderNotes ?? "").match(
+    /(^|\n)## Case Purpose\n(?<body>[\s\S]*?)(?=\n## |\n# |$)/,
+  );
+  return match?.groups?.body ?? "";
+};
+
+const validateCasePurposeNotes = (caseId, graderNotes) => {
+  const section = casePurposeSection(graderNotes);
+  assert(
+    section.length > 0,
+    `fixtures/cases/${caseId}/grader-notes.md must include a ## Case Purpose section`,
+  );
+  if (!section) {
+    return;
+  }
+
+  const values = new Map(
+    [...section.matchAll(/^([a-z_]+):\s*(.*)$/gm)].map((match) => [
+      match[1],
+      match[2].trim(),
+    ]),
+  );
+  for (const field of requiredCasePurposeFields) {
+    assert(
+      values.has(field),
+      `fixtures/cases/${caseId}/grader-notes.md Case Purpose must include ${field}:`,
+    );
+    assert(
+      normalizeWhitespace(values.get(field)).length > 0,
+      `fixtures/cases/${caseId}/grader-notes.md Case Purpose ${field} must not be blank`,
+    );
+  }
+
+  const caseType = values.get("case_type");
+  assert(
+    allowedCaseTypes.has(caseType),
+    `fixtures/cases/${caseId}/grader-notes.md Case Purpose case_type must be one of ${[
+      ...allowedCaseTypes,
+    ].join(", ")}`,
+  );
+};
+
 const validateCaseFixtures = () => {
   const casesDir = path.join(packageRoot, "fixtures/cases");
   if (!fs.existsSync(casesDir)) {
@@ -507,10 +570,14 @@ const validateCaseFixtures = () => {
     const sourceMapText = readText(
       path.join("fixtures/cases", caseId, "source-map.md"),
     );
+    const graderNotes = readText(
+      path.join("fixtures/cases", caseId, "grader-notes.md"),
+    );
     const visibleSourceRefs = new Set([
       ...extractSourceRefs(productText),
       ...extractSourceRefs(sourceMapText),
     ]);
+    validateCasePurposeNotes(caseId, graderNotes);
     if (expectedFactsShape) {
       recordAjvErrors(
         `fixtures/cases/${caseId}/expected-facts.json`,

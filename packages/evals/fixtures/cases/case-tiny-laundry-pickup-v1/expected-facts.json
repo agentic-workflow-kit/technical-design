@@ -84,11 +84,61 @@
       "must_include_all": ["billing", "pricing", "payment"],
       "must_not_include_any": [
         "Billing is in scope",
+        "billing is required",
         "Pricing context owns",
+        "Dynamic Pricing owns",
+        "pricing is in scope",
         "Billing owns",
         "Payment processing is supported",
         "PaymentGateway",
-        "Rewards are in scope"
+        "external payment integration is required",
+        "Rewards are in scope",
+        "rewards are required"
+      ]
+    },
+    {
+      "id": "FACT-008",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-001"],
+      "description": "Residents must be verified before they can create a booking.",
+      "must_include_any": [
+        "verified before they can create a booking",
+        "verified resident prerequisite",
+        "resident must be verified"
+      ]
+    },
+    {
+      "id": "FACT-009",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-006", "SRC-011"],
+      "description": "Maintenance holds block appliance time windows and appliance types are washer and dryer.",
+      "must_include_any": ["maintenance holds", "maintenance hold"],
+      "must_include_all": ["washer", "dryer"]
+    },
+    {
+      "id": "FACT-010",
+      "category": "event",
+      "severity": "recommended",
+      "source_refs": ["SRC-007"],
+      "description": "The service sends lifecycle notifications for booking start, cancellation, and completion.",
+      "must_include_any": ["notifications", "lifecycle notifications"],
+      "must_include_all": ["starts", "cancelled", "completes"]
+    },
+    {
+      "id": "FACT-011",
+      "category": "constraint",
+      "severity": "critical",
+      "source_refs": ["SRC-001", "SRC-002", "SRC-003"],
+      "description": "Resident identity or eligibility may prove verification, but it must not own scheduling conflict logic.",
+      "must_include_any": [],
+      "must_not_include_any": [
+        "Identity owns scheduling conflict logic",
+        "Identity owns overlap detection",
+        "Identity owns appliance occupancy decisions",
+        "Resident Verification owns scheduling conflict logic",
+        "Resident Eligibility owns scheduling conflict logic"
       ]
     }
   ]

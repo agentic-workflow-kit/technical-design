@@ -4,7 +4,11 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { packageRoot } from "../src/lib/paths.mjs";
-import { gradeBoundaries, gradeFacts } from "../src/lib/case_grader.mjs";
+import {
+  gradeBoundaries,
+  gradeFacts,
+  verdictForFindings,
+} from "../src/lib/case_grader.mjs";
 
 const casePath = (...parts) =>
   path.join(packageRoot, "fixtures", "cases", ...parts);
@@ -59,21 +63,18 @@ describe("public reference cases", () => {
     expect(verdictFor(findings, "FACT-003")).toBe("missing");
   });
 
-  it("accepts notification delivery negative ownership wording for laundry", () => {
-    const expectedBoundaries = readJson(
+  it("rejects invented billing, pricing, payment, or rewards scope for laundry", () => {
+    const expectedFacts = readJson(
       "case-tiny-laundry-pickup-v1",
-      "expected-boundaries.json",
+      "expected-facts.json",
     );
 
-    const findings = gradeBoundaries(
-      [
-        "Notification Delivery owns delivery of lifecycle notifications.",
-        "Notification Delivery does not own Booking state decisions.",
-      ].join("\n"),
-      expectedBoundaries,
+    const findings = gradeFacts(
+      "Billing is in scope, Dynamic Pricing owns surge prices, and PaymentGateway handles rewards.",
+      expectedFacts,
     );
 
-    expect(verdictFor(findings, "CTX-004")).toBe("covered");
+    expect(verdictFor(findings, "FACT-007")).toBe("contradicted");
   });
 
   it("accepts source-native customer saga wording for service names and persistence", () => {
@@ -94,6 +95,34 @@ describe("public reference cases", () => {
     expect(verdictFor(findings, "FACT-001")).toBe("covered");
     expect(verdictFor(findings, "FACT-003")).toBe("covered");
     expect(verdictFor(findings, "FACT-007")).toBe("covered");
+  });
+
+  it("accepts source-native Customer Service wording for reserve-credit flow", () => {
+    const expectedFacts = readJson(
+      "case-customer-credit-order-saga-v1",
+      "expected-facts.json",
+    );
+
+    const findings = gradeFacts(
+      "Order Service sends reserveCredit to Customer Service and waits for the reply outcome.",
+      expectedFacts,
+    );
+
+    expect(verdictFor(findings, "FACT-005")).toBe("covered");
+  });
+
+  it("requires reply or outcome evidence for customer saga reserve-credit flow", () => {
+    const expectedFacts = readJson(
+      "case-customer-credit-order-saga-v1",
+      "expected-facts.json",
+    );
+
+    const findings = gradeFacts(
+      "Order Service sends reserveCredit to Customer Service.",
+      expectedFacts,
+    );
+
+    expect(verdictFor(findings, "FACT-005")).toBe("missing");
   });
 
   it("requires customer saga persistence to cover both owning services", () => {
@@ -170,6 +199,57 @@ describe("public reference cases", () => {
     );
 
     expect(verdictFor(findings, "CTX-004")).toBe("covered");
+  });
+
+  it("accepts package as an internal Shipping sub-boundary for aerial delivery", () => {
+    const expectedBoundaries = readJson(
+      "case-aerial-delivery-shipping-v1",
+      "expected-boundaries.json",
+    );
+
+    const findings = gradeBoundaries(
+      "Shipping keeps Package as an internal sub-boundary for package tagging.",
+      expectedBoundaries,
+    );
+
+    expect(verdictFor(findings, "CTX-004")).toBe("covered");
+  });
+
+  it("rejects Ingestion owning scheduling decisions for aerial delivery", () => {
+    const expectedFacts = readJson(
+      "case-aerial-delivery-shipping-v1",
+      "expected-facts.json",
+    );
+
+    const findings = gradeFacts(
+      "Ingestion decides which drone gets assigned after buffering pickup requests.",
+      expectedFacts,
+    );
+
+    expect(verdictFor(findings, "FACT-008")).toBe("contradicted");
+  });
+
+  it("rejects Identity owning laundry scheduling conflict logic", () => {
+    const expectedFacts = readJson(
+      "case-tiny-laundry-pickup-v1",
+      "expected-facts.json",
+    );
+    const expectedBoundaries = readJson(
+      "case-tiny-laundry-pickup-v1",
+      "expected-boundaries.json",
+    );
+    const candidate = [
+      readText("case-tiny-laundry-pickup-v1", "reference-design.md"),
+      "Identity owns scheduling conflict logic.",
+    ].join("\n\n");
+
+    const findings = [
+      ...gradeFacts(candidate, expectedFacts),
+      ...gradeBoundaries(candidate, expectedBoundaries),
+    ];
+
+    expect(verdictFor(findings, "FACT-011")).toBe("contradicted");
+    expect(verdictForFindings(findings)).toBe("red");
   });
 
   it("does not assert unsupported drone telemetry ownership", () => {
