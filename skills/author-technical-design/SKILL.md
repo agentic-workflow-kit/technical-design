@@ -145,8 +145,8 @@ Before finalizing, check:
 - Every source-named aggregate, domain service, workflow service, or service candidate has explicit
   ownership treatment, or is recorded as an internal sub-boundary whose owning context is named.
 - Every invariant names concrete operands or states that come from declared sources.
-- Every planner-facing fact cites visible product, design, source, or decision evidence and does not
-  depend on hidden prior art or DDD-only vocabulary.
+- Every planner-facing fact has direct or transitive source closure to visible product, design,
+  source, or decision evidence and does not depend on hidden prior art or DDD-only vocabulary.
 - Every failure token, state, event, observability record, catalog value, produced field, or public
   symbol has one producer/source authority and a closure proof.
 - Every enforceable boundary has an enforcement-map rule and seeded violation.

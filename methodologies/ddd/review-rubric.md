@@ -10,7 +10,7 @@ Blocking findings:
 - A domain or application layer imports concrete persistence, provider SDKs, delivery framework code,
   or another context's internals.
 - A public API is promised in prose but no public export/import surface or import test is named.
-- A planner-facing fact cites no visible product, design, source, or decision reference and can only be justified from hidden context or methodology-private prose.
+- A planner-facing fact lacks direct or transitive source closure to a visible product, design, source, or decision reference and can only be justified from hidden context or methodology-private prose.
 - A public surface, produced record, failure token, observability event, or catalog value lacks a single producer/source authority.
 - An enforcement rule has no seeded violation or standing gate.
 - A validation, coverage, or enforcement claim does not name the proof substrate that the standing gate actually exercises.

@@ -37,7 +37,7 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 
 ### Required Planning Facts
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | CTX-001 | Context and boundary | <ownership, reads, does-not-own, and dependency direction> | <SRC-*> |
 | INV-001 | Invariant and lifecycle | <guarded predicate/state transition, source operands, owning authority> | <SRC-*> |
@@ -49,7 +49,7 @@ deeper reasoning, but required planning facts must be summarized here with stabl
 
 ### Sequencing, Contention, Validation, and Stops
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | SEQ-001 | Sequencing and dependency | <producer-before-consumer constraints, dependencies, parallelism, ordering risks> | <DEL-* / SRC-*> |
 | FILE-001 | File contention | <shared files, generated artifacts, migrations, or None with rationale> | <SRC-*> |

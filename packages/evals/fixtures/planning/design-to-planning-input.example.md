@@ -39,7 +39,7 @@ round: 2
 
 ### Required Planning Facts
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | `CTX-001` | Context and boundary | Payment Webhooks owns provider event acceptance, idempotency checks, and the accepted/rejected webhook decision. Fulfillment reads accepted payment events but does not own provider retry handling. | `SRC-001`, `SRC-003` |
 | `INV-001` | Invariant and lifecycle | A provider event ID can produce at most one accepted payment event. Operands: provider event ID from webhook payload and prior acceptance record in the payment store. | `SRC-001`, `SRC-002` |
@@ -52,7 +52,7 @@ round: 2
 
 ### Sequencing, Contention, Validation, and Stops
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | `SEQ-001` | Sequencing and dependency | `DEL-001` must land before `DEL-002` because adapter behavior depends on the port contract and invariant tests. The stories are not parallelizable. | `DEL-001`, `DEL-002` |
 | `FILE-001` | File contention | `src/payments/webhook-handler.ts` is shared with provider-auth work; serialize changes touching that file. | `SRC-002` |

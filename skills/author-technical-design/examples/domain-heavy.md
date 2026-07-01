@@ -35,7 +35,7 @@ round: 2
 
 ### Required Planning Facts
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | CTX-001 | Context and boundary | Payment Authorization owns authorization state, idempotency decisions, and failure tokens. It reads order total and customer payment method reference, and does not own order fulfillment or provider settlement. | SRC-001 |
 | INV-001 | Invariant and lifecycle | Payment attempts authorize only from pending state. Operands: `PaymentAttempt.status` and `AuthorizePayment` command. | SRC-001 |
@@ -51,7 +51,7 @@ round: 2
 
 ### Sequencing, Contention, Validation, and Stops
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | SEQ-001 | Sequencing and dependency | `DEL-001` must precede `DEL-002`; `DEL-002` must precede `DEL-003`. Do not parallelize adapter work before ports and aggregate tests land. | DEL-001, DEL-002, DEL-003 |
 | FILE-001 | File contention | Public domain index and architecture config are shared surfaces; serialize changes that touch exports or dependency rules. | ENF-001 |

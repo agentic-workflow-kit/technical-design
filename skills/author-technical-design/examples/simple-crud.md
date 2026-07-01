@@ -34,7 +34,7 @@ round: 1
 
 ### Required Planning Facts
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | CTX-001 | Context and boundary | Profile Settings owns editable profile fields and validation language. It reads authenticated user id and does not own identity provider lifecycle or billing profile. | SRC-001 |
 | INV-001 | Invariant and lifecycle | Requested contact email must be syntactically valid and unique against the existing user email index. | SRC-001 |
@@ -46,7 +46,7 @@ round: 1
 
 ### Sequencing, Contention, Validation, and Stops
 
-| ID | Category | Required handoff data | Source refs |
+| ID | Category | Required handoff data | Source/fact refs |
 |---|---|---|---|
 | SEQ-001 | Sequencing and dependency | Single story; no producer-before-consumer dependency. | DEL-001 |
 | FILE-001 | File contention | None expected because this example touches only the profile settings service and route. | SRC-001 |

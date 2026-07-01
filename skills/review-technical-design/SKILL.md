@@ -40,8 +40,8 @@ Check:
 - contexts have owns/reads/does-not-own;
 - dependency direction is explicit;
 - public APIs have export/import evidence or tests;
-- planner-facing facts cite visible product, design, source, or decision evidence rather than hidden
-  prior art or methodology-private prose;
+- planner-facing facts have direct or transitive source closure to visible product, design, source,
+  or decision evidence rather than hidden prior art or methodology-private prose;
 - produced records, public symbols, failure tokens, observability events, and catalog values name
   one producer/source authority and a closure proof;
 - enforceable boundaries have seeded violations and standing gates;

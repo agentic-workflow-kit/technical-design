@@ -19,9 +19,11 @@ until the design records approval of the pre-authoring artifacts: `InputResoluti
 ## Fact Closure and Proof Posture
 
 Planner-facing facts are useful only when a later reader can reconstruct them from visible sources.
-Every non-`None` handoff fact must cite `SRC-*` rows that are present in the same handoff or in a
-visible product/source artifact named by the handoff. Hidden prior-art references, private methodology
-vocabulary, or "the implementation will decide" are not valid sources.
+Every non-`None` handoff fact must have source closure. Core `CTX-*`, `INV-*`, `SURF-*`, `FAIL-*`,
+`OBS-*`, `ENF-*`, and `DEL-*` facts cite `SRC-*` rows directly. Derived `SEQ-*`, `FILE-*`, `VAL-*`,
+and `STOP-*` facts may cite those source-backed fact IDs when the source chain is reconstructable in
+the same handoff; otherwise they cite `SRC-*` rows directly. Hidden prior-art references, private
+methodology vocabulary, or "the implementation will decide" are not valid sources.
 
 Facts that introduce produced obligations need an owner:
 
@@ -122,8 +124,9 @@ design.
 
 ### Required Planning Facts
 
-The handoff must summarize the facts Planning needs, each with an ID and source. The summary can point
-to methodology sections for details, but it cannot require Planning to infer the fact from prose.
+The handoff must summarize the facts Planning needs, each with an ID and direct source reference. The
+summary can point to methodology sections for details, but it cannot require Planning to infer the
+fact from prose.
 
 | ID | Category | Required content |
 |---|---|---|
@@ -137,7 +140,9 @@ to methodology sections for details, but it cannot require Planning to infer the
 
 ### Sequencing, Contention, Validation, and Stops
 
-The handoff must state implementation constraints that affect a future execution plan:
+The handoff must state implementation constraints that affect a future execution plan. These derived
+facts may cite source-backed fact IDs such as `DEL-*`, `ENF-*`, `CTX-*`, or `INV-*`, provided the
+source chain remains visible in the handoff.
 
 | ID | Category | Required content |
 |---|---|---|
@@ -181,7 +186,7 @@ A design is not ready for Planning when:
 - a handoff section is blank, says only "see above", or contains broad prose with no stable IDs;
 - authored sections introduce new entities, seams, lifecycle states, diagrams, or planner facts that
   are not in the approved system model or recorded as accepted decisions;
-- planner-facing facts cite no visible source/product reference or cite only methodology-private
+- planner-facing facts lack direct or transitive source closure, or cite only methodology-private
   sections that Planning would have to interpret;
 - public surfaces, produced records, failure tokens, or observability events lack a producer/source
   authority and exposure or emission proof;

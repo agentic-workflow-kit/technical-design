@@ -111,14 +111,14 @@
       "file": "source-invisible-handoff-fact.md",
       "required_class": "Source-invisible planner handoff fact",
       "catching_surface": "review-rubric",
-      "rubric_evidence": "A planner-facing fact cites no visible product, design, source, or decision reference and can only be justified from hidden context or methodology-private prose.",
+      "rubric_evidence": "A planner-facing fact lacks direct or transitive source closure to a visible product, design, source, or decision reference and can only be justified from hidden context or methodology-private prose.",
       "required_fix": "cite a visible product, design, source, or decision reference for the planner-facing fact, or remove it from the planning-ready handoff",
       "expected_suggestion": {
         "severity": "blocking",
         "lens": "architecture-enforceability",
         "dimension": "delivery-inputs",
         "lesson_ref": "LSN-017",
-        "gate_ref": "DDD review rubric: A planner-facing fact cites no visible product, design, source, or decision reference and can only be justified from hidden context or methodology-private prose."
+        "gate_ref": "DDD review rubric: A planner-facing fact lacks direct or transitive source closure to a visible product, design, source, or decision reference and can only be justified from hidden context or methodology-private prose."
       }
     },
     {
