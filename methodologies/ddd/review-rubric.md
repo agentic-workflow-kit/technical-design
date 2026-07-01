@@ -1,6 +1,6 @@
 # DDD Review Rubric
 
-Review every DDD design with two lenses.
+Review every DDD design with three lenses.
 
 ## Lens 1 - Architecture and Enforceability
 
@@ -39,11 +39,30 @@ Recommended findings:
 - Tactical DDD is too heavy for a strategic-only context.
 - Tactical DDD is too light for a context with strict invariants or lifecycle rules.
 
+## Lens 3 - Agreement Integrity
+
+Blocking findings:
+
+- A design lacks approved `InputResolution`, `AgreedSystemModel`, or `DocStructurePlan`.
+- A planner-ready fact depends on a required input still marked `requires approval` or `blocked`.
+- Authored docs introduce an entity, seam, lifecycle state, public surface, or planner-facing fact
+  that is absent from the approved system model and decision log.
+- The docs tree or file responsibilities contradict the approved `DocStructurePlan`.
+- A diagram changes architecture instead of explaining approved entities, flows, lifecycles, or
+  boundaries.
+- The `Planner Handoff Summary` contradicts the approved system model.
+
+Recommended findings:
+
+- Approval status exists but is hard to cite from the handoff summary.
+- Diagrams are correct but lack a sentence tying them to the approved model.
+- The docs structure is approved but does not explain what stays out.
+
 ## Suggestion requirements
 
 Every suggestion must include:
 
-- `lens`: `architecture-enforceability` or `domain-correctness`.
+- `lens`: `architecture-enforceability`, `domain-correctness`, or `agreement-integrity`.
 - `evidence`: design section, source artifact, or source surface that supports the finding.
 - `gate_ref`: the gate, rubric item, or enforcement rule that would catch recurrence.
 - `lesson_ref`: a lesson id when the finding maps to `docs/design/lessons-ledger.md`.

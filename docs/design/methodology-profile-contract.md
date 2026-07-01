@@ -18,14 +18,15 @@ Each profile must include:
 
 Skills consume the profile through these concepts:
 
-- **Frame output:** source map, assumptions, blockers, context candidates, complexity drivers, and
-  selected methodology depth.
-- **Author output:** a design document with methodology frontmatter, context/boundary sections,
-  behavior sections, failure/consistency model, enforcement map, delivery inputs, and a
-  methodology-neutral `Planner Handoff Summary` that satisfies
+- **Frame output:** source map, `InputResolution`, `AgreedSystemModel`, `architecture_mode`, selected
+  methodology depth, blockers, and approval status.
+- **Author output:** `DocStructurePlan`, then a design document with methodology frontmatter,
+  context/boundary sections, behavior sections, failure/consistency model, enforcement map, delivery
+  inputs, and a methodology-neutral `Planner Handoff Summary` that satisfies
   [`technical-design-handoff-contract.md`](technical-design-handoff-contract.md).
 - **Review output:** structured suggestions with `lens`, `evidence`, `gate_ref`, `lesson_ref`, and
-  `decision_ref`.
+  `decision_ref`, including agreement-integrity findings when docs drift from approved inputs,
+  system model, structure, or diagrams.
 - **Enforcement output:** generated rules plus seeded violation evidence for every declared rule.
 
 ## Planning handoff preservation
@@ -34,11 +35,15 @@ Every methodology profile must preserve the planner-facing handoff contract, eve
 authoring vocabulary is not DDD. The profile must produce:
 
 - top-level `design_id`, `handoff_contract`, methodology, status, and round fields;
+- a selected `architecture_mode` and, when the profile requires it, methodology depth;
+- references to the approved `InputResolution`, `AgreedSystemModel`, and `DocStructurePlan` or
+  equivalent sections embedded in the design;
 - stable IDs for source references and planner-facing facts;
 - explicit context, boundary, invariant, API/surface, failure, observability, enforcement, and
   delivery-planning facts;
 - sequencing, dependency, file-contention, validation, and stop-condition facts;
-- review guidance that treats a blank, prose-only, or methodology-private handoff as blocking.
+- review guidance that treats missing approvals, unapproved entity/seam additions, blank handoffs,
+  prose-only handoffs, or methodology-private handoffs as blocking.
 
 The profile may add or rename methodology-specific sections, but Planning consumes the handoff
 contract rather than the profile's private concepts.

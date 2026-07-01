@@ -5,7 +5,7 @@ the recurring lessons that shape the gates. For *what & why*, see [`../product/`
 
 ## Lifecycle
 
-- [`flows.md`](flows.md) — the design lifecycle and the four entry flows (full, in-session,
+- [`flows.md`](flows.md) — the staged design lifecycle and the entry flows (full, in-session,
   existing-design review, orchestrated).
 
 ## Principles and ladders
@@ -21,8 +21,8 @@ the recurring lessons that shape the gates. For *what & why*, see [`../product/`
 ## Contracts and formats
 
 - [`technical-design-handoff-contract.md`](technical-design-handoff-contract.md) — the
-  planner-facing document format contract: required identity fields, stable IDs, handoff facts,
-  methodology-neutral preservation rules, and vacuous-handoff review guidance.
+  planner-facing document format contract: required pre-authoring approvals, identity fields, stable
+  IDs, handoff facts, methodology-neutral preservation rules, and vacuous-handoff review guidance.
 - [`methodology-profile-contract.md`](methodology-profile-contract.md) — the stable interface a
   methodology profile under `methodologies/` must satisfy.
 - [`decision-log-format.md`](decision-log-format.md) — the `decisions.md` disposition format.

@@ -6,13 +6,15 @@
 
 **Domain-correctness lens:** <summary>
 
+**Agreement-integrity lens:** <summary>
+
 **Over-engineering flags:** <none | list>
 
 **Under-engineering flags:** <none | list>
 
 | id | sev | lens | dimension | evidence | finding | proposed fix | gate | lesson |
 |---|---|---|---|---|---|---|---|---|
-| S-001 | blocking | architecture-enforceability | boundary | <section/source> | <finding> | <fix> | <gate_ref> | <lesson_ref> |
+| S-001 | blocking | agreement-integrity | system-model | <section/source> | <finding> | <fix> | <gate_ref> | <lesson_ref> |
 
 _Disposition_: reply per id with **fix / reject / defer (+reason)**. Dispositions are recorded in
 `decisions.md`; accepted fixes are applied through `author-technical-design` update mode.

@@ -3,6 +3,7 @@ design_id: user-profile-settings
 handoff_contract: technical-design-handoff-v0
 methodology: ddd
 methodology_version: "1"
+architecture_mode: system-entity-model
 design_status: settled
 ddd_depth: strategic-only
 round: 1
@@ -20,6 +21,7 @@ round: 1
 | Handoff contract | `technical-design-handoff-v0` |
 | Design title | User Profile Settings |
 | Status | Settled, ready for planning |
+| Architecture mode | `system-entity-model` |
 | Methodology profile | `ddd@1`, `strategic-only` depth |
 | Review round | 1 |
 
@@ -28,6 +30,7 @@ round: 1
 | ID | Type | Reference | Required for Planning | Notes |
 |---|---|---|---|---|
 | SRC-001 | brief | Feature brief | User-owned settings update scope and no new lifecycle or external integration. | Example fixture source. |
+| SRC-002 | design | `problem-frame.md` | Approved InputResolution, AgreedSystemModel, and DocStructurePlan for a single-doc design. | Example approval source. |
 
 ### Required Planning Facts
 
@@ -56,13 +59,41 @@ round: 1
 - **DDD-specific authoring detail:** the context map, language, invariant matrix, and delivery inputs
   below explain the DDD reasoning behind the handoff.
 
-## 2. Source and Context Audit
+## 2. Pre-Authoring Approval Record
+
+### InputResolution
+
+| Required input | Source evidence | Resolution | Owner / impact | Approval status |
+|---|---|---|---|---|
+| profile field ownership | SRC-001 | provided | Profile Settings owns editable profile fields | approved |
+| identity lifecycle | SRC-001 | provided | Identity provider lifecycle stays out of scope | approved |
+
+### AgreedSystemModel
+
+| Entity | Responsibilities | Owns | Reads | Does Not Own |
+|---|---|---|---|---|
+| Profile Settings | update editable profile fields and validation language | display/contact fields | authenticated user id | identity provider lifecycle, billing profile |
+
+| From | Relation | To | Notes |
+|---|---|---|---|
+| Route handler | calls | Profile Settings | application service owns validation and error mapping |
+
+### DocStructurePlan
+
+| File | Responsibility | Status |
+|---|---|---|
+| `technical-design.md` | single design overview and planning handoff | contract |
+| `decisions.md` | review dispositions | decision-log |
+
+**Structure approval status:** approved
+
+## 3. Source and Context Audit
 
 | Source | Used for | Notes |
 |---|---|---|
 | Feature brief | user-owned settings update scope | No new lifecycle or external integration. |
 
-## 3. Assumptions and Blockers
+## 4. Assumptions and Blockers
 
 ### Safe Assumptions
 - Email uniqueness remains enforced by the existing database constraint.
@@ -70,9 +101,14 @@ round: 1
 ### Blocking Questions
 - None.
 
-## 4. DDD Depth
+## 5. Architecture Mode and DDD Depth
+
+**Selected architecture_mode:** system-entity-model
 
 **Selected depth:** strategic-only
+
+**Why this mode is the first lens:** The main risk is keeping a small settings update inside the
+right entity and ownership boundary.
 
 **Why this depth is sufficient:** The work needs ownership and vocabulary clarity but no aggregate,
 domain event, or anti-corruption layer.
@@ -80,49 +116,53 @@ domain event, or anti-corruption layer.
 **Where deeper tactical ceremony is unnecessary:** User settings are updated by one authenticated
 actor in one transaction. A fake aggregate would add ceremony without protecting additional behavior.
 
-## 5. Context Map
+## 6. Context Map
 
 | Context | Owns | Reads | Does Not Own |
 |---|---|---|---|
 | Profile Settings | editable profile fields and validation language | authenticated user id | identity provider lifecycle, billing profile |
 
-## 6. Ubiquitous Language
+## 7. Ubiquitous Language
 
 | Term | Meaning | Owner |
 |---|---|---|
 | Profile settings | User-editable display and contact fields | Profile Settings |
 
-## 7. Domain Behavior
+## 8. Domain Behavior
 
 | Command / Use Case | Actor | Invariant guarded | Result |
 |---|---|---|---|
 | Update profile settings | Authenticated user | contact email remains unique and syntactically valid | profile row updated |
 
-## 8. Invariant and State Matrix
+## 9. Invariant and State Matrix
 
 | Invariant / Predicate | Source operands | Enforced by | Failure token |
 |---|---|---|---|
 | email is unique | requested email, existing user email index | persistence constraint plus service mapping | email-already-used |
 
-## 9. Ports, Adapters, and Public API
+## 10. Ports, Adapters, and Public API
 
 | Surface | Type | Owner | Consumers | Enforcement |
 |---|---|---|---|---|
 | updateProfileSettings | application service | Profile Settings | route handler | service test |
 
-## 10. Data, Query, and Consistency
+## 11. Data, Query, and Consistency
 
 - **Write model:** single database transaction.
 - **Read model:** profile read refreshes from primary storage.
 - **Consistency:** strong for the updated row.
 
-## 11. Failure, Observability, Migration, and Deploy
+## 12. Failure, Observability, Migration, and Deploy
 
 - **Failure modes:** invalid input, duplicate email, missing user.
 - **Observability:** existing request/error logs are sufficient.
 - **Migration/deploy:** none.
 
-## 12. Testing and Enforcement
+## 13. Diagrams
+
+None. The approved system model is a single service boundary; a diagram would not add clarity.
+
+## 14. Testing and Enforcement
 
 | Claim | Proof | Standing gate |
 |---|---|---|
@@ -137,7 +177,7 @@ actor in one transaction. A fake aggregate would add ceremony without protecting
 }
 ```
 
-## 13. Delivery Inputs
+## 15. Delivery Inputs
 
 - **Candidate story areas:** update profile settings service and route.
 - **Sequencing constraints:** none.
@@ -145,6 +185,6 @@ actor in one transaction. A fake aggregate would add ceremony without protecting
 - **Validation expectations:** unit test for validation and duplicate handling.
 - **Stop conditions:** stop if identity lifecycle or billing ownership is pulled into scope.
 
-## 14. Risks and Deferred Decisions
+## 16. Risks and Deferred Decisions
 
 - None.

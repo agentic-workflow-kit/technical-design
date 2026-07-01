@@ -10,17 +10,30 @@ Running the technical design runbook. Active methodology profile: `ddd`.
 
 Reading and applying `frame-technical-design`.
 
-*Result:* Created `problem-frame.md` with source map, context candidate, idempotency invariant,
-gateway integration, and initial `ddd_depth: ports-and-adapters`.
+*Result:* Created `problem-frame.md` with source map, `InputResolution`, `AgreedSystemModel`,
+`architecture_mode: lifecycle/state-machine`, initial `ddd_depth: ports-and-adapters`, and approval
+status.
 
-## Step 2: Author
+## Step 2: Structure
+
+Reading and applying `author-technical-design` through `DocStructurePlan`.
+
+*Result:* Proposed `technical-design.md` for the design contract and `decisions.md` for review
+dispositions. Structure approval required before durable docs.
+
+## Step 3: Author
 
 Reading and applying `author-technical-design`.
 
-*Result:* Created `technical-design.md` with DDD frontmatter, context map, ubiquitous language,
-invariant matrix, ports/adapters, enforcement map, delivery inputs, and seeded `decisions.md`.
+*Result:* Created `technical-design.md` with pre-authoring approval record, DDD frontmatter, context
+map, ubiquitous language, invariant matrix, ports/adapters, enforcement map, delivery inputs, and
+seeded `decisions.md`.
 
-## Step 3: Review Loop
+## Step 4: Diagrams
+
+Added one lifecycle diagram that only shows states already approved in `AgreedSystemModel`.
+
+## Step 5: Review Loop
 
 Reading and applying `review-technical-design`.
 

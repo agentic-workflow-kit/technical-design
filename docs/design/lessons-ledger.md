@@ -26,6 +26,9 @@ or eval. A lesson with no cover is an open production-readiness gap.
 | LSN-010 | Lessons captured as prose drift under pressure. | This ledger: every lesson must map to a gate, rubric item, rule, or eval. | covered |
 | LSN-011 | Reference anchors and evaluator wording can accidentally become hidden product requirements. | Case fixture validation requires expected facts and boundaries to cite visible `product.md` or `source-map.md` source refs; pointwise judges remain advisory until calibrated. | covered |
 | LSN-012 | Source-named aggregates or service candidates can be acknowledged in prose while still missing usable ownership rows. | Author skill and DDD template require explicit ownership treatment or an internal sub-boundary decision for each source-named aggregate/service candidate. | covered |
+| LSN-013 | A polished design can still be wrong if the agent never exposed the high-level system model for approval. | Flow contract: `AgreedSystemModel`; review lens: agreement integrity. | covered |
+| LSN-014 | A single large design document can become structurally wrong before anyone agrees what files should own. | Flow contract: `DocStructurePlan`; author skill requires approved docs structure before durable docs. | covered |
+| LSN-015 | Diagrams can smuggle in unapproved architecture changes. | Principles: diagrams explain, not decide; review lens: agreement integrity. | covered |
 
 ## Before adding a new lesson
 

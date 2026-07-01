@@ -4,7 +4,12 @@ This is the active v1 methodology profile for `technical-design`.
 
 ## Default stance
 
-Use DDD for every design at the strategic level:
+Use DDD for every design at the strategic level, but select `architecture_mode` before `ddd_depth`.
+For some designs the first useful model is a system-entity model, lifecycle/state machine,
+control-plane/runtime shape, ports/adapters seam, or contract/seam map. DDD then makes the resulting
+ownership, language, boundaries, and invariants explicit.
+
+Strategic DDD covers:
 
 - Bounded contexts and ownership.
 - Ubiquitous language.
@@ -28,6 +33,8 @@ When this profile is active, `author-technical-design` must produce:
 - DDD frontmatter: `methodology`, `methodology_version`, `design_status`, `ddd_depth`.
 - A `Planner Handoff Summary` that satisfies
   `docs/design/technical-design-handoff-contract.md`.
+- `InputResolution`, `AgreedSystemModel`, `architecture_mode`, and `DocStructurePlan` approval
+  evidence before durable design docs.
 - Source/context audit and assumptions/blockers.
 - Context map with owns/reads/does-not-own.
 - Ubiquitous language.

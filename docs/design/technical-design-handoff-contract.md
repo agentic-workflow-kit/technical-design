@@ -1,6 +1,6 @@
 # Technical-Design Handoff Contract
 
-This contract defines the design document surface that the future Planning layer consumes from
+This contract defines the design document surface that the Planning layer consumes from
 `technical-design`. It is methodology-neutral: DDD is the active authoring profile, but Planning must
 not need DDD internals to understand the approved design input.
 
@@ -12,7 +12,22 @@ additional methodology sections, and storage encoding may evolve as long as a do
 extract the same facts without interpreting methodology-specific prose.
 
 The canonical planner-facing section is `Planner Handoff Summary`. Methodology-specific sections may
-contain deeper reasoning, but the handoff summary is the contract surface.
+contain deeper reasoning, but the handoff summary is the contract surface. The handoff is not ready
+until the design records approval of the pre-authoring artifacts: `InputResolution`,
+`AgreedSystemModel`, and `DocStructurePlan`.
+
+## Required Pre-Authoring Artifacts
+
+Every design intended for Planning must preserve these artifacts as sections or referenced files:
+
+| Artifact | Required content |
+|---|---|
+| `InputResolution` | Required inputs classified as `provided`, `safe assumption`, `requires approval`, or `blocked`; approval decisions for any input that can change ownership, lifecycle, API scope, invariants, enforcement, or delivery slicing. |
+| `AgreedSystemModel` | Source inputs used, unresolved required inputs, high-level system entities, responsibilities per entity, relations, ownership/reads/does-not-own, seams and external boundaries, lifecycle/state terms, open questions, `architecture_mode`, initial methodology depth, and approval status. |
+| `DocStructurePlan` | Approved docs tree, responsibility of each file, why the shape fits the system model, what stays out, per-file status such as overview/stub/contract/decision-log/archive, and approval status. |
+
+Diagrams are optional. When present, they must trace to approved entities, flows, lifecycles, or
+boundaries and must not introduce architecture without a recorded decision.
 
 ## Required Top-Level Fields
 
@@ -24,6 +39,7 @@ Every design intended for Planning must include frontmatter with:
 | `handoff_contract` | Contract identifier. Current value: `technical-design-handoff-v0`. |
 | `methodology` | Authoring methodology profile, such as `ddd`. |
 | `methodology_version` | Version of the methodology profile used to author the design. |
+| `architecture_mode` | Primary framing lens selected before methodology depth. Current allowed values: `system-entity-model`, `lifecycle/state-machine`, `ports-and-adapters`, `control-plane/runtime`, `contract/seam design`, `strategic-ddd`, `tactical-ddd`. |
 | `design_status` | Lifecycle status, such as `draft`, `reviewed`, `approved`, or `superseded`. |
 | `round` | Review/update round number. |
 
@@ -79,8 +95,10 @@ The design must list the source material Planning may cite:
 |---|---|---|---|---|
 | `SRC-001` | `prd`, `brief`, `issue`, `source`, `design`, or `decision` | Path, URL, or stable artifact reference | What fact or constraint Planning must preserve | Optional context |
 
-When a future Product layer defines PRD and acceptance-criteria IDs, designs should cite those IDs
-here instead of inventing product identifiers locally.
+When Product layer PRD and acceptance-criteria IDs exist, designs should cite those IDs here instead
+of inventing product identifiers locally. The source references should also identify the approved
+`InputResolution`, `AgreedSystemModel`, `DocStructurePlan`, and decision-log entries that control the
+design.
 
 ### Required Planning Facts
 
@@ -137,8 +155,12 @@ make Planning learn that profile's private vocabulary to extract the required fa
 
 A design is not ready for Planning when:
 
+- `InputResolution`, `AgreedSystemModel`, or `DocStructurePlan` is missing, unapproved, or
+  contradicted by the authored docs;
 - required frontmatter fields are missing or inconsistent with the handoff identity;
 - a handoff section is blank, says only "see above", or contains broad prose with no stable IDs;
+- authored sections introduce new entities, seams, lifecycle states, diagrams, or planner facts that
+  are not in the approved system model or recorded as accepted decisions;
 - any `DEL-*` story area lacks source, boundary, validation, or stop-condition references;
 - enforcement claims omit a standing gate, seeded violation, or manual-only rationale;
 - validation expectations are only "run tests" without naming the command or evidence class;
