@@ -82,11 +82,13 @@ For each issue, create a suggestion matching `templates/suggestion.schema.json`.
 
 Required fields include:
 
+- `title`: short human-readable summary for reports and dispositions;
 - `lens`: `architecture-enforceability`, `domain-correctness`, or `agreement-integrity`;
 - `evidence`: design section, source artifact, or code surface;
 - `gate_ref`: rubric, gate, enforcement rule, or standing check that should catch recurrence;
 - `lesson_ref`: lesson id from `docs/design/lessons-ledger.md` when applicable;
-- `decision_ref`: empty until user disposition.
+- `status`: `open` when the suggestion is created;
+- `decision_ref`: `""` until user disposition, then the `D-###` decision entry.
 
 Always populate over-engineering and under-engineering flags, even when empty.
 
@@ -97,7 +99,8 @@ Render `templates/review-report.md`. The report must show:
 - verdict: `settled` or open counts;
 - all three review lenses;
 - over/under-engineering flags;
-- suggestion table;
+- suggestion table with each required schema field needed for human disposition, including `title`,
+  `status`, and `decision_ref`;
 - disposition instruction.
 
 Do not edit the design. Wait for the user's `fix`, `reject`, or `defer` disposition with rationale.

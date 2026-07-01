@@ -63,8 +63,10 @@ Recommended findings:
 
 Every suggestion must include:
 
+- `title`: short human-readable summary for reports and dispositions.
 - `lens`: `architecture-enforceability`, `domain-correctness`, or `agreement-integrity`.
 - `evidence`: design section, source artifact, or source surface that supports the finding.
 - `gate_ref`: the gate, rubric item, or enforcement rule that would catch recurrence.
 - `lesson_ref`: a lesson id when the finding maps to `docs/design/lessons-ledger.md`.
-- `decision_ref`: blank until the user disposes the suggestion.
+- `status`: `open` when created.
+- `decision_ref`: `""` until the user disposes the suggestion, then the `D-###` decision entry.

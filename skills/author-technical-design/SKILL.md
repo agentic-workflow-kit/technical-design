@@ -15,7 +15,7 @@ draft-only pass.
 
 - Active methodology profile: `../../methodologies/ddd/README.md`
 - Planner handoff contract: `../../docs/design/technical-design-handoff-contract.md`
-- Main DDD template: `../../methodologies/ddd/templates/technical-design.md`
+- Canonical DDD design template: `../../methodologies/ddd/templates/technical-design.md`
 - Bounded context template: `../../methodologies/ddd/templates/bounded-context.md`
 - Enforcement map template: `../../methodologies/ddd/templates/enforcement-map.md`
 - Docs structure template: `templates/design-doc-structure.md`
@@ -97,7 +97,9 @@ omitted.
 
 ## Step 5 - Draft the design
 
-Use the DDD template. The design must include:
+Use the canonical DDD design template from `../../methodologies/ddd/templates/technical-design.md`.
+The skill-local `templates/design-doc.md` file is only an alias to that canonical template. The design
+must include:
 
 1. Frontmatter: `design_id`, `handoff_contract: technical-design-handoff-v0`,
    `methodology: ddd`, `methodology_version`, `architecture_mode`, `design_status`, `ddd_depth`,
