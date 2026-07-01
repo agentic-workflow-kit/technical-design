@@ -4,7 +4,7 @@ What `technical-design` is, where it sits in the suite, and when to reach for it
 
 ## What it is
 
-`technical-design` is the **design stage** of the agentic-workflow-kit suite. It packages the
+`technical-design` is a self-contained pack of AI skills and supporting evaluation tools for technical design. It is designed to be highly effective on its own as an independent plugin, and it doubles as the **design stage** of the agentic-workflow-kit suite. It packages the
 discipline a strong model does not reliably apply by itself: source-grounded input resolution,
 human-approved system modeling, DDD-first authoring, review as a recorded decision loop, and
 architectural boundaries made enforceable in CI.

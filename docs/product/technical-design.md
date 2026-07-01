@@ -7,7 +7,7 @@ status: v0
 
 This is the product definition for **technical-design the tool** — the authoritative source of its requirements, acceptance criteria, constraints, assumptions, and non-goals. The [product overview](./README.md) narrates the _what and why_ for readers; this PRD is what the design step reconciles to.
 
-**Product identity.** technical-design is a self-contained pack of AI skills and supporting evaluation tools for technical design. It is meant to be useful **on its own**, for anyone who needs to author and review software designs, and as the **Design layer** of the agentic-workflow-kit suite — in both cases producing design documents that conform to the [technical-design-handoff-contract](../design/technical-design-handoff-contract.md).
+**Product identity.** technical-design is a self-contained pack of AI skills and supporting evaluation tools for technical design. It is meant to be useful two ways: **on its own as an independent plugin**, for anyone who needs to author and review software designs, and as the **Design layer** of the agentic-workflow-kit suite — in both cases producing design documents that conform to the [technical-design-handoff-contract](../design/technical-design-handoff-contract.md).
 
 ## Product Outcome
 

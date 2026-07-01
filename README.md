@@ -3,8 +3,7 @@
 A self-contained set of AI skills for technical design: **resolve** required inputs, **agree** the
 high-level system model, **plan** the design document structure, **author** a DDD-first design,
 **review** it in a decision-recording loop, **enforce** its boundaries in CI, and **orchestrate** the
-whole flow. It stands alone today and is shaped so it can slot into the agentic-workflow-kit suite as
-the design stage.
+whole flow. It is fully functional as an independent plugin and is also shaped to slot seamlessly into the agentic-workflow-kit suite as the design stage.
 
 The framework is **methodology-neutral** at its shell and **DDD-first** in v1. The active methodology
 profile is `methodologies/ddd/`: every design uses strategic DDD vocabulary such as bounded
